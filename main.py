@@ -10,9 +10,9 @@ logger = logging.getLogger(__name__)
 
 
 @functions_framework.http
-def get_investment_oportunities(_request: Request) -> Response:
+def get_investment_opportunities(_request: Request) -> Response:
     """
-    Gets a list of good investment oportunities.
+    Gets a list of good investment opportunities.
     """
     funding_requests = get_funding_requests()
     result = [funding_request.dict() for funding_request in funding_requests]
@@ -20,9 +20,9 @@ def get_investment_oportunities(_request: Request) -> Response:
 
 
 @functions_framework.http
-def count_investment_oportunities(_request: Request) -> Response:
+def count_investment_opportunities(_request: Request) -> Response:
     """
-    Returns the total amount of good investment oportunities.
+    Returns the total amount of good investment opportunities.
     """
     funding_requests = get_funding_requests()
     return make_response({"count": len(funding_requests)}, 200)

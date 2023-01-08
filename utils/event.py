@@ -3,7 +3,7 @@ import json
 from flask import Request
 
 
-def get_investment_oportunities_context(request: Request) -> tuple[int, float, int]:
+def get_investment_opportunities_context(request: Request) -> tuple[int, float, int]:
     """
     Gets the min profit rate, min borrower score and max deliquent days
     """
