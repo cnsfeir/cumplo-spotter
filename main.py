@@ -2,7 +2,7 @@ import json
 import logging
 
 import functions_framework
-from flask import Request, Response
+from flask import Request, Response, make_response
 
 from integrations.cumplo import get_funding_requests
 
@@ -17,7 +17,5 @@ def get_investment_oportunities(request: Request) -> Response:
     """
     data = json.loads(request.data)
     funding_requests = get_funding_requests(**data)
-    for funding_request in funding_requests:
-        print(funding_request)
-
-    return Response(status=200)
+    result = [funding_request.dict() for funding_request in funding_requests]
+    return make_response(result, 200)
