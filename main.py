@@ -19,13 +19,3 @@ def get_investment_opportunities(_request: Request) -> Response:
     funding_requests = get_funding_requests()
     result = [funding_request.dict() for funding_request in funding_requests]
     return make_response(result, 200)
-
-
-@authenticate
-@functions_framework.http
-def count_investment_opportunities(_request: Request) -> Response:
-    """
-    Returns the total amount of good investment opportunities.
-    """
-    funding_requests = get_funding_requests()
-    return make_response({"count": len(funding_requests)}, 200)
