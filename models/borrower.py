@@ -35,7 +35,7 @@ class Borrower(BaseModel):
     funding_requests_paid_count: int = Field(..., alias="fundingRequestsPaidCount")
     instalments_paid_in_time: int = Field(..., alias="instalmentsCapitalPaidInTime")
     instalments_paid_percentage: int | None = Field(None, alias="instalmentsPaidPercentage")
-    credit_history: CreditHistory | None = Field(None)
+    history: CreditHistory | None = Field(None)
 
     def export_total_requested(self) -> str:
         """Formats the total requested amount"""

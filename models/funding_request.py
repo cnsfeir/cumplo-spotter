@@ -17,9 +17,9 @@ class CreditType(str, Enum):
 
 class FundingRequest(BaseModel):
     id: int = Field(...)
-    dac: str = Field(...)
     tir: float = Field(...)
     amount: int = Field(...)
+    score: float = Field(..., alias="dac")
     duration: FundingRequestDuration = Field(...)
     credit_type: str = Field(..., alias="creditType")
     borrower: Borrower = Field(..., alias="requestable")

@@ -9,8 +9,16 @@ from bs4.element import Tag
 from dotenv import load_dotenv
 
 from models.borrower import CreditHistory
+from models.filter import (
+    AvailableFilter,
+    DicomFilter,
+    DurationUnitFilter,
+    Filter,
+    MonthlyProfitFilter,
+    NotificationFilter,
+    ScoreFilter,
+)
 from models.funding_request import FundingRequest
-from models.request_duration import DurationUnit
 
 load_dotenv()
 logger = getLogger(__name__)
@@ -27,19 +35,29 @@ CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 
 def get_funding_requests() -> list[FundingRequest]:
     """
-    Gets all the available funding requests from the Cumplo API.
+    Gets all the GOOD available funding requests from the Cumplo API.
     """
-    logger.debug("Getting all the available funding requests")
-    return run(gather_full_funding_requests())
+    funding_requests = get_available_funding_requests()
+
+    filters = [AvailableFilter(), ScoreFilter(), MonthlyProfitFilter(), DurationUnitFilter()]
+    funding_requests = _filter_funding_requests(funding_requests, *filters)
+    logger.info(f"Found {len(funding_requests)} available funding requests")
+
+    funding_requests = run(gather_full_funding_requests(funding_requests))
+
+    filters = [DicomFilter(), NotificationFilter()]
+    funding_requests = _filter_funding_requests(funding_requests, *filters)
+
+    funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
+    logger.debug(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
+
+    return funding_requests
 
 
-async def gather_full_funding_requests() -> list[FundingRequest]:
+async def gather_full_funding_requests(funding_requests: list[FundingRequest]) -> list[FundingRequest]:
     """
     Gathers all the information and returns all the available funding requests.
     """
-    funding_requests = get_available_funding_requests()
-    logger.info(f"Found {len(funding_requests)} available funding requests")
-
     tasks = []
     async with ClientSession() as session:
         for funding_request in funding_requests:
@@ -48,7 +66,23 @@ async def gather_full_funding_requests() -> list[FundingRequest]:
         logger.info(f"Gathering {len(tasks)} credit history responses...")
         credit_histories = await gather(*tasks)
         for funding_request, credit_history in zip(funding_requests, credit_histories):
-            funding_request.borrower.credit_history = credit_history
+            funding_request.borrower.history = credit_history
+
+    return funding_requests
+
+
+def get_available_funding_requests() -> list[FundingRequest]:
+    """
+    Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
+    """
+    logger.debug("Getting funding requests from Cumplo API")
+
+    payload = _build_all_funding_requests_query()
+    response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
+    results = response.json()["data"]["fundingRequests"]["results"]
+
+    funding_requests = [FundingRequest(**result) for result in results]
+    logger.info(f"Found {len(funding_requests)} funding requests")
 
     return funding_requests
 
@@ -74,35 +108,19 @@ async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory:
 
 def _extract_history_data(element: Tag) -> str:
     """
-    Returns the data from a given element from the "credit history" section
-    with the form "title: data"
+    Returns the data from a given element from the "credit history" section with the form "title: data"
     """
     return element.get_text().replace("\n", "").replace("%(*)", "").split(":")[-1].strip()
 
 
-def get_available_funding_requests() -> list[FundingRequest]:
+def _filter_funding_requests(funding_requests: list[FundingRequest], *filters: Filter) -> list[FundingRequest]:
     """
-    Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
+    Filters the funding requests that don't meet the minimum requirements
     """
-    logger.debug("Getting funding requests from Cumplo API")
+    logger.debug(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
+    funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
 
-    payload = _build_all_funding_requests_query()
-    response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
-    results = response.json()["data"]["fundingRequests"]["results"]
-
-    funding_requests = [FundingRequest(**result) for result in results]
-    logger.info(f"Found {len(funding_requests)} funding requests")
-
-    funding_requests = list(filter(lambda x: not x.is_completed, funding_requests))
-    logger.info(f"Found COMPLETED {len(funding_requests)} funding requests")
-
-    # TODO: Remove this filter once we can monthly profit rate for funding requests with duration type MONTH
-    funding_requests = list(filter(lambda x: x.duration.unit != DurationUnit.MONTH, funding_requests))
-    logger.info("Filtered funding requests with duration type MONTH")
-
-    funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
-    logger.debug(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
-
+    logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
     return funding_requests
 
 
