@@ -4,11 +4,13 @@ import functions_framework
 from flask import Request, Response, make_response
 
 from integrations.cumplo import get_funding_requests
+from middlewares.authentication import authenticate
 
 logging.basicConfig(level=logging.DEBUG, format="\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s")
 logger = logging.getLogger(__name__)
 
 
+@authenticate
 @functions_framework.http
 def get_investment_opportunities(_request: Request) -> Response:
     """
@@ -19,6 +21,7 @@ def get_investment_opportunities(_request: Request) -> Response:
     return make_response(result, 200)
 
 
+@authenticate
 @functions_framework.http
 def count_investment_opportunities(_request: Request) -> Response:
     """
