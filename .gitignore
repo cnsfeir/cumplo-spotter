@@ -246,4 +246,8 @@ ghostdriver.log
 # Webdriver Manager
 .wdm
 
+# Google Credentials
+credentials.json
+
+
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocodeß
