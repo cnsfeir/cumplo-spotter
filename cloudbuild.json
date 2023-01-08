@@ -1,0 +1,19 @@
+{
+  "steps": [
+  {
+      "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
+      "args": [
+        "gcloud",
+        "functions",
+        "deploy",
+        "get_investment_opportunities",
+        "--region=us-central1",
+        "--runtime",
+        "python310",
+        "--entry-point",
+        "get_investment_opportunities",
+        "--source=."
+      ]
+    }
+  ]
+}
