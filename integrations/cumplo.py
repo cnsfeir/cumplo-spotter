@@ -1,6 +1,6 @@
 import os
 from asyncio import ensure_future, gather, run
-from logging import getLogger
+from logging import CRITICAL, getLogger
 
 import requests
 from aiohttp import ClientSession
@@ -14,6 +14,11 @@ from models.request_duration import DurationUnit
 
 load_dotenv()
 logger = getLogger(__name__)
+
+getLogger("asyncio").setLevel(CRITICAL)
+getLogger("werkzeug").setLevel(CRITICAL)
+getLogger("urllib3.connectionpool").setLevel(CRITICAL)
+
 
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
 DICOM_STRING = os.getenv("DICOM_STRING", "CLIENTE CON DICOM")
