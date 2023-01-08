@@ -1,4 +1,3 @@
-import json
 import logging
 
 import functions_framework
@@ -11,11 +10,19 @@ logger = logging.getLogger(__name__)
 
 
 @functions_framework.http
-def get_investment_oportunities(request: Request) -> Response:
+def get_investment_oportunities(_request: Request) -> Response:
     """
-    Gets a list of investment oportunities and sends it to the user via email
+    Gets a list of good investment oportunities.
     """
-    data = json.loads(request.data)
-    funding_requests = get_funding_requests(**data)
+    funding_requests = get_funding_requests()
     result = [funding_request.dict() for funding_request in funding_requests]
     return make_response(result, 200)
+
+
+@functions_framework.http
+def count_investment_oportunities(_request: Request) -> Response:
+    """
+    Returns the total amount of good investment oportunities.
+    """
+    funding_requests = get_funding_requests()
+    return make_response({"count": len(funding_requests)}, 200)
