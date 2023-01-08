@@ -233,7 +233,7 @@ dill==0.3.6 \
 firebase-admin==6.0.1; python_version >= "3.7" \
     --hash=sha256:1f903d8c9e353af8027c3c237696d98f8e77ad4e38025528be0c522dee037317 \
     --hash=sha256:7de3fc7b8bf7722cd8d127f7162d060c7ffd270e69794bcec2cc1d571fb80b45
-flask==2.2.2; python_version >= "3.7" and python_version < "4" \
+flask==2.2.2; python_version >= "3.7" \
     --hash=sha256:b9c46cc36662a7949f34b52d8ec7bb59c0d74ba08ba6cb9ce9adc1d8676d9526 \
     --hash=sha256:642c450d19c4ad482f96729bd2a8f6d32554aa1e231f4f6b4e7e5264b16cca2b
 frozenlist==1.3.3; python_version >= "3.7" \
