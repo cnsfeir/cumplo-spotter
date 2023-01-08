@@ -1,0 +1,26 @@
+[MAIN]
+
+py-version=3.10
+init-hook='import sys; sys.path.append("./")'
+
+disable=
+  logging-fstring-interpolation,
+  missing-module-docstring,
+  missing-class-docstring,
+  no-name-in-module,
+  missing-timeout
+
+load-plugins=
+  pylint.extensions.redefined_variable_type,
+  pylint.extensions.check_elif,
+  pylint.extensions.code_style,
+  pylint.extensions.typing,
+
+[FORMAT]
+
+max-line-length=120
+
+[TYPECHECK]
+
+ignored-modules=
+  psycopg2.errors

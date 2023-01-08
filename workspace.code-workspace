@@ -1,0 +1,86 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+  ],
+  "settings": {
+    // General
+    "editor.suggestSelection": "first",
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [80, 120],
+    "editor.tabSize": 4,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+  
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2,
+      "editor.formatOnSave": true
+    },
+
+    "[python]": {
+      "editor.defaultFormatter": "ms-python.black-formatter",
+      "files.trimTrailingWhitespace": true,
+      "files.insertFinalNewline": true,
+      "files.trimFinalNewlines": true,
+      "editor.formatOnSave": true
+    },
+
+    // Native type hints
+    "python.analysis.typeCheckingMode": "off",
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+
+    // PyLint
+    "python.linting.pylintEnabled": true,
+
+    // MyPy
+    "python.linting.mypyEnabled": true,
+    "mypy.runUsingActiveInterpreter": true,
+    "python.linting.mypyArgs": ["--config-file=mypy.ini"],
+
+    // Flake8
+    "python.linting.flake8Enabled": true,
+
+    // Black
+    "python.formatting.provider": "black",
+    "black-formatter.args": ["--line-length=120"],
+    "python.formatting.blackArgs": ["--line-length=120"],
+
+    // Debugger
+    "launch": {
+      "configurations": [],
+      "compounds": []
+    },
+
+    // Locales
+    "i18n-ally.displayLanguage": "es",
+    "i18n-ally.keystyle": "nested",
+    "i18n-ally.localesPaths": ["src/locales"],
+
+    // Removes git warning at startup
+    "git.detectSubmodulesLimit": 9999,
+    "git.branchProtection": ["master", "main", "development"],
+
+    // Removes Makefile warning at startup
+    "makefile.extensionOutputFolder": "./.vscode"
+  },
+  "extensions": {
+    "recommendations": [
+      // Common
+      "usernamehw.errorlens",
+      "eamodio.gitlens",
+      // Python
+      "SonarSource.sonarlint-vscode",
+      "ms-python.black-formatter",
+      "ms-python.vscode-pylance",
+      "ms-python.python",
+      "matangover.mypy"
+    ]
+  }
+}
+    
