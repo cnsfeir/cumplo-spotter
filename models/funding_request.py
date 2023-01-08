@@ -3,7 +3,6 @@
 from enum import Enum
 from math import ceil
 
-from babel.numbers import format_currency
 from pydantic import BaseModel, Field
 
 from models.borrower import Borrower
@@ -13,7 +12,7 @@ from models.request_duration import FundingRequestDuration
 
 class CreditType(str, Enum):
     INVOICE = "invoice"
-    IRRIGATION = "irrigation"  # NOTE: This refers to a payment extension
+    IRRIGATION = "irrigation"
 
 
 class FundingRequest(BaseModel):
@@ -45,13 +44,3 @@ class FundingRequest(BaseModel):
     def monthly_profit(self, amount: int) -> int:
         """Calculates the monthly profit for a given amount"""
         return ceil(self.monthly_profit_rate * amount)
-
-    def __str__(self) -> str:
-        return f"""
-        FundingRequest(
-            id: {self.id},
-            duration: {self.duration},
-            amount: {format_currency(self.amount, currency="CLP", locale="es_CL")},
-            monthly_profit_rate: {self.monthly_profit_rate:.2%}
-            borrower: {self.borrower}
-        )"""
