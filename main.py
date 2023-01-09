@@ -24,6 +24,6 @@ def get_investment_opportunities(_request: Request) -> Response:
     result = {
         "total": len(funding_requests),
         "ids": [funding_request.id for funding_request in funding_requests],
-        "opportunities": [funding_request.dict() for funding_request in funding_requests],
+        "opportunities": [funding_request.serialized() for funding_request in funding_requests],
     }
     return make_response(result, 200)
