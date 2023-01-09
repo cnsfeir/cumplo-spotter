@@ -1,4 +1,5 @@
 import logging
+import os
 
 import functions_framework
 from flask import Request, Response, make_response
@@ -6,7 +7,10 @@ from flask import Request, Response, make_response
 from integrations.cumplo import get_funding_requests
 from middlewares.authentication import authenticate
 
-logging.basicConfig(level=logging.DEBUG, format="\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s")
+IS_TESTING = bool(os.getenv("IS_TESTING"))
+
+FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
+logging.basicConfig(level=logging.DEBUG, format=FORMAT)
 logger = logging.getLogger(__name__)
 
 
