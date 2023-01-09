@@ -34,22 +34,15 @@ class FirestoreClient(metaclass=Singleton):
     Singleton class that initializes and returns a Firestore client
     """
 
-    notifications: dict[int, Notification] | None = None
-
     def __init__(self) -> None:
         firebase_credentials = credentials.ApplicationDefault()
         initialize_app(firebase_credentials, {"projectId": PROJECT_ID})
         self.client = firestore.client()
-        self.notifications = self.get_notifications()
 
     def get_notifications(self) -> dict[int, Notification]:
         """
         Gets the dictionary of funding requests that have already been notified
         """
-        if self.notifications:
-            logger.info("Notifications already loaded.")
-            return self.notifications
-
         logger.info("Getting notifications from Firestore...")
         notifications = self.client.collection("notifications").stream()
         return {int(n.id): Notification(id=int(n.id), **n.to_dict()) for n in notifications}

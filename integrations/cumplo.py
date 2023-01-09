@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 from dotenv import load_dotenv
 
+from integrations.firestore import firestore_client
 from models.borrower import CreditHistory
 from models.filter import (
     AvailableFilter,
@@ -19,6 +20,7 @@ from models.filter import (
     ScoreFilter,
 )
 from models.funding_request import FundingRequest
+from models.request_duration import DurationUnit
 
 load_dotenv()
 logger = getLogger(__name__)
@@ -26,9 +28,12 @@ logger = getLogger(__name__)
 getLogger("asyncio").setLevel(CRITICAL)
 getLogger("werkzeug").setLevel(CRITICAL)
 getLogger("urllib3.connectionpool").setLevel(CRITICAL)
+getLogger("google.auth.transport.requests").setLevel(CRITICAL)
 
 
+MIN_SCORE = float(os.getenv("MIN_SCORE", "3.5"))
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
+MIN_MONTHLY_PROFIT = float(os.getenv("MIN_MONTHLY_PROFIT", "1.5"))
 DICOM_STRING = os.getenv("DICOM_STRING", "CLIENTE CON DICOM")
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 
@@ -38,14 +43,23 @@ def get_funding_requests() -> list[FundingRequest]:
     Gets all the GOOD available funding requests from the Cumplo API.
     """
     funding_requests = get_available_funding_requests()
+    notifications = firestore_client.get_notifications()
 
-    filters = [AvailableFilter(), ScoreFilter(), MonthlyProfitFilter(), DurationUnitFilter()]
+    filters = [
+        AvailableFilter(notifications),
+        ScoreFilter(MIN_SCORE),
+        MonthlyProfitFilter(MIN_MONTHLY_PROFIT),
+        DurationUnitFilter(DurationUnit.MONTH),  # TODO: Figure out how to compare days and months to remove this filter
+    ]
     funding_requests = _filter_funding_requests(funding_requests, *filters)
     logger.info(f"Found {len(funding_requests)} available funding requests")
 
     funding_requests = run(gather_full_funding_requests(funding_requests))
 
-    filters = [DicomFilter(), NotificationFilter()]
+    filters = [
+        DicomFilter(),
+        NotificationFilter(notifications),
+    ]
     funding_requests = _filter_funding_requests(funding_requests, *filters)
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
