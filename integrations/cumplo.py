@@ -21,6 +21,7 @@ from models.filter import (
 )
 from models.funding_request import FundingRequest
 from models.request_duration import DurationUnit
+from utils.text import clean_text
 
 load_dotenv()
 logger = getLogger(__name__)
@@ -34,7 +35,7 @@ getLogger("google.auth.transport.requests").setLevel(CRITICAL)
 MIN_SCORE = float(os.getenv("MIN_SCORE", "3.5"))
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
 MIN_MONTHLY_PROFIT = float(os.getenv("MIN_MONTHLY_PROFIT", "1.5"))
-DICOM_STRING = os.getenv("DICOM_STRING", "CLIENTE CON DICOM")
+DICOM_STRING = os.getenv("DICOM_STRING", "CON DICOM")
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 
 
@@ -116,7 +117,7 @@ async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory:
         return CreditHistory(
             average_deliquent_days=_extract_history_data(history[0]),
             paid_in_time=_extract_history_data(history[1]),
-            dicom=DICOM_STRING in soup.get_text().upper(),
+            dicom=DICOM_STRING in clean_text(soup.get_text()),
         )
 
 
