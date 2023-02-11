@@ -7,6 +7,7 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from dotenv import load_dotenv
+from retry import retry
 
 from integrations.firestore import firestore_client
 from models.borrower import CreditHistory
@@ -86,6 +87,7 @@ async def gather_full_funding_requests(funding_requests: list[FundingRequest]) -
     return funding_requests
 
 
+@retry(KeyError, tries=5, delay=1)
 def get_available_funding_requests() -> list[FundingRequest]:
     """
     Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
