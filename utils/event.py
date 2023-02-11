@@ -9,5 +9,7 @@ def get_configuration(request: Request) -> Configuration:
     """
     Gets the configuration from the request.
     """
-    data = json.loads(request.data)
-    return Configuration(**data)
+    if data := request.data:
+        return Configuration(**json.loads(data))
+
+    return Configuration()
