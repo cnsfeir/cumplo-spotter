@@ -2,10 +2,12 @@ import json
 
 from flask import Request
 
+from models.configuration import Configuration
 
-def get_investment_opportunities_context(request: Request) -> tuple[int, float, int]:
+
+def get_configuration(request: Request) -> Configuration:
     """
-    Gets the min profit rate, min borrower score and max deliquent days
+    Gets the configuration from the request.
     """
     data = json.loads(request.data)
-    return data["max_profit_rate"], data["min_borrower_score"], data["max_deliquent_days"]
+    return Configuration(**data)

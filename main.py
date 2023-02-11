@@ -6,6 +6,7 @@ from flask import Request, Response, make_response
 
 from integrations.cumplo import get_funding_requests
 from middlewares.authentication import authenticate
+from utils.event import get_configuration
 
 IS_TESTING = bool(os.getenv("IS_TESTING"))
 
@@ -16,11 +17,12 @@ logger = logging.getLogger(__name__)
 
 @authenticate
 @functions_framework.http
-def get_investment_opportunities(_request: Request) -> Response:
+def get_investment_opportunities(request: Request) -> Response:
     """
     Gets a list of good investment opportunities.
     """
-    funding_requests = get_funding_requests()
+    configuration = get_configuration(request)
+    funding_requests = get_funding_requests(configuration)
     result = {
         "total": len(funding_requests),
         "ids": [funding_request.id for funding_request in funding_requests],
