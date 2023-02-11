@@ -8,7 +8,7 @@ logger = getLogger(__name__)
 app = Flask(__name__)
 
 
-@app.route("/investment_opportunities")
+@app.route("/investment_opportunities", methods=["POST"])
 def test_get_investment_opportunities() -> Response:
     """
     [Endpoint for local development]

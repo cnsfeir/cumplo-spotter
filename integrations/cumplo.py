@@ -11,6 +11,7 @@ from retry import retry
 
 from integrations.firestore import firestore_client
 from models.borrower import CreditHistory
+from models.configuration import Configuration
 from models.filter import (
     AvailableFilter,
     DicomFilter,
@@ -29,6 +30,7 @@ logger = getLogger(__name__)
 
 getLogger("asyncio").setLevel(CRITICAL)
 getLogger("werkzeug").setLevel(CRITICAL)
+getLogger("fsevents").setLevel(CRITICAL)
 getLogger("urllib3.connectionpool").setLevel(CRITICAL)
 getLogger("google.auth.transport.requests").setLevel(CRITICAL)
 
@@ -40,7 +42,7 @@ DICOM_STRING = os.getenv("DICOM_STRING", "CON DICOM")
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 
 
-def get_funding_requests() -> list[FundingRequest]:
+def get_funding_requests(configuration: Configuration) -> list[FundingRequest]:
     """
     Gets all the GOOD available funding requests from the Cumplo API.
     """
@@ -58,11 +60,9 @@ def get_funding_requests() -> list[FundingRequest]:
 
     funding_requests = run(gather_full_funding_requests(funding_requests))
 
-    filters = [
-        DicomFilter(),
-        NotificationFilter(notifications),
-    ]
-    funding_requests = _filter_funding_requests(funding_requests, *filters)
+    funding_requests = _filter_funding_requests(funding_requests, DicomFilter())
+    if configuration.filter_notified:
+        funding_requests = _filter_funding_requests(funding_requests, NotificationFilter(notifications))
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
     logger.debug(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
