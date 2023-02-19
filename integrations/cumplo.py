@@ -1,6 +1,6 @@
 import os
 from asyncio import ensure_future, gather, run
-from logging import CRITICAL, getLogger
+from logging import getLogger
 
 import requests
 from aiohttp import ClientSession
@@ -28,18 +28,13 @@ from utils.text import clean_text
 load_dotenv()
 logger = getLogger(__name__)
 
-getLogger("asyncio").setLevel(CRITICAL)
-getLogger("werkzeug").setLevel(CRITICAL)
-getLogger("fsevents").setLevel(CRITICAL)
-getLogger("urllib3.connectionpool").setLevel(CRITICAL)
-getLogger("google.auth.transport.requests").setLevel(CRITICAL)
-
 
 MIN_SCORE = float(os.getenv("MIN_SCORE", "3.5"))
+DICOM_STRING = os.getenv("DICOM_STRING", "CON DICOM")
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
 MIN_MONTHLY_PROFIT = float(os.getenv("MIN_MONTHLY_PROFIT", "1.5"))
-DICOM_STRING = os.getenv("DICOM_STRING", "CON DICOM")
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
+CREDIT_DETAIL_TITLE = os.getenv("CREDIT_DETAIL_TITLE", "INFORMACION DEL CREDITO")
 
 
 def get_funding_requests(configuration: Configuration) -> list[FundingRequest]:
@@ -84,6 +79,8 @@ async def gather_full_funding_requests(funding_requests: list[FundingRequest]) -
         for funding_request, credit_history in zip(funding_requests, credit_histories):
             funding_request.borrower.history = credit_history
 
+    funding_requests = list(filter(lambda x: x.borrower.history, funding_requests))
+    logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
 
 
@@ -104,7 +101,7 @@ def get_available_funding_requests() -> list[FundingRequest]:
     return funding_requests
 
 
-async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory:
+async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory | None:
     """
     Queries the Cumplo API and returns the credit history data from a given funding request's payer
     """
@@ -113,13 +110,17 @@ async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory:
         text = await response.text()
         soup = BeautifulSoup(text, "html.parser")
 
+        if CREDIT_DETAIL_TITLE not in (content := clean_text(soup.get_text())):
+            logger.warning(f"Couldn't get credit history from funding request {id_}")
+            return None
+
         logger.debug(f"Extracting credit history from funding request {id_} response")
         history = soup.select("span.loan-view-optional-visibility + span")
 
         return CreditHistory(
             average_deliquent_days=_extract_history_data(history[0]),
             paid_in_time=_extract_history_data(history[1]),
-            dicom=DICOM_STRING in clean_text(soup.get_text()),
+            dicom=DICOM_STRING in content,
         )
 
 

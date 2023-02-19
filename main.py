@@ -1,5 +1,5 @@
-import logging
 import os
+from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import functions_framework
 from flask import Request, Response, make_response
@@ -11,8 +11,16 @@ from utils.event import get_configuration
 IS_TESTING = bool(os.getenv("IS_TESTING"))
 
 FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
-logging.basicConfig(level=logging.DEBUG, format=FORMAT)
-logger = logging.getLogger(__name__)
+basicConfig(level=DEBUG, format=FORMAT)
+logger = getLogger(__name__)
+
+
+getLogger("google").setLevel(CRITICAL)
+getLogger("urllib3").setLevel(CRITICAL)
+getLogger("asyncio").setLevel(CRITICAL)
+getLogger("fsevents").setLevel(CRITICAL)
+getLogger("werkzeug").setLevel(CRITICAL)
+getLogger("charset_normalizer").setLevel(CRITICAL)
 
 
 @authenticate
