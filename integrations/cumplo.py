@@ -1,6 +1,6 @@
 import os
 from asyncio import ensure_future, gather, run
-from logging import CRITICAL, getLogger
+from logging import getLogger
 
 import requests
 from aiohttp import ClientSession
@@ -27,12 +27,6 @@ from utils.text import clean_text
 
 load_dotenv()
 logger = getLogger(__name__)
-
-getLogger("asyncio").setLevel(CRITICAL)
-getLogger("werkzeug").setLevel(CRITICAL)
-getLogger("fsevents").setLevel(CRITICAL)
-getLogger("urllib3.connectionpool").setLevel(CRITICAL)
-getLogger("google.auth.transport.requests").setLevel(CRITICAL)
 
 
 MIN_SCORE = float(os.getenv("MIN_SCORE", "3.5"))
