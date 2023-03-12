@@ -40,12 +40,12 @@ As mentioned before, the factors used for filtering the available investment opp
 |`irr`|`float`|The minimum internal rate or return|
 |`monthly_profit_rate`|`float`|The minimum monthly profit rate|
 |`duration`|`int`|The minimum duration (in days) of the credit|
-|`score`|`float`| Value between 0 and 1 that represents the score assigned by Cumplo to the borrower|
+|`score`|`float`| The minimum Cumplo score assigned to the borrower|
 |`credits_requested`|`int`|The minimum amount of credits requested by the borrower|
-|`amount_requested`|`int`|The minimum total amount requested by the borrower|
-|`delinquent_days`|`int`|The minimum average delinquent days of the borrower|
-|`paid_in_time`|`float`|The minimum percentage of credits paid in time by the borrower (`<= 30` days)|
-|`dicom`|`bool`|Whether the borrower is registered in DICOM|
+|`amount_received`|`int`|The minimum total amount received by the borrower|
+|`average_days_delinquent`|`int`|The maximum average days delinquent of the borrower|
+|`paid_in_time_percentage`|`float`|The minimum percentage of credits paid in time by the borrower (`<= 30` days)|
+|`filter_dicom`|`bool`|Whether you want to filter out the borrowers registered in DICOM|
 
 To not be notified about the same investment opportunities every time, you can set an expiration time for the notifications. Which means that if a new investment opportunity was notified, the app will stop notifying it until it expires and then it'll notify it again.
 
@@ -64,39 +64,43 @@ Besides the notifications themself and the automation, the whole logic of this a
 {
     "total": 1,
     "ids": [
-        67811
+        68047
     ],
     "opportunities": [
         {
-            "id": 67811,
-            "monthly_profit_rate": 0.0172,
-            "tir": 22.955,
-            "score": 0.95,
-            "amount": 89900000,
-            "funded_amount": 83136846,
-            "borrower": {
-                "id": "6563",
-                "fantasy_name": "CONSTRUCTORA MAGISTRAL",
-                "funding_requests": 71,
-                "funding_requests_paid": 57,
-                "total_requested": 1847900020,
-                "instalments_paid_in_time": 1492100018,
-                "instalments_paid_percentage": null,
-                "history": {
-                    "average_deliquent_days": 15,
-                    "paid_in_time": 0.91,
-                    "dicom": false
-                }
-            },
-            "credit_type": "irrigation",
+            "id": 68047,
+            "score": "0.55",
+            "irr": "23.107",
+            "monthly_profit_rate": "0.0172",
+            "amount": "$93.500.000",
+            "funded_amount": "$63.949.920",
+            "funded_amount_percentage": "0.6840",
+            "credit_type": "IRRIGATION",
             "duration": {
                 "unit": "day",
-                "value": 45
+                "value": 24
             },
             "institution": {
-                "id": "26598",
-                "business_name": "SERVICIO DE VIVIENDA Y URBANIZACION REGION ÑUBLE"
-            }
+                "id": "26658",
+                "business_name": "SERVICIO REGIONAL DE LA VIVIENDA Y URBAN"
+            },
+            "borrower": {
+                "id": "8184",
+                "name": "CONSTRUCTORA CASTILLO Y ASOCIADOS LIMITADA",
+                "dicom": true,
+                "average_days_delinquent": 11,
+                "funding_requests_count": 29,
+                "paid_funding_requests_count": 20,
+                "paid_funding_requests_percentage": "0.690",
+                "total_amount_received": "$1.170.600.005"
+                "amount_paid_in_time": "$914.861.711",
+                "paid_in_time_percentage": "0.920",
+            },
+            "supporting_documents": [
+                "COPIA DEL CONTRATO DE LA CONSTRUCTORA CON LA EGIS",
+                "RESPALDO SUBSIDIO BAJO EL DS 255 CONSTRUCCION DE VIVIENDAS",
+                "OBRA TERMINADA AL 100"
+            ]
         }
     ]
 }
@@ -110,3 +114,4 @@ Besides the notifications themself and the automation, the whole logic of this a
 
 
 ## To-Do
+- Calculate the monthly profit rate for credits with multiple instalments.
