@@ -9,7 +9,7 @@
         "get_investment_opportunities",
         "--region=us-central1",
         "--runtime",
-        "python310",
+        "python311",
         "--entry-point",
         "get_investment_opportunities",
         "--source=."
