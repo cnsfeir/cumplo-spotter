@@ -1,46 +1,39 @@
-# pylint: disable=no-self-argument, no-member
+# pylint: disable=no-member
 
+from decimal import Decimal
 from logging import getLogger
 from typing import Any
 
-from babel.numbers import format_currency
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
+
+from utils.currency import format_currency
 
 logger = getLogger(__name__)
 
 
-class CreditHistory(BaseModel):
-    dicom: bool = Field(...)
-    average_deliquent_days: int = Field(...)
-    paid_in_time: float = Field(...)
-
-    @validator("paid_in_time", pre=True)
-    def paid_in_time_validator(cls, value: Any) -> float:
-        """
-        Validates that the paid_on_time is a int.
-        If it is not, it returns None which means that it does not have a credit history yet.
-        """
-        try:
-            return float(int(value) / 100)
-        except ValueError:
-            return float(0.0)
-
-
 class Borrower(BaseModel):
     id: str = Field(...)
-    name: str | None = Field(None)
-    fantasy_name: str = Field(..., alias="fantasyName")
-    total_requested: int = Field(..., alias="instalmentsCapital")
+    name: str = Field(..., alias="fantasyName")
+    total_amount_received: int = Field(..., alias="instalmentsCapital")
     funding_requests_count: int = Field(..., alias="fundingRequestsCount")
-    funding_requests_paid_count: int = Field(..., alias="fundingRequestsPaidCount")
-    instalments_paid_in_time: int = Field(..., alias="instalmentsCapitalPaidInTime")
-    instalments_paid_percentage: int | None = Field(None, alias="instalmentsPaidPercentage")
-    history: CreditHistory | None = Field(None)
+    paid_funding_requests_count: int = Field(..., alias="fundingRequestsPaidCount")
+    amount_paid_in_time: int = Field(..., alias="instalmentsCapitalPaidInTime")
+    paid_in_time_percentage: Decimal | None = Field(None)
+    average_days_delinquent: int | None = Field(None)
+    dicom: bool | None = Field(None)
 
-    def export_total_requested(self) -> str:
-        """Formats the total requested amount"""
-        return format_currency(self.total_requested, currency="CLP", locale="es_CL")
+    @property
+    def paid_funding_requests_percentage(self) -> Decimal:
+        """Returns the percentage of instalments paid in time"""
+        if not self.funding_requests_count:
+            return Decimal(0)
+        return round(Decimal(self.paid_funding_requests_count / self.funding_requests_count), 3)
 
-    def export_founding_requests_proportion(self) -> str:
-        """Formats the proportion of funding requests paid"""
-        return f"{self.funding_requests_paid_count}/{self.funding_requests_count}"
+    def dict(self, *args: Any, **kwargs: Any) -> dict:
+        """Builds a dictionary with the borrower data"""
+        return {
+            **super().dict(*args, **kwargs),
+            "paid_funding_requests_percentage": self.paid_funding_requests_percentage,
+            "total_amount_received": format_currency(self.total_amount_received),
+            "amount_paid_in_time": format_currency(self.amount_paid_in_time),
+        }
