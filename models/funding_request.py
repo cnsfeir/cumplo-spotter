@@ -33,6 +33,7 @@ class FundingRequestExtraInformation(BaseModel):
 
 class CreditType(str, Enum):
     IRRIGATION = "irrigation"
+    BALLOON = "balloon"
     INVOICE = "invoice"
     SIMPLE = "simple"
 
