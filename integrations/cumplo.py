@@ -1,5 +1,7 @@
 import os
 from asyncio import ensure_future, gather, run
+from copy import copy
+from decimal import Decimal
 from logging import getLogger
 
 import requests
@@ -7,57 +9,68 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from dotenv import load_dotenv
+from lxml.etree import HTML
 from retry import retry
 
-from integrations.firestore import firestore_client
-from models.borrower import CreditHistory
 from models.configuration import Configuration
 from models.filter import (
+    AmountReceivedFilter,
     AvailableFilter,
+    AverageDaysDelinquentFilter,
+    CreditsRequestedFilter,
     DicomFilter,
-    DurationUnitFilter,
+    DurationFilter,
     Filter,
+    IRRFilter,
     MonthlyProfitFilter,
     NotificationFilter,
+    PaidInTimeFilter,
     ScoreFilter,
 )
-from models.funding_request import FundingRequest
-from models.request_duration import DurationUnit
+from models.funding_request import FundingRequest, FundingRequestExtraInformation
+from models.user import User
 from utils.text import clean_text
 
 load_dotenv()
 logger = getLogger(__name__)
 
 
-MIN_SCORE = float(os.getenv("MIN_SCORE", "3.5"))
-DICOM_STRING = os.getenv("DICOM_STRING", "CON DICOM")
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
-MIN_MONTHLY_PROFIT = float(os.getenv("MIN_MONTHLY_PROFIT", "1.5"))
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 CREDIT_DETAIL_TITLE = os.getenv("CREDIT_DETAIL_TITLE", "INFORMACION DEL CREDITO")
 
+DICOM_STRINGS = ["CON DICOM", "CONDICOM", "PRESENTA DICOM"]
+HISTORY_SELECTOR = "span.loan-view-optional-visibility + span"
+SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
 
-def get_funding_requests(configuration: Configuration) -> list[FundingRequest]:
+
+def get_funding_requests(user: User, configuration: Configuration) -> list[FundingRequest]:
     """
     Gets all the GOOD available funding requests from the Cumplo API.
     """
-    funding_requests = get_available_funding_requests()
-    notifications = firestore_client.get_notifications()
+    funding_requests = _get_available_funding_requests()
 
     filters = [
-        AvailableFilter(notifications),
-        ScoreFilter(MIN_SCORE),
-        MonthlyProfitFilter(MIN_MONTHLY_PROFIT),
-        DurationUnitFilter(DurationUnit.MONTH),  # TODO: Figure out how to compare days and months to remove this filter
+        AvailableFilter(user),
+        ScoreFilter(configuration),
+        IRRFilter(configuration),
+        MonthlyProfitFilter(configuration),
+        DurationFilter(configuration),
     ]
     funding_requests = _filter_funding_requests(funding_requests, *filters)
     logger.info(f"Found {len(funding_requests)} available funding requests")
 
-    funding_requests = run(gather_full_funding_requests(funding_requests))
+    funding_requests = run(_gather_full_funding_requests(funding_requests))
 
-    funding_requests = _filter_funding_requests(funding_requests, DicomFilter())
-    if configuration.filter_notified:
-        funding_requests = _filter_funding_requests(funding_requests, NotificationFilter(notifications))
+    filters = [
+        DicomFilter(configuration),
+        PaidInTimeFilter(configuration),
+        AmountReceivedFilter(configuration),
+        CreditsRequestedFilter(configuration),
+        AverageDaysDelinquentFilter(configuration),
+        NotificationFilter(configuration, user),
+    ]
+    funding_requests = _filter_funding_requests(funding_requests, *filters)
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
     logger.debug(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
@@ -65,27 +78,34 @@ def get_funding_requests(configuration: Configuration) -> list[FundingRequest]:
     return funding_requests
 
 
-async def gather_full_funding_requests(funding_requests: list[FundingRequest]) -> list[FundingRequest]:
+async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) -> list[FundingRequest]:
     """
-    Gathers all the information and returns all the available funding requests.
+    Gathers the full information of the received funding requests.
     """
     tasks = []
     async with ClientSession() as session:
         for funding_request in funding_requests:
-            tasks.append(ensure_future(get_credit_history(session, funding_request.id)))
+            tasks.append(ensure_future(_get_extra_information(session, funding_request.id)))
 
-        logger.info(f"Gathering {len(tasks)} credit history responses...")
-        credit_histories = await gather(*tasks)
-        for funding_request, credit_history in zip(funding_requests, credit_histories):
-            funding_request.borrower.history = credit_history
+        logger.info(f"Gathering {len(tasks)} credit history responses")
+        extra_information = await gather(*tasks)
+        for funding_request, information in zip(copy(funding_requests), extra_information):
+            if information is None:
+                funding_requests.remove(funding_request)
+                continue
 
-    funding_requests = list(filter(lambda x: x.borrower.history, funding_requests))
+            funding_request.borrower.dicom = information.dicom
+            funding_request.supporting_documents = information.supporting_documents
+            funding_request.borrower.paid_in_time_percentage = information.paid_in_time_percentage
+            funding_request.borrower.average_days_delinquent = information.average_days_delinquent
+
+    funding_requests = list(filter(lambda x: x.borrower.dicom, funding_requests))
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
 
 
 @retry(KeyError, tries=5, delay=1)
-def get_available_funding_requests() -> list[FundingRequest]:
+def _get_available_funding_requests() -> list[FundingRequest]:
     """
     Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
     """
@@ -95,32 +115,40 @@ def get_available_funding_requests() -> list[FundingRequest]:
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
+    print(results)
     funding_requests = [FundingRequest(**result) for result in results]
     logger.info(f"Found {len(funding_requests)} funding requests")
 
     return funding_requests
 
 
-async def get_credit_history(session: ClientSession, id_: int) -> CreditHistory | None:
+async def _get_extra_information(
+    session: ClientSession, id_funding_request: int
+) -> FundingRequestExtraInformation | None:
     """
-    Queries the Cumplo API and returns the credit history data from a given funding request's payer
+    Queries the Cumplo API and returns the credit history and the supporting documents from a
+    given funding request's borrower
     """
-    logger.info(f"Getting credit history from funding request {id_}")
-    async with session.get(f"{CUMPLO_FUNDING_REQUESTS_API}/{id_}") as response:
+    logger.info(f"Getting credit history from funding request {id_funding_request}")
+    async with session.get(f"{CUMPLO_FUNDING_REQUESTS_API}/{id_funding_request}") as response:
         text = await response.text()
         soup = BeautifulSoup(text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in (content := clean_text(soup.get_text())):
-            logger.warning(f"Couldn't get credit history from funding request {id_}")
+            logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
             return None
 
-        logger.debug(f"Extracting credit history from funding request {id_} response")
-        history = soup.select("span.loan-view-optional-visibility + span")
+        logger.debug(f"Extracting supporting documents from funding request {id_funding_request} response")
+        supporting_documents = HTML(str(soup)).xpath(SUPPORTING_DOCUMENTS_XPATH)
 
-        return CreditHistory(
-            average_deliquent_days=_extract_history_data(history[0]),
-            paid_in_time=_extract_history_data(history[1]),
-            dicom=DICOM_STRING in content,
+        logger.debug(f"Extracting credit history from funding request {id_funding_request} response")
+        history = soup.select(HISTORY_SELECTOR)
+
+        return FundingRequestExtraInformation(
+            supporting_documents=[clean_text(document.text) for document in supporting_documents],
+            paid_in_time_percentage=Decimal(_extract_history_data(history[1])),
+            average_days_delinquent=int(_extract_history_data(history[0])),
+            dicom=any(string in content for string in DICOM_STRINGS),
         )
 
 

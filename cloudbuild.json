@@ -6,12 +6,12 @@
         "gcloud",
         "functions",
         "deploy",
-        "get_investment_opportunities",
+        "fetch-investment-opportunities",
         "--region=us-central1",
         "--runtime",
-        "python310",
+        "python311",
         "--entry-point",
-        "get_investment_opportunities",
+        "fetch_investment_opportunities",
         "--source=."
       ]
     }
