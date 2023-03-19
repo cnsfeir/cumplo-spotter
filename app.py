@@ -1,3 +1,5 @@
+# pylint: disable=no-value-for-parameter
+
 from logging import getLogger
 
 from flask import Flask, Response, request
@@ -8,10 +10,10 @@ logger = getLogger(__name__)
 app = Flask(__name__)
 
 
-@app.route("/get_investment_opportunities", methods=["POST"])
-def test_get_investment_opportunities() -> Response:
+@app.route("/fetch-investment-opportunities", methods=["POST"])
+def test_fetch_investment_opportunities() -> Response:
     """
     [Endpoint for local development]
     Gets a list of good investment opportunities.
     """
-    return main.get_investment_opportunities(request)
+    return main.fetch_investment_opportunities(request)  # type: ignore
