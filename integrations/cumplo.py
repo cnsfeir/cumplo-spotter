@@ -1,6 +1,7 @@
 import os
 from asyncio import ensure_future, gather, run
 from copy import copy
+from decimal import Decimal
 from logging import getLogger
 
 import requests
@@ -114,6 +115,7 @@ def _get_available_funding_requests() -> list[FundingRequest]:
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
+    print(results)
     funding_requests = [FundingRequest(**result) for result in results]
     logger.info(f"Found {len(funding_requests)} funding requests")
 
@@ -144,8 +146,8 @@ async def _get_extra_information(
 
         return FundingRequestExtraInformation(
             supporting_documents=[clean_text(document.text) for document in supporting_documents],
-            average_days_delinquent=_extract_history_data(history[0]),
-            paid_in_time_percentage=_extract_history_data(history[1]),
+            paid_in_time_percentage=Decimal(_extract_history_data(history[1])),
+            average_days_delinquent=int(_extract_history_data(history[0])),
             dicom=any(string in content for string in DICOM_STRINGS),
         )
 
