@@ -25,9 +25,9 @@ getLogger("charset_normalizer").setLevel(CRITICAL)
 
 @authenticate
 @functions_framework.http
-def get_investment_opportunities(request: Request, user: User) -> Response:
+def fetch_investment_opportunities(request: Request, user: User) -> Response:
     """
-    Gets a list of good investment opportunities.
+    Fetches a list of good investment opportunities.
     """
     logger.info(f"Getting investment opportunities for {user.name} ({user.id})")
     configuration = get_configuration(request)
