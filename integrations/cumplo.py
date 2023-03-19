@@ -115,7 +115,6 @@ def _get_available_funding_requests() -> list[FundingRequest]:
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
-    print(results)
     funding_requests = [FundingRequest(**result) for result in results]
     logger.info(f"Found {len(funding_requests)} funding requests")
 
