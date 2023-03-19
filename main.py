@@ -32,7 +32,7 @@ def fetch_investment_opportunities(request: Request, user: User) -> Response:
     logger.info(f"Getting investment opportunities for {user.name} ({user.id})")
     configuration = get_configuration(request)
 
-    logger.info(f"Got this configuration for {user.name}: {configuration}")
+    logger.info(f"Got this configuration for {user.name}: {configuration.dict()}")
     funding_requests = get_funding_requests(user, configuration)
     result = {
         "total": len(funding_requests),
