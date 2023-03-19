@@ -12,7 +12,8 @@
         "python311",
         "--entry-point",
         "fetch_investment_opportunities",
-        "--source=."
+        "--source=.",
+        "--trigger-http"
       ]
     }
   ]
