@@ -8,6 +8,7 @@
         "deploy",
         "fetch-investment-opportunities",
         "--region=us-central1",
+        "--gen2",
         "--runtime",
         "python311",
         "--entry-point",
