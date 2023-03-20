@@ -1,0 +1,30 @@
+name: Dependency Check
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-in-project: true
+      
+      - name: Generate requirements.txt
+        run: poetry export --without-hashes --without-urls  --with-credentials --output expected_requirements.txt
+      
+      - name: Run dependency check
+        run: diff requirements.txt expected_requirements.txt || exit 1
