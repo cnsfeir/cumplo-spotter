@@ -99,7 +99,6 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
             funding_request.borrower.paid_in_time_percentage = information.paid_in_time_percentage
             funding_request.borrower.average_days_delinquent = information.average_days_delinquent
 
-    funding_requests = list(filter(lambda x: x.borrower.dicom, funding_requests))
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
 
