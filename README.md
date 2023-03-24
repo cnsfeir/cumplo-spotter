@@ -76,6 +76,7 @@ Besides the notifications themself and the automation, the whole logic of this a
             "funded_amount": "$63.949.920",
             "funded_amount_percentage": "0.6840",
             "credit_type": "IRRIGATION",
+            "url": "https://secure.cumplo.cl/68047",
             "duration": {
                 "unit": "day",
                 "value": 24
