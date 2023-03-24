@@ -8,7 +8,7 @@ authors = ["Cristobal Sfeir <cnsfeir@uc.cl>"]
 python = "^3.11"
 requests = "^2.28.1"
 arrow = "^1.2.3"
-pydantic = "^1.10.6"
+pydantic = "^1.10.7"
 python-dotenv = "^0.21.0"
 Babel = "^2.11.0"
 bs4 = "^0.0.1"
@@ -21,7 +21,7 @@ Flask = "^2.2.2"
 lxml = "^4.9.2"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.17.0"
+pylint = "^2.17.1"
 flake8 = "^6.0.0"
 black = "^23.1.0"
 mypy = "^1.1.1"
