@@ -12,6 +12,8 @@ from models.payer import Institution
 from models.request_duration import FundingRequestDuration
 from utils.currency import format_currency
 
+CUMPLO_BASE_URL = "https://secure.cumplo.cl"
+
 
 class FundingRequestExtraInformation(BaseModel):
     paid_in_time_percentage: Decimal = Field(...)
@@ -70,6 +72,11 @@ class FundingRequest(BaseModel):
         """Calculates the monthly profit rate for the funding request"""
         return round(Decimal(self.funded_amount / self.amount), 4)
 
+    @property
+    def url(self) -> str:
+        """Builds the URL for the funding request"""
+        return f"{CUMPLO_BASE_URL}/{self.id}"
+
     def monthly_profit(self, amount: int) -> int:
         """Calculates the monthly profit for a given amount"""
         return ceil(self.monthly_profit_rate * amount)
@@ -83,4 +90,5 @@ class FundingRequest(BaseModel):
             "monthly_profit_rate": self.monthly_profit_rate,
             "credit_type": self.credit_type.upper(),
             "amount": format_currency(self.amount),
+            "url": self.url,
         }
