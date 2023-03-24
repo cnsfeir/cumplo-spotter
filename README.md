@@ -110,9 +110,9 @@ Besides the notifications themself and the automation, the whole logic of this a
 ## Architecture
 
 <div align="center" witdh="100%">
-  <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="520"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="450"/>
   <img width="20"/>
-  <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="570"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="500"/>
 </div>
 
 
