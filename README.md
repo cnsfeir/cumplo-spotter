@@ -110,8 +110,11 @@ Besides the notifications themself and the automation, the whole logic of this a
 ## Architecture
 
 <div align="center" witdh="100%">
-  <img src="https://user-images.githubusercontent.com/58790635/226204798-932ceb06-b089-45fc-ae9c-dfbdd13934d1.png" width="500"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="520"/>
+  <img width="20"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="570"/>
 </div>
+
 
 
 ## To-Do
