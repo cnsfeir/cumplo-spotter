@@ -26,9 +26,9 @@ A simple app that notifies you whenever a promising Cumplo investment opportunit
 
 
 <div align="center" witdh="100%">
-  <img src="https://user-images.githubusercontent.com/58790635/222311408-6bf520a6-fd8a-47c2-b067-e2860e4de823.png" width="250"/>
+  <img src="https://user-images.githubusercontent.com/58790635/222311408-6bf520a6-fd8a-47c2-b067-e2860e4de823.png" width="230"/>
   <img width="20"/>
-  <img src="https://user-images.githubusercontent.com/58790635/222309655-42720654-f9f2-4bff-abcf-45b7387272b3.gif" width="250"/>
+  <img src="https://user-images.githubusercontent.com/58790635/222309655-42720654-f9f2-4bff-abcf-45b7387272b3.gif" width="230"/>
 </div>
 
 ## Features
@@ -110,9 +110,9 @@ Besides the notifications themself and the automation, the whole logic of this a
 ## Architecture
 
 <div align="center" witdh="100%">
-  <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="450"/>
-  <img width="20"/>
-  <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="500"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="380"/>
+  <img width="10"/>
+  <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="430"/>
 </div>
 
 
