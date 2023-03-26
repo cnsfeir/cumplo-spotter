@@ -45,15 +45,15 @@ As mentioned before, the factors used for filtering the available investment opp
 |`amount_received`|`int`|The minimum total amount received by the borrower|
 |`average_days_delinquent`|`int`|The maximum average days delinquent of the borrower|
 |`paid_in_time_percentage`|`float`|The minimum percentage of credits paid in time by the borrower (`<= 30` days)|
-|`filter_dicom`|`bool`|Whether you want to filter out the borrowers registered in DICOM|
+|`filter_dicom`|`bool`|Whether you want to filter out the borrowers registered in [DICOM](https://www.misabogados.com/dicom#Que-es-DICOM)|
 
-To not be notified about the same investment opportunities every time, you can set an expiration time for the notifications. Which means that if a new investment opportunity was notified, the app will stop notifying it until it expires and then it'll notify it again.
+To not be notified about the same investment opportunities every time, you can set an expiration time for the notifications. Which means that if a new investment opportunity was notified, **the app will stop notifying it until it expires and then it'll notify it again.**
 
 |name|type|description|
 |-----:|:----:|:-------------------|
 |`notification_expiration`|`int`|The time in hours needed for a notification to expire|
 
-Besides the notifications themself and the automation, the whole logic of this app is contained in one endpoint. So the scraper can be executed both automatically and on-demand. Although the notification only shows the number of investment opportunities, the endpoint delivers all the information you need to make an informed decision. So whenever you're ready to make an investment, you can call the endpoint directly (ignoring the notified opportunitites) and get a summary of the promising investment opportunities available at the moment ordered by their monthly profit rate.
+Besides the notifications themself and the automation, the whole logic of this app is contained in a single endpoint. So the scraper can be executed both automatically and on-demand. Although the notification only shows the number of investment opportunities, the endpoint delivers all the information you need to make an informed decision. So whenever you're ready to make an investment, **you can call the endpoint directly (ignoring the notified opportunitites) and get a summary of all the promising investment opportunities available at the moment ordered by their monthly profit rate.**
 
 |name|type|description|
 |-----:|:----:|:-------------------|
@@ -106,6 +106,24 @@ Besides the notifications themself and the automation, the whole logic of this a
     ]
 }
 ```
+Since Cumplo's front-end only shows the last `20` investment opportunities, when there are `>20` opportunities available some of them cannot be accessed through the webpage. But as you may noticed, **each investment opportunity in the response has an `url` key that allows you to access all opportunities regardless of whether they are hidden or not**.
+
+## Try it
+```bash
+curl --location 'https://fetch-investment-opportunities-ryugxhk4ca-uc.a.run.app' \
+--header 'x-api-key: 0000_TESTING_API_KEY' \
+--header 'Content-Type: application/json' \
+--data '{
+    "filter_notified": false,
+    "paid_in_time_percentage": 0.8,
+    "average_days_delinquent": 20,
+    "monthly_profit_rate": 0.015,
+    "filter_dicom": true,
+    "score": 0.4
+}'
+```
+> This API key will be available only **temporarily**. For extended use, please contact **cnsfer@uc.cl** to obtain your own official API key.
+
 
 ## Architecture
 
@@ -118,4 +136,5 @@ Besides the notifications themself and the automation, the whole logic of this a
 
 
 ## To-Do
-- Calculate the monthly profit rate for credits with multiple instalments.
+- Calculate the monthly profit rate for credits with **multiple instalments**.
+- Add a `limit` parameter to get only the first `N` investment opportunities.
