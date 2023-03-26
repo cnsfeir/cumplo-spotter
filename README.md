@@ -42,7 +42,7 @@ As mentioned before, the factors used for filtering the available investment opp
 |`duration`|`int`|The minimum duration (in days) of the credit|
 |`score`|`float`| The minimum Cumplo score assigned to the borrower|
 |`credits_requested`|`int`|The minimum amount of credits requested by the borrower|
-|`amount_received`|`int`|The minimum total amount received by the borrower|
+|`amount_requested`|`int`|The minimum total amount requested by the borrower|
 |`average_days_delinquent`|`int`|The maximum average days delinquent of the borrower|
 |`paid_in_time_percentage`|`float`|The minimum percentage of credits paid in time by the borrower (`<= 30` days)|
 |`filter_dicom`|`bool`|Whether you want to filter out the borrowers registered in [DICOM](https://www.misabogados.com/dicom#Que-es-DICOM)|
@@ -93,7 +93,7 @@ Besides the notifications themself and the automation, the whole logic of this a
                 "funding_requests_count": 29,
                 "paid_funding_requests_count": 20,
                 "paid_funding_requests_percentage": "0.690",
-                "total_amount_received": "$1.170.600.005"
+                "total_amount_requested": "$1.170.600.005"
                 "amount_paid_in_time": "$914.861.711",
                 "paid_in_time_percentage": "0.920",
             },
@@ -127,11 +127,15 @@ curl --location 'https://fetch-investment-opportunities-ryugxhk4ca-uc.a.run.app'
 
 ## Architecture
 
+As mentioned before, the whole logic of the app is contained in a single endpoint. From there, you can create two simple shortcuts that call this endpoint and display the results in a notification. You can find these two shortcuts in the `/shortcuts` directory, download them and import them into your iPhone.
+
 <div align="center" witdh="100%">
   <img src="https://user-images.githubusercontent.com/58790635/227660611-df4627bd-7fea-4362-874e-3d5135a7f78a.png" width="380"/>
   <img width="10"/>
   <img src="https://user-images.githubusercontent.com/58790635/227660069-08bc10b4-a15b-43f7-b4b0-671df8c98bb4.png" width="430"/>
 </div>
+
+> Since the iOS Shortcuts app doesn't support cron jobs, how often the endpoint is called will depend on the quantity of ["automations"](https://support.apple.com/guide/shortcuts/create-a-new-personal-automation-apdfbdbd7123/6.0/ios/16.0) you create.
 
 
 
