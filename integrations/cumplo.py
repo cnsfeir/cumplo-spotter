@@ -14,7 +14,7 @@ from retry import retry
 
 from models.configuration import Configuration
 from models.filter import (
-    AmountReceivedFilter,
+    AmountRequestedFilter,
     AvailableFilter,
     AverageDaysDelinquentFilter,
     CreditsRequestedFilter,
@@ -65,7 +65,7 @@ def get_funding_requests(user: User, configuration: Configuration) -> list[Fundi
     filters = [
         DicomFilter(configuration),
         PaidInTimeFilter(configuration),
-        AmountReceivedFilter(configuration),
+        AmountRequestedFilter(configuration),
         CreditsRequestedFilter(configuration),
         AverageDaysDelinquentFilter(configuration),
         NotificationFilter(configuration, user),

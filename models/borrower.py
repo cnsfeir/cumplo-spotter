@@ -14,7 +14,7 @@ logger = getLogger(__name__)
 class Borrower(BaseModel):
     id: str = Field(...)
     name: str = Field(..., alias="fantasyName")
-    total_amount_received: int = Field(..., alias="instalmentsCapital")
+    total_amount_requested: int = Field(..., alias="instalmentsCapital")
     funding_requests_count: int = Field(..., alias="fundingRequestsCount")
     paid_funding_requests_count: int = Field(..., alias="fundingRequestsPaidCount")
     amount_paid_in_time: int = Field(..., alias="instalmentsCapitalPaidInTime")
@@ -34,6 +34,6 @@ class Borrower(BaseModel):
         return {
             **super().dict(*args, **kwargs),
             "paid_funding_requests_percentage": self.paid_funding_requests_percentage,
-            "total_amount_received": format_currency(self.total_amount_received),
+            "total_amount_requested": format_currency(self.total_amount_requested),
             "amount_paid_in_time": format_currency(self.amount_paid_in_time),
         }

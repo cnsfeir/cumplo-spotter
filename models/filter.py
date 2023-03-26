@@ -148,7 +148,7 @@ class CreditsRequestedFilter(Filter):
         return funding_request.borrower.funding_requests_count >= self.configuration.credits_requested
 
 
-class AmountReceivedFilter(Filter):
+class AmountRequestedFilter(Filter):
     def __init__(self, configuration: Configuration) -> None:
         self.configuration = configuration
 
@@ -156,10 +156,10 @@ class AmountReceivedFilter(Filter):
         """
         Filters out the funding requests whose borrower hasn't received the minimum amount of money.
         """
-        if not self.configuration.amount_received:
+        if not self.configuration.amount_requested:
             return True
 
-        return funding_request.borrower.total_amount_received >= self.configuration.amount_received
+        return funding_request.borrower.total_amount_requested >= self.configuration.amount_requested
 
 
 class AverageDaysDelinquentFilter(Filter):

@@ -14,7 +14,7 @@ class Configuration(BaseModel):
     irr: Decimal | None = Field(None)
     duration: int | None = Field(None)
     score: Decimal | None = Field(None)
-    amount_received: int | None = Field(None)
+    amount_requested: int | None = Field(None)
     credits_requested: int | None = Field(None)
     filter_notified: bool = Field(FILTER_NOTIFIED)
     average_days_delinquent: int | None = Field(None)
