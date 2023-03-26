@@ -2,19 +2,19 @@ import os
 from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import functions_framework
+import google.cloud.logging
 from flask import Request, Response, make_response
-from google.cloud import logging
 
 from integrations.cumplo import get_funding_requests
 from middlewares.authentication import authenticate
 from models.user import User
 from utils.event import get_configuration
 
-client = logging.Client()
-client.setup_logging()
-
-
 IS_TESTING = bool(os.getenv("IS_TESTING"))
+
+if not IS_TESTING:
+    client = google.cloud.logging.Client()
+    client.setup_logging()
 
 FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
 basicConfig(level=DEBUG, format=FORMAT)
