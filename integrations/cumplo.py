@@ -73,7 +73,7 @@ def get_funding_requests(user: User, configuration: Configuration) -> list[Fundi
     funding_requests = _filter_funding_requests(funding_requests, *filters)
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
-    logger.debug(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
+    logger.info(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
 
     return funding_requests
 
@@ -108,7 +108,7 @@ def _get_available_funding_requests() -> list[FundingRequest]:
     """
     Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
     """
-    logger.debug("Getting funding requests from Cumplo API")
+    logger.info("Getting funding requests from Cumplo API")
 
     payload = _build_all_funding_requests_query()
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
@@ -136,10 +136,10 @@ async def _get_extra_information(
             logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
             return None
 
-        logger.debug(f"Extracting supporting documents from funding request {id_funding_request} response")
+        logger.info(f"Extracting supporting documents from funding request {id_funding_request} response")
         supporting_documents = HTML(str(soup)).xpath(SUPPORTING_DOCUMENTS_XPATH)
 
-        logger.debug(f"Extracting credit history from funding request {id_funding_request} response")
+        logger.info(f"Extracting credit history from funding request {id_funding_request} response")
         history = soup.select(HISTORY_SELECTOR)
 
         return FundingRequestExtraInformation(
@@ -161,7 +161,7 @@ def _filter_funding_requests(funding_requests: list[FundingRequest], *filters: F
     """
     Filters the funding requests that don't meet the minimum requirements
     """
-    logger.debug(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
+    logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
     funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
 
     logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
