@@ -133,6 +133,7 @@ async def _get_extra_information(
         soup = BeautifulSoup(text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in (content := clean_text(soup.get_text())):
+            print(f"\n\n\n\n {content} \n\n\n\n")
             logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
             return None
 
@@ -154,7 +155,16 @@ def _extract_history_data(element: Tag) -> str:
     """
     Returns the data from a given element from the "credit history" section with the form "title: data"
     """
-    return element.get_text().replace("\n", "").replace("%(*)", "").split(":")[-1].strip()
+    value = (
+        element.get_text()
+        .replace("\n", "")
+        .replace("%", "")
+        .replace("-", "0")
+        .replace("(*)", "")
+        .split(":")[-1]
+        .strip()
+    )
+    return value
 
 
 def _filter_funding_requests(funding_requests: list[FundingRequest], *filters: Filter) -> list[FundingRequest]:
