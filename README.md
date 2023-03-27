@@ -142,3 +142,5 @@ As mentioned before, the whole logic of the app is contained in a single endpoin
 ## To-Do
 - Calculate the monthly profit rate for credits with **multiple instalments**.
 - Add a `limit` parameter to get only the first `N` investment opportunities.
+- Create the simile but for Android phones.
+- Send notifications via email.
