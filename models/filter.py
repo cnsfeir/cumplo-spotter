@@ -50,10 +50,9 @@ class NotificationFilter(Filter):
         if not self.configuration.filter_notified:
             return True
 
-        if not (notification := self.user.notifications.get(funding_request.id)):
-            return True
+        notification = self.user.notifications.get(funding_request.id)
 
-        if notification.has_expired(self.configuration.notification_expiration):
+        if not notification or notification.has_expired(self.configuration.notification_expiration):
             firestore_client.set_notification_date(self.user.id, funding_request.id)
             return True
 
