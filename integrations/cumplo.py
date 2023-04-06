@@ -133,7 +133,6 @@ async def _get_extra_information(
         soup = BeautifulSoup(text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in (content := clean_text(soup.get_text())):
-            print(f"\n\n\n\n {content} \n\n\n\n")
             logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
             return None
 
