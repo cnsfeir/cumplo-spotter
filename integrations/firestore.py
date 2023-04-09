@@ -14,10 +14,10 @@ from models.user import User
 load_dotenv()
 logger = getLogger(__name__)
 
+NOTIFICATIONS_COLLECTION = os.getenv("NOTIFICATIONS_COLLECTION", "notifications")
+USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
 PROJECT_ID = os.getenv("PROJECT_ID", "")
 SANTIAGO_TIMEZONE = "America/Santiago"
-NOTIFICATIONS_COLLECTION = "notifications"
-USERS_COLLECTION = "users"
 
 
 class Singleton(type):
