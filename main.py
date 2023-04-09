@@ -42,6 +42,8 @@ def fetch_investment_opportunities(request: Request, user: User) -> Response:
     result = {
         "total": len(funding_requests),
         "ids": [funding_request.id for funding_request in funding_requests],
-        "opportunities": [funding_request.dict(exclude_none=True) for funding_request in funding_requests],
+        "opportunities": {
+            funding_request.id: funding_request.dict(exclude_none=True) for funding_request in funding_requests
+        },
     }
     return make_response(result, 200)
