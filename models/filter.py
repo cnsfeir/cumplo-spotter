@@ -33,7 +33,7 @@ class AvailableFilter(Filter):
             return True
 
         if self.user.notifications.get(funding_request.id):
-            firestore_client.delete_notification(funding_request.id)
+            firestore_client.delete_notification(self.user.id, funding_request.id)
 
         return False
 
