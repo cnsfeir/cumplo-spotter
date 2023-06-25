@@ -1,31 +1,33 @@
+# pylint: disable=raise-missing-from
+
 import os
-from collections.abc import Callable
+from http import HTTPStatus
 
 from dotenv import load_dotenv
-from flask import Request, Response
+from fastapi import Header
+from fastapi.exceptions import HTTPException
+from fastapi.requests import Request
 
-from exceptions.http import ForbiddenException
 from integrations.firestore import firestore_client
-from models.user import User
 
 load_dotenv()
 
 API_KEY = os.getenv("API_KEY")
 
 
-def authenticate(function_: Callable[[Request, User], Response]) -> Callable[[Request], Response]:
+async def athenticate(request: Request, x_api_key: str = Header()) -> None:
     """
     Authenticates a request.
     """
+    if not x_api_key:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
 
-    def authenticator(request: Request) -> Response:
-        id_user = request.headers.get("X-API-KEY", "")
-        try:
-            user = firestore_client.get_user(id_user)
-        except KeyError as error:
-            raise ForbiddenException() from error
+    try:
+        user = firestore_client.get_user(x_api_key)
+    except (KeyError, ValueError):
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED)
 
-        firestore_client.register_call(user)
-        return function_(request, user)
+    user.register_call()
+    firestore_client.update_user(user)
 
-    return authenticator
+    request.state.user = user

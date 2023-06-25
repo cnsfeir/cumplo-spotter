@@ -15,8 +15,9 @@ class User(BaseModel):
     name: str = Field(...)
     calls: int = Field(...)
     last_call: datetime = Field(...)
-    notifications: dict[int, Notification] = Field(default_factory=dict)
+    notifications: dict[int, Notification] = Field(default_factory=dict, exclude=True)
 
-    def build_new_call(self) -> dict:
-        """Builds the new call data"""
-        return {"last_call": arrow.now(SANTIAGO_TIMEZONE).datetime, "calls": self.calls + 1, "name": self.name}
+    def register_call(self) -> None:
+        """Registers the last call date for a user"""
+        self.last_call = arrow.now(SANTIAGO_TIMEZONE).datetime
+        self.calls += 1

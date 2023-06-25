@@ -4,7 +4,7 @@ from logging import getLogger
 
 from flask import Flask, Response, request
 
-import main
+import oldmain
 
 logger = getLogger(__name__)
 app = Flask(__name__)
@@ -16,4 +16,4 @@ def test_fetch_investment_opportunities() -> Response:
     [Endpoint for local development]
     Gets a list of good investment opportunities.
     """
-    return main.fetch_investment_opportunities(request)  # type: ignore
+    return oldmain.fetch_investment_opportunities(request)  # type: ignore
