@@ -1,4 +1,5 @@
 import os
+import re
 from asyncio import ensure_future, gather, run
 from copy import copy
 from decimal import Decimal
@@ -7,7 +8,6 @@ from logging import getLogger
 import requests
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
-from bs4.element import Tag
 from dotenv import load_dotenv
 from lxml.etree import HTML
 from retry import retry
@@ -40,8 +40,12 @@ CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 CREDIT_DETAIL_TITLE = os.getenv("CREDIT_DETAIL_TITLE", "INFORMACION DEL CREDITO")
 
 DICOM_STRINGS = ["CON DICOM", "CONDICOM", "PRESENTA DICOM"]
-HISTORY_SELECTOR = "span.loan-view-optional-visibility + span"
+
 SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
+PAID_FUNDING_REQUESTS_COUNT_SELECTOR = "div.loan-view-item span:nth-of-type(1)"
+AVERAGE_DAYS_DELINQUENT_SELECTOR = "div.loan-view-item span:nth-of-type(3)"
+PAID_IN_TIME_PERCENTAGE_SELECTOR = "div.loan-view-item span:nth-of-type(5)"
+TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
 
 
 def get_funding_requests(user: User, configuration: Configuration) -> list[FundingRequest]:
@@ -95,9 +99,12 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
                 continue
 
             funding_request.borrower.dicom = information.dicom
-            funding_request.supporting_documents = information.supporting_documents
-            funding_request.borrower.paid_in_time_percentage = information.paid_in_time_percentage
             funding_request.borrower.average_days_delinquent = information.average_days_delinquent
+            funding_request.borrower.paid_in_time_percentage = information.paid_in_time_percentage
+            funding_request.borrower.total_amount_requested = information.total_amount_requested
+            funding_request.borrower.funding_requests_count = information.funding_requests_count
+            funding_request.borrower.paid_funding_requests_count = information.paid_funding_requests_count
+            funding_request.supporting_documents = information.supporting_documents
 
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
@@ -114,7 +121,7 @@ def _get_available_funding_requests() -> list[FundingRequest]:
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
-    funding_requests = [FundingRequest(**result) for result in results]
+    funding_requests = [FundingRequest(**result["operacion"], borrower=result["empresa"]) for result in results]
     logger.info(f"Found {len(funding_requests)} funding requests")
 
     return funding_requests
@@ -136,34 +143,66 @@ async def _get_extra_information(
             logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
             return None
 
-        logger.info(f"Extracting supporting documents from funding request {id_funding_request} response")
-        supporting_documents = HTML(str(soup)).xpath(SUPPORTING_DOCUMENTS_XPATH)
-
-        logger.info(f"Extracting credit history from funding request {id_funding_request} response")
-        history = soup.select(HISTORY_SELECTOR)
+        paid, requested = _extract_funding_requests_count(soup)
 
         return FundingRequestExtraInformation(
-            supporting_documents=[clean_text(document.text) for document in supporting_documents],
-            paid_in_time_percentage=Decimal(_extract_history_data(history[1])),
-            average_days_delinquent=int(_extract_history_data(history[0])),
+            funding_requests_count=requested,
+            paid_funding_requests_count=paid,
+            supporting_documents=_extract_supporting_documents(soup),
+            total_amount_requested=_extract_total_amount_requested(soup),
+            paid_in_time_percentage=_extract_paid_in_time_percentage(soup),
+            average_days_delinquent=_extract_average_days_delinquent(soup),
             dicom=any(string in content for string in DICOM_STRINGS),
         )
 
 
-def _extract_history_data(element: Tag) -> str:
+def _extract_supporting_documents(content: BeautifulSoup) -> list[str]:
     """
-    Returns the data from a given element from the "credit history" section with the form "title: data"
+    Extracts the supporting documents from a given funding request
     """
-    value = (
-        element.get_text()
-        .replace("\n", "")
-        .replace("%", "")
-        .replace("-", "0")
-        .replace("(*)", "")
-        .split(":")[-1]
-        .strip()
-    )
-    return value
+    logger.info("Extracting supporting documents from funding request detail")
+    supporting_documents = HTML(str(content)).xpath(SUPPORTING_DOCUMENTS_XPATH)
+    return [clean_text(document.text) for document in supporting_documents]
+
+
+def _extract_paid_in_time_percentage(content: BeautifulSoup) -> Decimal:
+    """
+    Extracts the paid in time percentage from a given funding request
+    """
+    logger.info("Extracting paid in time percentage from funding request details")
+    element = content.select_one(PAID_IN_TIME_PERCENTAGE_SELECTOR)
+    value = re.findall(r"\d+", element.get_text())
+    return round(Decimal(int(value[0]) / 100 if value else 0), 2)
+
+
+def _extract_average_days_delinquent(content: BeautifulSoup) -> int:
+    """
+    Extracts the average days delinquent from a given funding request
+    """
+    logger.info("Extracting average days delinquent from funding request details")
+    element = content.select_one(AVERAGE_DAYS_DELINQUENT_SELECTOR)
+    value = re.findall(r"\d+", element.get_text())
+    return int(value[0]) if value else 0
+
+
+def _extract_funding_requests_count(content: BeautifulSoup) -> tuple[int, int]:
+    """
+    Extracts the paid and requested funding requests count from a given funding request
+    """
+    logger.info("Extracting paid funding requests count from funding request details")
+    element = content.select_one(PAID_FUNDING_REQUESTS_COUNT_SELECTOR)
+    paid, requested = re.findall(r"\d+", element.get_text())[:2]
+    return int(paid), int(requested)
+
+
+def _extract_total_amount_requested(content: BeautifulSoup) -> int:
+    """
+    Extracts the paid and requested funding requests count from a given borrower
+    """
+    logger.info("Extracting paid and requested funding requests count from borrower details")
+    element = content.select_one(TOTAL_AMOUNT_REQUESTED_SELECTOR)
+    value = re.findall(r"\d+", element.get_text().replace(".", ""))
+    return int(value[0]) if value else 0
 
 
 def _filter_funding_requests(funding_requests: list[FundingRequest], *filters: Filter) -> list[FundingRequest]:
@@ -183,36 +222,36 @@ def _build_all_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
     """
     return {
         "operationName": "FundingRequests",
-        "variables": {"limit": limit, "page": page},
+        "variables": {"page": page, "limit": limit},
         "query": """
             query FundingRequests($page: Int!, $limit: Int!, $state: Int, $ordering: String) {
                 fundingRequests(page: $page, limit: $limit, state: $state, ordering: $ordering) {
-                    count results {
-                        id
-                        amount
-                        creditType
-                        dac duration {
-                            type
-                            value
-                        }
-                        fundedAmount
-                        outstandingPayer {
+                    count allCompleted results {
+                        empresa {
+                            historialCumplimiento {
+                                cantidad
+                                tipo
+                            }
                             id
-                            businessName
+                            logo
+                            nombre_fantasia
                         }
-                        requestable {
+                        operacion {
                             id
-                            fantasyName
-                            name
-                            fundingRequestsCount
-                            fundingRequestsPaidCount
-                            instalmentsCapital
-                            instalmentsCapitalPaidInTime
-                            instalmentsPaidPercentage
+                            moneda
+                            monto_financiar
+                            plazo {
+                                type
+                                value
+                            }
+                            porcentaje_inversion
+                            score
+                            tasa_anual
+                            tipo_respaldo
+                            tir
                         }
-                        tir
                     }
                 }
             }
-        """,
+    """,
     }

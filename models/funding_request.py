@@ -8,7 +8,6 @@ from typing import Any
 from pydantic import BaseModel, Field, validator
 
 from models.borrower import Borrower
-from models.payer import Institution
 from models.request_duration import FundingRequestDuration
 from utils.currency import format_currency
 
@@ -16,46 +15,79 @@ CUMPLO_BASE_URL = "https://secure.cumplo.cl"
 
 
 class FundingRequestExtraInformation(BaseModel):
+    paid_funding_requests_count: int = Field(...)
     paid_in_time_percentage: Decimal = Field(...)
     supporting_documents: list[str] = Field(...)
     average_days_delinquent: int = Field(...)
+    funding_requests_count: int = Field(...)
+    total_amount_requested: int = Field(...)
     dicom: bool = Field(...)
 
-    @validator("paid_in_time_percentage", pre=True)
-    def paid_in_time_validator(cls, value: Any) -> Decimal:
-        """
-        Validates that the paid_on_time is a valid decimal number.
-        If it is not, it returns None which means that it does not have a credit history yet.
-        """
-        try:
-            return round(Decimal(int(value) / 100), 3)
-        except ValueError:
-            return Decimal(0)
 
-
-class CreditType(str, Enum):
+class CumploCreditType(str, Enum):
     IRRIGATION = "irrigation"
     BALLOON = "balloon"
     INVOICE = "invoice"
     SIMPLE = "simple"
 
 
+class CreditType(str, Enum):
+    WORKING_CAPITAL = "WORKING CAPITAL"
+    STATE_SUBSIDY = "STATE SUBSIDY"
+    BALLOON_LOAN = "BALLOON LOAN"
+    FACTORING = "FACTORING"
+
+
+CREDIT_TYPE_TRANSLATIONS = {
+    CumploCreditType.IRRIGATION: CreditType.STATE_SUBSIDY,
+    CumploCreditType.SIMPLE: CreditType.WORKING_CAPITAL,
+    CumploCreditType.BALLOON: CreditType.BALLOON_LOAN,
+    CumploCreditType.INVOICE: CreditType.FACTORING,
+}
+
+
+class Currency(str, Enum):
+    CLP = "CLP"
+
+
 class FundingRequest(BaseModel):
     id: int = Field(...)
-    amount: int = Field(...)
+    score: Decimal = Field(...)
+    borrower: Borrower = Field(...)
     irr: Decimal = Field(..., alias="tir")
-    score: Decimal = Field(..., alias="dac")
-    duration: FundingRequestDuration = Field(...)
-    borrower: Borrower = Field(..., alias="requestable")
-    funded_amount: int = Field(..., alias="fundedAmount")
+    currency: Currency = Field(..., alias="moneda")
+    amount: int = Field(..., alias="monto_financiar")
+    anual_profit_rate: Decimal = Field(..., alias="tasa_anual")
+    duration: FundingRequestDuration = Field(..., alias="plazo")
     supporting_documents: list[str] = Field(default_factory=list)
-    institution: Institution = Field(..., alias="outstandingPayer")
-    credit_type: CreditType = Field(..., alias="creditType", anystr_upper=True)
+    funded_amount_percentage: Decimal = Field(..., alias="porcentaje_inversion")
+    credit_type: CreditType = Field(..., alias="tipo_respaldo", anystr_upper=True)
+
+    @validator("funded_amount_percentage", pre=True)
+    def funded_amount_percentage_validator(cls, value: Any) -> Decimal:
+        """
+        Validates that the funded_amount_percentage is a valid decimal number.
+        If it is not, it returns None which means that it does not have a credit history yet.
+        """
+        try:
+            return round(Decimal(int(value) / 100), 2)
+        except ValueError:
+            return Decimal(0)
+
+    @validator("anual_profit_rate", pre=True)
+    def anual_profit_rate_validator(cls, value: Any) -> Decimal:
+        """Validates that the anual_profit_rate is a valid decimal number"""
+        return round(Decimal(int(value) / 100), 2)
+
+    @validator("credit_type", pre=True)
+    def credit_type_validator(cls, value: Any) -> CreditType:
+        """Validates that the credit_type has a valid value"""
+        return CREDIT_TYPE_TRANSLATIONS[value]
 
     @property
     def is_completed(self) -> bool:
         """Checks if the funding request is fully funded"""
-        return self.amount == self.funded_amount
+        return self.funded_amount_percentage == Decimal(1)
 
     @property
     def profit_rate(self) -> Decimal:
@@ -66,11 +98,6 @@ class FundingRequest(BaseModel):
     def monthly_profit_rate(self) -> Decimal:
         """Calculates the monthly profit rate for the funding request"""
         return round(self.profit_rate * 30 / self.duration.value, 4)
-
-    @property
-    def funded_amount_percentage(self) -> Decimal:
-        """Calculates the monthly profit rate for the funding request"""
-        return round(Decimal(self.funded_amount / self.amount), 4)
 
     @property
     def url(self) -> str:
@@ -86,9 +113,8 @@ class FundingRequest(BaseModel):
         return {
             **super().dict(*args, **kwargs),
             "funded_amount_percentage": self.funded_amount_percentage,
-            "funded_amount": format_currency(self.funded_amount),
             "monthly_profit_rate": self.monthly_profit_rate,
-            "credit_type": self.credit_type.upper(),
+            "credit_type": self.credit_type,
             "amount": format_currency(self.amount),
             "url": self.url,
         }
