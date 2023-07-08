@@ -21,3 +21,8 @@ class Configuration(BaseModel):
     monthly_profit_rate: Decimal | None = Field(None)
     paid_in_time_percentage: Decimal | None = Field(None)
     notification_expiration: int = Field(DEFAULT_NOTIFICATION_EXPIRATION)
+
+    # TODO: Add filter by credit type
+    # TODO: Add filter by minimum investment amount
+    # TODO: Add filter by average investment amount
+    # TODO: Add filter by average investments per user
