@@ -1,4 +1,3 @@
-import os
 from logging import getLogger
 from typing import Any
 
@@ -11,15 +10,17 @@ from starlette.exceptions import HTTPException
 
 from models.notification import Notification
 from models.user import User
+from utils.constants import (
+    CONFIGURATIONS_COLLECTION,
+    NOTIFICATIONS_COLLECTION,
+    PROJECT_ID,
+    SANTIAGO_TIMEZONE,
+    USERS_COLLECTION,
+)
 
 load_dotenv()
 logger = getLogger(__name__)
 
-NOTIFICATIONS_COLLECTION = os.getenv("NOTIFICATIONS_COLLECTION", "notifications")
-CONFIGURATIONS_COLLECTION = os.getenv("CONFIGURATIONS_COLLECTION", "configurations")
-USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
-PROJECT_ID = os.getenv("PROJECT_ID", "")
-SANTIAGO_TIMEZONE = "America/Santiago"
 
 
 class Singleton(type):

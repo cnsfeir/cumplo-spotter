@@ -1,4 +1,3 @@
-import os
 import re
 from asyncio import ensure_future, gather, run
 from copy import copy
@@ -29,23 +28,21 @@ from models.filter import (
 )
 from models.funding_request import FundingRequest, FundingRequestExtraInformation
 from models.user import User
+from utils.constants import (
+    AVERAGE_DAYS_DELINQUENT_SELECTOR,
+    CREDIT_DETAIL_TITLE,
+    CUMPLO_FUNDING_REQUESTS_API,
+    CUMPLO_GRAPHQL_API,
+    DICOM_STRINGS,
+    PAID_FUNDING_REQUESTS_COUNT_SELECTOR,
+    PAID_IN_TIME_PERCENTAGE_SELECTOR,
+    SUPPORTING_DOCUMENTS_XPATH,
+    TOTAL_AMOUNT_REQUESTED_SELECTOR,
+)
 from utils.text import clean_text
 
 load_dotenv()
 logger = getLogger(__name__)
-
-
-CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
-CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
-CREDIT_DETAIL_TITLE = os.getenv("CREDIT_DETAIL_TITLE", "INFORMACION DEL CREDITO")
-
-DICOM_STRINGS = ["CON DICOM", "CONDICOM", "PRESENTA DICOM"]
-
-SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
-PAID_FUNDING_REQUESTS_COUNT_SELECTOR = "div.loan-view-item span:nth-of-type(1)"
-AVERAGE_DAYS_DELINQUENT_SELECTOR = "div.loan-view-item span:nth-of-type(3)"
-PAID_IN_TIME_PERCENTAGE_SELECTOR = "div.loan-view-item span:nth-of-type(5)"
-TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
 
 
 def get_funding_requests(user: User, configuration: Configuration) -> list[FundingRequest]:

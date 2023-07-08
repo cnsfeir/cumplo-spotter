@@ -1,12 +1,10 @@
 # pylint: disable=no-member
 
-import os
 from decimal import Decimal
 
 from pydantic import BaseModel, Field
 
-FILTER_NOTIFIED = bool(os.getenv("FILTER_NOTIFIED"))
-NOTIFICATION_EXPIRATION = int(os.getenv("NOTIFICATION_EXPIRATION", "2"))
+from utils.constants import DEFAULT_FILTER_NOTIFIED, DEFAULT_NOTIFICATION_EXPIRATION
 
 
 class Configuration(BaseModel):

@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from models.notification import Notification
 
-SANTIAGO_TIMEZONE = "America/Santiago"
+from utils.constants import SANTIAGO_TIMEZONE
 
 
 class User(BaseModel):
