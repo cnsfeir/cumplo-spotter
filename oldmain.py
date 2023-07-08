@@ -1,4 +1,3 @@
-import os
 from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import functions_framework
@@ -6,18 +5,15 @@ import google.cloud.logging
 from flask import Request, Response, make_response
 
 from integrations.cumplo import get_funding_requests
-from middlewares.authentication import authenticate
 from models.user import User
+from utils.constants import IS_TESTING, LOG_FORMAT
 from utils.event import get_configuration
-
-IS_TESTING = bool(os.getenv("IS_TESTING"))
 
 if not IS_TESTING:
     client = google.cloud.logging.Client()
     client.setup_logging()
 
-FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
-basicConfig(level=DEBUG, format=FORMAT)
+basicConfig(level=DEBUG, format=LOG_FORMAT)
 logger = getLogger(__name__)
 
 getLogger("google").setLevel(CRITICAL)
@@ -28,7 +24,6 @@ getLogger("werkzeug").setLevel(CRITICAL)
 getLogger("charset_normalizer").setLevel(CRITICAL)
 
 
-@authenticate
 @functions_framework.http
 def fetch_investment_opportunities(request: Request, user: User) -> Response:
     """
