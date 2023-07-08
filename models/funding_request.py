@@ -85,6 +85,10 @@ class FundingRequest(BaseModel):
         """Validates that the credit_type has a valid value"""
         return CREDIT_TYPE_TRANSLATIONS[value]
 
+    def __hash__(self) -> int:
+        """Returns the hash of the funding request"""
+        return hash(self.json())
+
     @property
     def is_completed(self) -> bool:
         """Checks if the funding request is fully funded"""
