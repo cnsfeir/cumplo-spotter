@@ -8,14 +8,16 @@ from utils.constants import DEFAULT_FILTER_NOTIFIED, DEFAULT_NOTIFICATION_EXPIRA
 
 
 class Configuration(BaseModel):
+    id: int = Field(...)
+    name: str = Field(...)
     filter_dicom: bool = Field(False)
     irr: Decimal | None = Field(None)
     duration: int | None = Field(None)
     score: Decimal | None = Field(None)
     amount_requested: int | None = Field(None)
     credits_requested: int | None = Field(None)
-    filter_notified: bool = Field(FILTER_NOTIFIED)
+    filter_notified: bool = Field(DEFAULT_FILTER_NOTIFIED)
     average_days_delinquent: int | None = Field(None)
     monthly_profit_rate: Decimal | None = Field(None)
     paid_in_time_percentage: Decimal | None = Field(None)
-    notification_expiration: int = Field(NOTIFICATION_EXPIRATION)
+    notification_expiration: int = Field(DEFAULT_NOTIFICATION_EXPIRATION)
