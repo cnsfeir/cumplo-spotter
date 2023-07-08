@@ -1,13 +1,11 @@
 from logging import getLogger
-from typing import Any
 
 import arrow
 from dotenv import load_dotenv
 from firebase_admin import credentials, firestore, initialize_app
-from google.cloud.firestore_v1.collection import CollectionReference
 from google.cloud.firestore_v1.document import DocumentReference
-from starlette.exceptions import HTTPException
 
+from models.configuration import Configuration
 from models.notification import Notification
 from models.user import User
 from utils.constants import (
@@ -22,22 +20,7 @@ load_dotenv()
 logger = getLogger(__name__)
 
 
-
-class Singleton(type):
-    _instances: dict = {}
-
-    def __call__(cls, *args: Any, **kwargs: Any) -> Any:
-        """
-        Creates a singleton instance of the class
-        """
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-
-        return cls._instances[cls]
-
-
-class FirestoreClient(metaclass=Singleton):
+class FirestoreClient:
     """
     Singleton class that initializes and returns a Firestore client
     """
@@ -74,21 +57,23 @@ class FirestoreClient(metaclass=Singleton):
         configurations = user_document.collection(CONFIGURATIONS_COLLECTION).stream()
         return {int(n.id): Configuration(id=int(n.id), **n.to_dict()) for n in configurations}
 
-    def get_user(self, id_user: str) -> User:
+    def get_user(self, api_key: str) -> User:
         """
         Gets the user data
         """
-        logger.info(f"Getting user {id_user} from Firestore")
-        user = self._get_user_document(id_user).get()
+        secure_api_key = f"...{api_key[-10:]}"
 
-        if not user.exists:
-            raise KeyError(f"User {id_user} does not exist")
+        logger.info(f"Getting user with API key {secure_api_key} from Firestore")
+        user_stream = self.client.collection(USERS_COLLECTION).where("api_key", "==", api_key).stream()
+
+        if not (user := next(user_stream, None)):
+            raise KeyError(f"User with API key {secure_api_key} does not exist")
 
         if not (user_data := user.to_dict()):
-            raise ValueError(f"User {id_user} data is empty")
+            raise ValueError(f"User with API key {secure_api_key} data is empty")
 
-        configurations = self._get_user_configurations(id_user)
-        notifications = self._get_user_notifications(id_user)
+        configurations = self._get_user_configurations(user.id)
+        notifications = self._get_user_notifications(user.id)
         return User(id=user.id, configurations=configurations, notifications=notifications, **user_data)
 
     def update_user(self, user: User) -> None:
