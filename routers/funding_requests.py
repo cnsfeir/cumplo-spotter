@@ -1,7 +1,10 @@
 from logging import getLogger
 
 from fastapi import APIRouter
+from fastapi.requests import Request
 from fastapi.responses import JSONResponse
+
+from integrations.cumplo import get_available_funding_requests
 
 logger = getLogger(__name__)
 
@@ -9,20 +12,19 @@ router = APIRouter(prefix="/funding-requests")
 
 
 @router.get("")
-async def get_funding_requests() -> JSONResponse:
+async def get_funding_requests(_request: Request) -> JSONResponse:
     """
-    Gets a list of funding requests.
+    Gets a list of available funding requests.
     """
-    logger.info(f"Getting investment opportunities for {user.name} ({user.id})")
-    configuration = get_configuration(request)
+    funding_requests = get_available_funding_requests()
+    return JSONResponse(status_code=200, content=funding_requests)
 
-    logger.info(f"Got this configuration for {user.name}: {configuration.dict(exclude_none=True)}")
-    funding_requests = get_funding_requests(user, configuration)
-    result = {
-        "total": len(funding_requests),
-        "ids": [funding_request.id for funding_request in funding_requests],
-        "opportunities": {
-            funding_request.id: funding_request.dict(exclude_none=True) for funding_request in funding_requests
-        },
-    }
-    return make_response(result, 200)
+
+@router.get("/promising")
+async def get_promising_funding_requests(_request: Request) -> JSONResponse:
+    """
+    Gets a list of promising funding requests based on the user's configuration.
+    """
+    funding_requests = get_available_funding_requests()
+    # TODO: Filter funding requests based on ALL of user's configurations
+    return JSONResponse(status_code=200, content=funding_requests)
