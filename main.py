@@ -1,19 +1,21 @@
-import os
 from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import google.cloud.logging
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 
-if not (IS_TESTING := bool(os.getenv("IS_TESTING"))):
+from middlewares.authentication import authenticate
+from routers import configurations, funding_requests
+from utils.constants import IS_TESTING, LOG_FORMAT
+
+if not IS_TESTING:
     client = google.cloud.logging.Client()
     client.setup_logging()
 
-FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
-basicConfig(level=DEBUG, format=FORMAT)
+basicConfig(level=DEBUG, format=LOG_FORMAT)
 logger = getLogger(__name__)
 
 getLogger("google").setLevel(CRITICAL)
@@ -44,4 +46,7 @@ app.add_middleware(
 )
 
 
-# app.include_router(a.router, dependencies=[Depends(check_auth_request)], responses=error_descriptions)
+app.include_router(funding_requests.router, dependencies=[Depends(authenticate)])
+app.include_router(funding_requests.internal, dependencies=[Depends(authenticate)])
+
+app.include_router(configurations.router, dependencies=[Depends(authenticate)])
