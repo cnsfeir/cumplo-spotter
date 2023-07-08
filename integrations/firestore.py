@@ -39,6 +39,11 @@ class FirestoreClient:
         user_document = self._get_user_document(id_user)
         return user_document.collection(NOTIFICATIONS_COLLECTION).document(str(id_funding_request))
 
+    def _get_configuration_document(self, id_user: str, id_configuration: int) -> DocumentReference:
+        """Gets a configuration document reference"""
+        user_document = self._get_user_document(id_user)
+        return user_document.collection(CONFIGURATIONS_COLLECTION).document(str(id_configuration))
+
     def _get_user_notifications(self, id_user: str) -> dict[int, Notification]:
         """
         Gets the user notifications data
@@ -91,6 +96,14 @@ class FirestoreClient:
         logger.info(f"Setting notification date for funding request {id_funding_request} at Firestore")
         notification = self._get_notification_document(id_user, id_funding_request)
         notification.set({"date": arrow.now(SANTIAGO_TIMEZONE).datetime})
+
+    def update_configuration(self, id_user: str, configuration: Configuration) -> None:
+        """
+        Updates a configuration of a user
+        """
+        logger.info(f"Updating configuration {configuration.id} of user {id_user} at Firestore")
+        configuration_reference = self._get_configuration_document(id_user, configuration.id)
+        configuration_reference.set(configuration.dict(exclude_none=True))
 
     def delete_notification(self, id_user: str, id_funding_request: int) -> None:
         """
