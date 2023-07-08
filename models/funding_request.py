@@ -9,9 +9,8 @@ from pydantic import BaseModel, Field, validator
 
 from models.borrower import Borrower
 from models.request_duration import FundingRequestDuration
+from utils.constants import CUMPLO_BASE_URL
 from utils.currency import format_currency
-
-CUMPLO_BASE_URL = "https://secure.cumplo.cl"
 
 
 class FundingRequestExtraInformation(BaseModel):
