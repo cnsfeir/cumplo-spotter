@@ -15,6 +15,7 @@ from utils.constants import (
     SANTIAGO_TIMEZONE,
     USERS_COLLECTION,
 )
+from utils.text import secure_key
 
 load_dotenv()
 logger = getLogger(__name__)
@@ -30,52 +31,26 @@ class FirestoreClient:
         initialize_app(firebase_credentials, {"projectId": PROJECT_ID})
         self.client = firestore.client()
 
-    def _get_user_document(self, id_user: str) -> DocumentReference:
-        """Gets a user document reference"""
-        return self.client.collection(USERS_COLLECTION).document(id_user)
-
-    def _get_notification_document(self, id_user: str, id_funding_request: int) -> DocumentReference:
-        """Gets a notification document reference"""
-        user_document = self._get_user_document(id_user)
-        return user_document.collection(NOTIFICATIONS_COLLECTION).document(str(id_funding_request))
-
-    def _get_configuration_document(self, id_user: str, id_configuration: int) -> DocumentReference:
-        """Gets a configuration document reference"""
-        user_document = self._get_user_document(id_user)
-        return user_document.collection(CONFIGURATIONS_COLLECTION).document(str(id_configuration))
-
-    def _get_user_notifications(self, id_user: str) -> dict[int, Notification]:
+    def get_users(self) -> list[User]:
         """
-        Gets the user notifications data
+        Gets all the users data
         """
-        logger.info(f"Getting user {id_user} notifications from Firestore")
-        user_document = self._get_user_document(id_user)
-        notifications = user_document.collection(NOTIFICATIONS_COLLECTION).stream()
-        return {int(n.id): Notification(id=int(n.id), **n.to_dict()) for n in notifications}
-
-    def _get_user_configurations(self, id_user: str) -> dict[int, Configuration]:
-        """
-        Gets the user configurations data
-        """
-        logger.info(f"Getting user {id_user} configurations from Firestore")
-        user_document = self._get_user_document(id_user)
-        configurations = user_document.collection(CONFIGURATIONS_COLLECTION).stream()
-        return {int(n.id): Configuration(id=int(n.id), **n.to_dict()) for n in configurations}
+        logger.info("Getting all users from Firestore")
+        user_stream = self.client.collection(USERS_COLLECTION).stream()
+        return list(user for user in user_stream)
 
     def get_user(self, api_key: str) -> User:
         """
         Gets the user data
         """
-        secure_api_key = f"...{api_key[-10:]}"
-
-        logger.info(f"Getting user with API key {secure_api_key} from Firestore")
+        logger.info(f"Getting user with API key {secure_key(api_key)} from Firestore")
         user_stream = self.client.collection(USERS_COLLECTION).where("api_key", "==", api_key).stream()
 
         if not (user := next(user_stream, None)):
-            raise KeyError(f"User with API key {secure_api_key} does not exist")
+            raise KeyError(f"User with API key {secure_key(api_key)} does not exist")
 
         if not (user_data := user.to_dict()):
-            raise ValueError(f"User with API key {secure_api_key} data is empty")
+            raise ValueError(f"User with API key {secure_key(api_key)} data is empty")
 
         configurations = self._get_user_configurations(user.id)
         notifications = self._get_user_notifications(user.id)
@@ -112,6 +87,38 @@ class FirestoreClient:
         logger.info(f"Deleting notification {id_funding_request} from Firestore")
         notification = self._get_notification_document(id_user, id_funding_request)
         notification.delete()
+
+    def _get_user_document(self, id_user: str) -> DocumentReference:
+        """Gets a user document reference"""
+        return self.client.collection(USERS_COLLECTION).document(id_user)
+
+    def _get_notification_document(self, id_user: str, id_funding_request: int) -> DocumentReference:
+        """Gets a notification document reference"""
+        user_document = self._get_user_document(id_user)
+        return user_document.collection(NOTIFICATIONS_COLLECTION).document(str(id_funding_request))
+
+    def _get_configuration_document(self, id_user: str, id_configuration: int) -> DocumentReference:
+        """Gets a configuration document reference"""
+        user_document = self._get_user_document(id_user)
+        return user_document.collection(CONFIGURATIONS_COLLECTION).document(str(id_configuration))
+
+    def _get_user_notifications(self, id_user: str) -> dict[int, Notification]:
+        """
+        Gets the user notifications data
+        """
+        logger.info(f"Getting user {id_user} notifications from Firestore")
+        user_document = self._get_user_document(id_user)
+        notifications = user_document.collection(NOTIFICATIONS_COLLECTION).stream()
+        return {int(n.id): Notification(id=int(n.id), **n.to_dict()) for n in notifications}
+
+    def _get_user_configurations(self, id_user: str) -> dict[int, Configuration]:
+        """
+        Gets the user configurations data
+        """
+        logger.info(f"Getting user {id_user} configurations from Firestore")
+        user_document = self._get_user_document(id_user)
+        configurations = user_document.collection(CONFIGURATIONS_COLLECTION).stream()
+        return {int(n.id): Configuration(id=int(n.id), **n.to_dict()) for n in configurations}
 
 
 firestore_client = FirestoreClient()
