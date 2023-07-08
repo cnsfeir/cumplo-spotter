@@ -49,7 +49,7 @@ def get_funding_requests(user: User, configuration: Configuration) -> list[Fundi
     """
     Gets all the GOOD available funding requests from the Cumplo API.
     """
-    funding_requests = _get_available_funding_requests()
+    funding_requests = get_available_funding_requests()
 
     filters = [
         AvailableFilter(user),
@@ -108,7 +108,7 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
 
 
 @retry(KeyError, tries=5, delay=1)
-def _get_available_funding_requests() -> list[FundingRequest]:
+def get_available_funding_requests() -> list[FundingRequest]:
     """
     Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
     """
@@ -118,9 +118,13 @@ def _get_available_funding_requests() -> list[FundingRequest]:
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
-    funding_requests = [FundingRequest(**result["operacion"], borrower=result["empresa"]) for result in results]
-    logger.info(f"Found {len(funding_requests)} funding requests")
+    funding_requests: list[FundingRequest] = []
+    for result in results:
+        funding_request = FundingRequest(**result["operacion"], borrower=result["empresa"])
+        if not funding_request.is_completed:
+            funding_requests.append(funding_request)
 
+    logger.info(f"Found {len(funding_requests)} funding requests")
     return funding_requests
 
 
