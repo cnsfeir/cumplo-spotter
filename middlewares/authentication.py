@@ -17,7 +17,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
-async def athenticate(request: Request, x_envoy_original_path: Annotated[str | None, Header()] = None) -> None:
+async def authenticate(request: Request, x_envoy_original_path: Annotated[str | None, Header()] = None) -> None:
     """
     Authenticates a request.
     """
