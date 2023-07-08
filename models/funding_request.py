@@ -28,20 +28,22 @@ class CumploCreditType(str, Enum):
     IRRIGATION = "irrigation"
     BALLOON = "balloon"
     INVOICE = "invoice"
+    BULLET = "bullet"
     SIMPLE = "simple"
 
 
 class CreditType(str, Enum):
     WORKING_CAPITAL = "WORKING CAPITAL"
     STATE_SUBSIDY = "STATE SUBSIDY"
-    BALLOON_LOAN = "BALLOON LOAN"
+    BULLET_LOAN = "BULLET LOAN"
     FACTORING = "FACTORING"
 
 
 CREDIT_TYPE_TRANSLATIONS = {
     CumploCreditType.IRRIGATION: CreditType.STATE_SUBSIDY,
     CumploCreditType.SIMPLE: CreditType.WORKING_CAPITAL,
-    CumploCreditType.BALLOON: CreditType.BALLOON_LOAN,
+    CumploCreditType.BALLOON: CreditType.BULLET_LOAN,
+    CumploCreditType.BULLET: CreditType.BULLET_LOAN,
     CumploCreditType.INVOICE: CreditType.FACTORING,
 }
 
