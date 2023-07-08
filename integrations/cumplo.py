@@ -14,12 +14,10 @@ from retry import retry
 from models.configuration import Configuration
 from models.filter import (
     AmountRequestedFilter,
-    AvailableFilter,
     AverageDaysDelinquentFilter,
     CreditsRequestedFilter,
     DicomFilter,
     DurationFilter,
-    Filter,
     IRRFilter,
     MonthlyProfitFilter,
     NotificationFilter,
@@ -45,25 +43,17 @@ load_dotenv()
 logger = getLogger(__name__)
 
 
-def get_funding_requests(user: User, configuration: Configuration) -> list[FundingRequest]:
+def filter_funding_requests(
+    funding_requests: list[FundingRequest], user: User, configuration: Configuration
+) -> list[FundingRequest]:
     """
     Gets all the GOOD available funding requests from the Cumplo API.
     """
-    funding_requests = get_available_funding_requests()
-
     filters = [
-        AvailableFilter(user),
         ScoreFilter(configuration),
         IRRFilter(configuration),
         MonthlyProfitFilter(configuration),
         DurationFilter(configuration),
-    ]
-    funding_requests = _filter_funding_requests(funding_requests, *filters)
-    logger.info(f"Found {len(funding_requests)} available funding requests")
-
-    funding_requests = run(_gather_full_funding_requests(funding_requests))
-
-    filters = [
         DicomFilter(configuration),
         PaidInTimeFilter(configuration),
         AmountRequestedFilter(configuration),
@@ -71,7 +61,33 @@ def get_funding_requests(user: User, configuration: Configuration) -> list[Fundi
         AverageDaysDelinquentFilter(configuration),
         NotificationFilter(configuration, user),
     ]
-    funding_requests = _filter_funding_requests(funding_requests, *filters)
+
+    logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
+    funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
+
+    logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
+    return funding_requests
+
+
+@retry(KeyError, tries=5, delay=1)
+def get_available_funding_requests() -> list[FundingRequest]:
+    """
+    Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
+    """
+    logger.info("Getting funding requests from Cumplo API")
+
+    payload = _build_all_funding_requests_query()
+    response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
+    results = response.json()["data"]["fundingRequests"]["results"]
+
+    funding_requests: list[FundingRequest] = []
+    for result in results:
+        funding_request = FundingRequest(**result["operacion"], borrower=result["empresa"])
+        if not funding_request.is_completed:
+            funding_requests.append(funding_request)
+
+    logger.info(f"Found {len(funding_requests)} funding requests")
+    funding_requests = run(_gather_full_funding_requests(funding_requests))
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
     logger.info(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
@@ -104,27 +120,6 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
             funding_request.supporting_documents = information.supporting_documents
 
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
-    return funding_requests
-
-
-@retry(KeyError, tries=5, delay=1)
-def get_available_funding_requests() -> list[FundingRequest]:
-    """
-    Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
-    """
-    logger.info("Getting funding requests from Cumplo API")
-
-    payload = _build_all_funding_requests_query()
-    response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
-    results = response.json()["data"]["fundingRequests"]["results"]
-
-    funding_requests: list[FundingRequest] = []
-    for result in results:
-        funding_request = FundingRequest(**result["operacion"], borrower=result["empresa"])
-        if not funding_request.is_completed:
-            funding_requests.append(funding_request)
-
-    logger.info(f"Found {len(funding_requests)} funding requests")
     return funding_requests
 
 
@@ -204,17 +199,6 @@ def _extract_total_amount_requested(content: BeautifulSoup) -> int:
     element = content.select_one(TOTAL_AMOUNT_REQUESTED_SELECTOR)
     value = re.findall(r"\d+", element.get_text().replace(".", ""))
     return int(value[0]) if value else 0
-
-
-def _filter_funding_requests(funding_requests: list[FundingRequest], *filters: Filter) -> list[FundingRequest]:
-    """
-    Filters the funding requests that don't meet the minimum requirements
-    """
-    logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
-    funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
-
-    logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
-    return funding_requests
 
 
 def _build_all_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
