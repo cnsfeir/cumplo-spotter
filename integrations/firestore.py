@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from logging import getLogger
 
 import arrow
@@ -31,13 +32,14 @@ class FirestoreClient:
         initialize_app(firebase_credentials, {"projectId": PROJECT_ID})
         self.client = firestore.client()
 
-    def get_users(self) -> list[User]:
+    def get_users(self) -> Generator[User, None, None]:
         """
         Gets all the users data
         """
         logger.info("Getting all users from Firestore")
         user_stream = self.client.collection(USERS_COLLECTION).stream()
-        return list(user for user in user_stream)
+        for user in user_stream:
+            yield User(id=user.id, **user.to_dict())
 
     def get_user(self, api_key: str) -> User:
         """
