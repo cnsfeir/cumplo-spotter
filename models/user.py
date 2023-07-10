@@ -15,6 +15,7 @@ class User(BaseModel):
     name: str = Field(...)
     calls: int = Field(...)
     last_call: datetime = Field(...)
+    webhook_url: str | None = Field(None)
     notifications: dict[int, Notification] = Field(default_factory=dict, exclude=True)
     configurations: dict[int, Configuration] = Field(default_factory=dict, exclude=True)
 
