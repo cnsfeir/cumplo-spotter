@@ -9,7 +9,10 @@ CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
 DEFAULT_FILTER_NOTIFIED = bool(os.getenv("DEFAULT_FILTER_NOTIFIED"))
 DEFAULT_NOTIFICATION_EXPIRATION = int(os.getenv("DEFAULT_NOTIFICATION_EXPIRATION", "2"))
 DICOM_STRINGS = ["CON DICOM", "CONDICOM", "PRESENTA DICOM"]
+FILTER_FUNDING_REQUESTS_QUEUE = os.getenv("FILTER_FUNDING_REQUESTS_QUEUE", "")
+FUNDING_REQUESTS_URL = os.getenv("FUNDING_REQUESTS_URL", "")
 IS_TESTING = bool(os.getenv("IS_TESTING"))
+LOCATION = os.getenv("LOCATION", "us-central1")
 LOG_FORMAT = "\n [%(levelname)s] %(message)s"
 MAX_CONFIGURATIONS = int(os.getenv("MAX_CONFIGURATIONS", "3"))
 NOTIFICATIONS_COLLECTION = os.getenv("NOTIFICATIONS_COLLECTION", "notifications")
@@ -20,3 +23,4 @@ SANTIAGO_TIMEZONE = "America/Santiago"
 SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
 TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
 USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
+WEBHOOK_QUEUE = os.getenv("WEBHOOK_QUEUE", "")
