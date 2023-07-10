@@ -20,6 +20,8 @@ lxml = "^4.9.2"
 google-cloud-logging = "^3.5.0"
 starlette = "^0.27.0"
 fastapi = "^0.95.2"
+google-cloud-tasks = "^2.13.2"
+types-protobuf = "^4.23.0.1"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.17.2"

@@ -966,6 +966,24 @@ requests = ">=2.18.0,<3.0.0dev"
 protobuf = ["protobuf (<5.0.0dev)"]
 
 [[package]]
+name = "google-cloud-tasks"
+version = "2.13.2"
+description = "Google Cloud Tasks API client library"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "google-cloud-tasks-2.13.2.tar.gz", hash = "sha256:557614b393d0f9b1fdeddfef380c5a8380809fc44e32f3d97b0174e5efe4ecf3"},
+    {file = "google_cloud_tasks-2.13.2-py2.py3-none-any.whl", hash = "sha256:f10e001c2fc52dc37a921c7ea7dfad2c5e1131a744bc98bd0f9fefada2c1850c"},
+]
+
+[package.dependencies]
+google-api-core = {version = ">=1.34.0,<2.0.0 || >=2.11.0,<3.0.0dev", extras = ["grpc"]}
+grpc-google-iam-v1 = ">=0.12.4,<1.0.0dev"
+proto-plus = {version = ">=1.22.2,<2.0.0dev", markers = "python_version >= \"3.11\""}
+protobuf = ">=3.19.5,<3.20.0 || >3.20.0,<3.20.1 || >3.20.1,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4.21.3 || >4.21.3,<4.21.4 || >4.21.4,<4.21.5 || >4.21.5,<5.0.0dev"
+
+[[package]]
 name = "google-crc32c"
 version = "1.5.0"
 description = "A python wrapper of the C library 'Google CRC32C'"
@@ -2007,6 +2025,18 @@ files = [
 ]
 
 [[package]]
+name = "types-protobuf"
+version = "4.23.0.1"
+description = "Typing stubs for protobuf"
+category = "main"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-protobuf-4.23.0.1.tar.gz", hash = "sha256:7bd5ea122a057b11a82b785d9de464932a1e9175fe977a4128adef11d7f35547"},
+    {file = "types_protobuf-4.23.0.1-py3-none-any.whl", hash = "sha256:c926104f69ea62103846681b35b690d8d100ecf86c6cdda16c850a1313a272e4"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.6.2"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -2223,4 +2253,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "7904e6f882c5783d8dc244fb6e633d22975a53139708bdb080001ca420970a29"
+content-hash = "6765c816bfe28df1b996fa8783dff8635f8e188537b06ee68eaa9c878e44eb1f"
