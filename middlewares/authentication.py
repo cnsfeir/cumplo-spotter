@@ -17,6 +17,7 @@ load_dotenv()
 API_KEY = os.getenv("API_KEY")
 
 
+# TODO: Change the API Gateway configuration to receive the API key in the header and send it in the header
 async def authenticate(request: Request, x_envoy_original_path: Annotated[str | None, Header()] = None) -> None:
     """
     Authenticates a request.
