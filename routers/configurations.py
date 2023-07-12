@@ -58,11 +58,23 @@ async def post_configuration(request: Request, payload: ConfigurationPayload) ->
 @router.put("/{id_configuration}", status_code=HTTPStatus.NO_CONTENT)
 async def put_configuration(request: Request, payload: ConfigurationPayload, id_configuration: int) -> None:
     """
-    Creates or updates a configuration.
+    Updates a configuration.
     """
     user = cast(User, request.state.user)
     if configuration := user.configurations.get(id_configuration):
         configuration = configuration.copy(update=payload.dict())
         return firestore_client.update_configuration(user.id, configuration)
+
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
+
+
+@router.delete("/{id_configuration}", status_code=HTTPStatus.NO_CONTENT)
+async def delete_configuration(request: Request, id_configuration: int) -> None:
+    """
+    Deletes a configuration.
+    """
+    user = cast(User, request.state.user)
+    if configuration := user.configurations.get(id_configuration):
+        return firestore_client.delete_configuration(user.id, configuration.id)
 
     raise HTTPException(status_code=HTTPStatus.NOT_FOUND)

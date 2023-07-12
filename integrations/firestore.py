@@ -90,6 +90,14 @@ class FirestoreClient:
         notification = self._get_notification_document(id_user, id_funding_request)
         notification.delete()
 
+    def delete_configuration(self, id_user: str, id_configuration: int) -> None:
+        """
+        Deletes a configuration for a given user
+        """
+        logger.info(f"Deleting configuration {id_configuration} from Firestore")
+        configuration = self._get_configuration_document(id_user, id_configuration)
+        configuration.delete()
+
     def _get_user_document(self, id_user: str) -> DocumentReference:
         """Gets a user document reference"""
         return self.client.collection(USERS_COLLECTION).document(id_user)
