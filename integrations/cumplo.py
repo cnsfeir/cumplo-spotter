@@ -1,5 +1,5 @@
 import re
-from asyncio import ensure_future, gather, run
+from asyncio import ensure_future, gather
 from copy import copy
 from decimal import Decimal
 from logging import getLogger
@@ -70,7 +70,7 @@ def filter_funding_requests(
 
 
 @retry(KeyError, tries=5, delay=1)
-def get_available_funding_requests() -> list[FundingRequest]:
+async def get_available_funding_requests() -> list[FundingRequest]:
     """
     Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
     """
@@ -87,7 +87,7 @@ def get_available_funding_requests() -> list[FundingRequest]:
             funding_requests.append(funding_request)
 
     logger.info(f"Found {len(funding_requests)} funding requests")
-    funding_requests = run(_gather_full_funding_requests(funding_requests))
+    funding_requests = await _gather_full_funding_requests(funding_requests)
 
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
     logger.info(f"Finish sorting {len(funding_requests)} funding requests by monthly profit rate")
