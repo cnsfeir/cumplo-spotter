@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from middlewares.authentication import authenticate
+from middlewares.authorization import is_admin
 from routers import configurations, funding_requests
 from utils.constants import IS_TESTING, LOG_FORMAT
 
@@ -35,6 +36,6 @@ app.add_middleware(
 
 
 app.include_router(funding_requests.router, dependencies=[Depends(authenticate)])
-app.include_router(funding_requests.internal, dependencies=[Depends(authenticate)])
+app.include_router(funding_requests.internal, dependencies=[Depends(authenticate), Depends(is_admin)])
 
 app.include_router(configurations.router, dependencies=[Depends(authenticate)])
