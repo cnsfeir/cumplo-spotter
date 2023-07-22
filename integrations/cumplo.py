@@ -104,7 +104,7 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
         for funding_request in funding_requests:
             tasks.append(ensure_future(_get_extra_information(session, funding_request.id)))
 
-        logger.info(f"Gathering {len(tasks)} credit history responses")
+        logger.info(f"Gathering {len(tasks)} credit history")
         extra_information = await gather(*tasks)
         for funding_request, information in zip(copy(funding_requests), extra_information):
             if information is None:
@@ -156,7 +156,7 @@ def _extract_supporting_documents(content: BeautifulSoup) -> list[str]:
     """
     Extracts the supporting documents from a given funding request
     """
-    logger.info("Extracting supporting documents from funding request detail")
+    logger.debug("Extracting supporting documents from funding request detail")
     supporting_documents = HTML(str(content)).xpath(SUPPORTING_DOCUMENTS_XPATH)
     return [clean_text(document.text) for document in supporting_documents]
 
@@ -165,7 +165,7 @@ def _extract_paid_in_time_percentage(content: BeautifulSoup) -> Decimal:
     """
     Extracts the paid in time percentage from a given funding request
     """
-    logger.info("Extracting paid in time percentage from funding request details")
+    logger.debug("Extracting paid in time percentage from funding request details")
     element = content.select_one(PAID_IN_TIME_PERCENTAGE_SELECTOR)
     value = re.findall(r"\d+", element.get_text())
     return round(Decimal(int(value[0]) / 100 if value else 0), 2)
@@ -175,7 +175,7 @@ def _extract_average_days_delinquent(content: BeautifulSoup) -> int:
     """
     Extracts the average days delinquent from a given funding request
     """
-    logger.info("Extracting average days delinquent from funding request details")
+    logger.debug("Extracting average days delinquent from funding request details")
     element = content.select_one(AVERAGE_DAYS_DELINQUENT_SELECTOR)
     value = re.findall(r"\d+", element.get_text())
     return int(value[0]) if value else 0
@@ -185,7 +185,7 @@ def _extract_funding_requests_count(content: BeautifulSoup) -> tuple[int, int]:
     """
     Extracts the paid and requested funding requests count from a given funding request
     """
-    logger.info("Extracting paid funding requests count from funding request details")
+    logger.debug("Extracting paid funding requests count from funding request details")
     element = content.select_one(PAID_FUNDING_REQUESTS_COUNT_SELECTOR)
     paid, requested = re.findall(r"\d+", element.get_text())[:2]
     return int(paid), int(requested)
@@ -195,7 +195,7 @@ def _extract_total_amount_requested(content: BeautifulSoup) -> int:
     """
     Extracts the paid and requested funding requests count from a given borrower
     """
-    logger.info("Extracting paid and requested funding requests count from borrower details")
+    logger.debug("Extracting paid and requested funding requests count from borrower details")
     element = content.select_one(TOTAL_AMOUNT_REQUESTED_SELECTOR)
     value = re.findall(r"\d+", element.get_text().replace(".", ""))
     return int(value[0]) if value else 0
