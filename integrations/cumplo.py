@@ -32,6 +32,7 @@ from utils.constants import (
     CUMPLO_FUNDING_REQUESTS_API,
     CUMPLO_GRAPHQL_API,
     DICOM_STRINGS,
+    IRS_SECTOR_SELECTOR,
     PAID_FUNDING_REQUESTS_COUNT_SELECTOR,
     PAID_IN_TIME_PERCENTAGE_SELECTOR,
     SUPPORTING_DOCUMENTS_XPATH,
@@ -118,6 +119,7 @@ async def _gather_full_funding_requests(funding_requests: list[FundingRequest]) 
             funding_request.borrower.funding_requests_count = information.funding_requests_count
             funding_request.borrower.paid_funding_requests_count = information.paid_funding_requests_count
             funding_request.supporting_documents = information.supporting_documents
+            funding_request.borrower.irs_sector = information.irs_sector
 
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
@@ -144,6 +146,7 @@ async def _get_extra_information(
         return FundingRequestExtraInformation(
             funding_requests_count=requested,
             paid_funding_requests_count=paid,
+            irs_sector=_extract_irs_sector(soup),
             supporting_documents=_extract_supporting_documents(soup),
             total_amount_requested=_extract_total_amount_requested(soup),
             paid_in_time_percentage=_extract_paid_in_time_percentage(soup),
@@ -159,6 +162,15 @@ def _extract_supporting_documents(content: BeautifulSoup) -> list[str]:
     logger.debug("Extracting supporting documents from funding request detail")
     supporting_documents = HTML(str(content)).xpath(SUPPORTING_DOCUMENTS_XPATH)
     return [clean_text(document.text) for document in supporting_documents]
+
+
+def _extract_irs_sector(content: BeautifulSoup) -> str:
+    """
+    Extracts the supporting documents from a given funding request
+    """
+    logger.debug("Extracting IRS sector from funding request detail")
+    element = content.select_one(IRS_SECTOR_SELECTOR)
+    return clean_text(element.get_text())
 
 
 def _extract_paid_in_time_percentage(content: BeautifulSoup) -> Decimal:
