@@ -26,7 +26,6 @@ NOTIFICATIONS_COLLECTION = os.getenv("NOTIFICATIONS_COLLECTION", "notifications"
 PAID_FUNDING_REQUESTS_COUNT_SELECTOR = "div.loan-view-item span:nth-of-type(1)"
 PAID_IN_TIME_PERCENTAGE_SELECTOR = "div.loan-view-item span:nth-of-type(5)"
 PROJECT_ID = os.getenv("PROJECT_ID", "")
-SANTIAGO_TIMEZONE = "America/Santiago"
 SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
 TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
 USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
