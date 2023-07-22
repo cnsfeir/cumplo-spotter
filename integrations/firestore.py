@@ -4,18 +4,13 @@ from logging import getLogger
 import arrow
 from dotenv import load_dotenv
 from firebase_admin import credentials, firestore, initialize_app
+from google.cloud.firestore_v1.base_query import FieldFilter
 from google.cloud.firestore_v1.document import DocumentReference
 
 from models.configuration import Configuration
 from models.notification import Notification
 from models.user import User
-from utils.constants import (
-    CONFIGURATIONS_COLLECTION,
-    NOTIFICATIONS_COLLECTION,
-    PROJECT_ID,
-    SANTIAGO_TIMEZONE,
-    USERS_COLLECTION,
-)
+from utils.constants import CONFIGURATIONS_COLLECTION, NOTIFICATIONS_COLLECTION, PROJECT_ID, USERS_COLLECTION
 from utils.text import secure_key
 
 load_dotenv()
@@ -46,7 +41,8 @@ class FirestoreClient:
         Gets the user data
         """
         logger.info(f"Getting user with API key {secure_key(api_key)} from Firestore")
-        user_stream = self.client.collection(USERS_COLLECTION).where("api_key", "==", api_key).stream()
+        filter_ = FieldFilter("api_key", "==", api_key)
+        user_stream = self.client.collection(USERS_COLLECTION).where(filter=filter_).stream()
 
         if not (user := next(user_stream, None)):
             raise KeyError(f"User with API key {secure_key(api_key)} does not exist")
@@ -66,17 +62,17 @@ class FirestoreClient:
         user_document = self._get_user_document(user.id)
         user_document.set(user.dict())
 
-    def set_notification_date(self, id_user: str, id_funding_request: int) -> None:
+    def update_notification(self, id_user: str, id_funding_request: int) -> None:
         """
-        Sets the notification date of a funding request for a given user
+        Updates the notification for a given user
         """
-        logger.info(f"Setting notification date for funding request {id_funding_request} at Firestore")
+        logger.info(f"Updating notification for funding request {id_funding_request} at Firestore")
         notification = self._get_notification_document(id_user, id_funding_request)
-        notification.set({"date": arrow.now(SANTIAGO_TIMEZONE).datetime})
+        notification.set({"date": arrow.utcnow().datetime})
 
     def update_configuration(self, id_user: str, configuration: Configuration) -> None:
         """
-        Updates a configuration of a user
+        Updates a configuration of a given user
         """
         logger.info(f"Updating configuration {configuration.id} of user {id_user} at Firestore")
         configuration_reference = self._get_configuration_document(id_user, configuration.id)
