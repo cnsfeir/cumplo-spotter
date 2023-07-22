@@ -19,7 +19,6 @@ router = APIRouter(prefix="/funding-requests")
 internal = APIRouter(prefix="/funding-requests")
 
 
-# TODO: Add a limit for the number of daily calls per user at a middleware level
 @router.get("", status_code=HTTPStatus.OK)
 async def get_funding_requests(_request: Request) -> list[Annotated[dict, FundingRequest]]:
     """
@@ -29,7 +28,6 @@ async def get_funding_requests(_request: Request) -> list[Annotated[dict, Fundin
     return [funding_request.dict() for funding_request in funding_requests]
 
 
-# TODO: Add a limit for the number of daily calls per user at a middleware level
 @router.get("/promising", status_code=HTTPStatus.OK)
 async def get_promising_funding_requests(request: Request) -> list[Annotated[dict, FundingRequest]]:
     """
@@ -45,7 +43,7 @@ async def get_promising_funding_requests(request: Request) -> list[Annotated[dic
     return [funding_request.dict() for funding_request in promising_funding_requests]
 
 
-@internal.post(path="/fetch", status_code=HTTPStatus.OK)
+@internal.post(path="/fetch", status_code=HTTPStatus.NO_CONTENT)
 async def fetch_funding_requests(_request: Request) -> None:
     """
     Fetches a list of funding requests and schedules the filtering process.
@@ -58,12 +56,10 @@ async def fetch_funding_requests(_request: Request) -> None:
             continue
 
         payload = FilterFundingRequestPayload(id_user=user.id, funding_requests=funding_requests)
-        create_http_task(
-            url=f"{FUNDING_REQUESTS_URL}/filter", payload=payload.dict(), queue=FILTER_FUNDING_REQUESTS_QUEUE
-        )
+        create_http_task(f"{FUNDING_REQUESTS_URL}/filter", FILTER_FUNDING_REQUESTS_QUEUE, payload.dict())
 
 
-@internal.post(path="/filter", status_code=HTTPStatus.OK)
+@internal.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
 async def filter_funding_requests(_request: Request, payload: FilterFundingRequestPayload) -> None:
     """
     Filters a list of funding requests based on the user's configuration.
