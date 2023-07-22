@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import getLogger
-from typing import cast
+from typing import Annotated, cast
 
 from fastapi import APIRouter
 from fastapi.requests import Request
@@ -21,28 +21,28 @@ internal = APIRouter(prefix="/funding-requests")
 
 # TODO: Add a limit for the number of daily calls per user at a middleware level
 @router.get("", status_code=HTTPStatus.OK)
-async def get_funding_requests(_request: Request) -> list[FundingRequest]:
+async def get_funding_requests(_request: Request) -> list[Annotated[dict, FundingRequest]]:
     """
     Gets a list of available funding requests.
     """
-    funding_requests = cumplo.get_available_funding_requests()
-    return funding_requests
+    funding_requests = await cumplo.get_available_funding_requests()
+    return [funding_request.dict() for funding_request in funding_requests]
 
 
 # TODO: Add a limit for the number of daily calls per user at a middleware level
 @router.get("/promising", status_code=HTTPStatus.OK)
-async def get_promising_funding_requests(request: Request) -> list[FundingRequest]:
+async def get_promising_funding_requests(request: Request) -> list[Annotated[dict, FundingRequest]]:
     """
     Gets a list of promising funding requests based on the user's configuration.
     """
-    funding_requests = cumplo.get_available_funding_requests()
+    funding_requests = await cumplo.get_available_funding_requests()
     user = cast(User, request.state.user)
 
     promising_funding_requests = set()
     for configuration in user.configurations.values():
         promising_funding_requests.update(cumplo.filter_funding_requests(funding_requests, user, configuration))
 
-    return list(promising_funding_requests)
+    return [funding_request.dict() for funding_request in promising_funding_requests]
 
 
 @internal.post(path="/fetch", status_code=HTTPStatus.OK)
@@ -50,7 +50,7 @@ async def fetch_funding_requests(_request: Request) -> None:
     """
     Fetches a list of funding requests and schedules the filtering process.
     """
-    funding_requests = cumplo.get_available_funding_requests()
+    funding_requests = await cumplo.get_available_funding_requests()
 
     for user in firestore_client.get_users():
         if not user.webhook_url:
