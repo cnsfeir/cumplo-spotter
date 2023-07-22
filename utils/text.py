@@ -1,7 +1,7 @@
 import string
 import unicodedata
 
-SEPARATORS = ["_", "-", "."]
+SEPARATORS = ["_", "-"]
 
 
 def clean_text(error: str) -> str:
