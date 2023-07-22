@@ -1,5 +1,3 @@
-# pylint: disable=no-member
-
 from decimal import Decimal
 from typing import Any
 
@@ -8,8 +6,7 @@ from pydantic import BaseModel, Field
 from utils.constants import DEFAULT_FILTER_NOTIFIED, DEFAULT_NOTIFICATION_EXPIRATION
 
 
-class Configuration(BaseModel):
-    id: int = Field(..., exclude=True)
+class ConfigurationPayload(BaseModel):
     name: str = Field("")
     filter_dicom: bool = Field(False)
     irr: Decimal | None = Field(None)
@@ -24,7 +21,7 @@ class Configuration(BaseModel):
     notification_expiration: int = Field(DEFAULT_NOTIFICATION_EXPIRATION)
 
     def __hash__(self) -> int:
-        return hash(self.json(exclude={"id", "name"}, exclude_defaults=True, exclude_none=True))
+        return hash(self.json(exclude={"name"}, exclude_defaults=True, exclude_none=True))
 
     def __eq__(self, wea: Any) -> bool:
         return self.__hash__() == wea.__hash__()

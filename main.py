@@ -1,23 +1,19 @@
-import os
 from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
-import functions_framework
 import google.cloud.logging
-from flask import Request, Response, make_response
+from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-from integrations.cumplo import get_funding_requests
 from middlewares.authentication import authenticate
-from models.user import User
-from utils.event import get_configuration
-
-IS_TESTING = bool(os.getenv("IS_TESTING"))
+from middlewares.authorization import is_admin
+from routers import configurations, funding_requests
+from utils.constants import IS_TESTING, LOG_FORMAT
 
 if not IS_TESTING:
     client = google.cloud.logging.Client()
     client.setup_logging()
 
-FORMAT = "\n [%(levelname)s] (%(name)s:%(lineno)d) \n %(message)s" if IS_TESTING else "\n [%(levelname)s] %(message)s"
-basicConfig(level=DEBUG, format=FORMAT)
+basicConfig(level=DEBUG, format=LOG_FORMAT)
 logger = getLogger(__name__)
 
 getLogger("google").setLevel(CRITICAL)
@@ -27,23 +23,19 @@ getLogger("fsevents").setLevel(CRITICAL)
 getLogger("werkzeug").setLevel(CRITICAL)
 getLogger("charset_normalizer").setLevel(CRITICAL)
 
+app = FastAPI()
 
-@authenticate
-@functions_framework.http
-def fetch_investment_opportunities(request: Request, user: User) -> Response:
-    """
-    Fetches a list of good investment opportunities.
-    """
-    logger.info(f"Getting investment opportunities for {user.name} ({user.id})")
-    configuration = get_configuration(request)
 
-    logger.info(f"Got this configuration for {user.name}: {configuration.dict(exclude_none=True)}")
-    funding_requests = get_funding_requests(user, configuration)
-    result = {
-        "total": len(funding_requests),
-        "ids": [funding_request.id for funding_request in funding_requests],
-        "opportunities": {
-            funding_request.id: funding_request.dict(exclude_none=True) for funding_request in funding_requests
-        },
-    }
-    return make_response(result, 200)
+app.add_middleware(
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+app.include_router(funding_requests.router, dependencies=[Depends(authenticate)])
+app.include_router(funding_requests.internal, dependencies=[Depends(authenticate), Depends(is_admin)])
+
+app.include_router(configurations.router, dependencies=[Depends(authenticate)])

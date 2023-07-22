@@ -21,23 +21,6 @@ class Filter(metaclass=ABCMeta):
         """
 
 
-class AvailableFilter(Filter):
-    def __init__(self, user: User) -> None:
-        self.user = user
-
-    def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that are already completed.
-        """
-        if not funding_request.is_completed:
-            return True
-
-        if self.user.notifications.get(funding_request.id):
-            firestore_client.delete_notification(self.user.id, funding_request.id)
-
-        return False
-
-
 class NotificationFilter(Filter):
     def __init__(self, configuration: Configuration, user: User) -> None:
         self.configuration = configuration
@@ -53,7 +36,7 @@ class NotificationFilter(Filter):
         notification = self.user.notifications.get(funding_request.id)
 
         if not notification or notification.has_expired(self.configuration.notification_expiration):
-            firestore_client.set_notification_date(self.user.id, funding_request.id)
+            firestore_client.update_notification(self.user.id, funding_request.id)
             return True
 
         return False

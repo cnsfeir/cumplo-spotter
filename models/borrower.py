@@ -14,6 +14,7 @@ logger = getLogger(__name__)
 class Borrower(BaseModel):
     id: str | None = Field(None)
     dicom: bool | None = Field(None)
+    irs_sector: str | None = Field(None)
     funding_requests_count: int = Field(0)
     total_amount_requested: int = Field(0)
     paid_funding_requests_count: int = Field(0)

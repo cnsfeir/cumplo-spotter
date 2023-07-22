@@ -3,12 +3,7 @@
 from datetime import datetime
 
 import arrow
-from dotenv import load_dotenv
 from pydantic import BaseModel, Field
-
-load_dotenv()
-
-SANTIAGO_TIMEZONE = "America/Santiago"
 
 
 class Notification(BaseModel):
@@ -19,4 +14,4 @@ class Notification(BaseModel):
         """
         Checks if the notification has expired
         """
-        return arrow.get(self.date).shift(hours=expiracy_hours) < arrow.now(SANTIAGO_TIMEZONE)
+        return arrow.get(self.date).shift(hours=expiracy_hours) < arrow.utcnow()

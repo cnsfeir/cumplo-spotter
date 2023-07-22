@@ -9,9 +9,8 @@ from pydantic import BaseModel, Field, validator
 
 from models.borrower import Borrower
 from models.request_duration import FundingRequestDuration
+from utils.constants import CUMPLO_BASE_URL
 from utils.currency import format_currency
-
-CUMPLO_BASE_URL = "https://secure.cumplo.cl"
 
 
 class FundingRequestExtraInformation(BaseModel):
@@ -21,6 +20,7 @@ class FundingRequestExtraInformation(BaseModel):
     average_days_delinquent: int = Field(...)
     funding_requests_count: int = Field(...)
     total_amount_requested: int = Field(...)
+    irs_sector: str = Field(...)
     dicom: bool = Field(...)
 
 
@@ -63,7 +63,7 @@ class FundingRequest(BaseModel):
     duration: FundingRequestDuration = Field(..., alias="plazo")
     supporting_documents: list[str] = Field(default_factory=list)
     funded_amount_percentage: Decimal = Field(..., alias="porcentaje_inversion")
-    credit_type: CreditType = Field(..., alias="tipo_respaldo", anystr_upper=True)
+    credit_type: str = Field(..., alias="tipo_respaldo")
 
     @validator("funded_amount_percentage", pre=True)
     def funded_amount_percentage_validator(cls, value: Any) -> Decimal:
@@ -81,10 +81,14 @@ class FundingRequest(BaseModel):
         """Validates that the anual_profit_rate is a valid decimal number"""
         return round(Decimal(int(value) / 100), 2)
 
-    @validator("credit_type", pre=True)
+    @validator("credit_type")
     def credit_type_validator(cls, value: Any) -> CreditType:
         """Validates that the credit_type has a valid value"""
         return CREDIT_TYPE_TRANSLATIONS[value]
+
+    def __hash__(self) -> int:
+        """Returns the hash of the funding request"""
+        return hash(self.json())
 
     @property
     def is_completed(self) -> bool:

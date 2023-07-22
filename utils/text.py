@@ -1,7 +1,7 @@
 import string
 import unicodedata
 
-SEPARATORS = ["_", "-", "."]
+SEPARATORS = ["_", "-"]
 
 
 def clean_text(error: str) -> str:
@@ -21,3 +21,10 @@ def clean_text(error: str) -> str:
         .upper()
         .split()
     )
+
+
+def secure_key(key: str) -> str:
+    """
+    Returns a secure version of a key
+    """
+    return f"{key[:5]}{'*' * (len(key) - 15)}{key[-10:]}"
