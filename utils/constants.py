@@ -1,9 +1,15 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 AVERAGE_DAYS_DELINQUENT_SELECTOR = "div.loan-view-item span:nth-of-type(3)"
 CONFIGURATIONS_COLLECTION = os.getenv("CONFIGURATIONS_COLLECTION", "configurations")
 CREDIT_DETAIL_TITLE = os.getenv("CREDIT_DETAIL_TITLE", "INFORMACION DEL CREDITO")
 CUMPLO_BASE_URL = os.getenv("CUMPLO_BASE_URL", "https://secure.cumplo.cl")
+CUMPLO_HERALD_QUEUE = os.getenv("CUMPLO_HERALD_QUEUE", "")
+CUMPLO_HERALD_URL = os.getenv("CUMPLO_HERALD_URL", "")
 CUMPLO_FUNDING_REQUESTS_API = os.getenv("CUMPLO_FUNDING_REQUESTS_API", "")
 CUMPLO_GRAPHQL_API = os.getenv("CUMPLO_GRAPHQL_API", "")
 DEFAULT_FILTER_NOTIFIED = bool(os.getenv("DEFAULT_FILTER_NOTIFIED"))
@@ -24,4 +30,3 @@ SANTIAGO_TIMEZONE = "America/Santiago"
 SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
 TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
 USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
-WEBHOOK_QUEUE = os.getenv("WEBHOOK_QUEUE", "")

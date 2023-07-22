@@ -11,7 +11,7 @@ from integrations.firestore import firestore_client
 from models.funding_request import FundingRequest
 from models.user import User
 from schemas.funding_requests import FilterFundingRequestPayload
-from utils.constants import FILTER_FUNDING_REQUESTS_QUEUE, FUNDING_REQUESTS_URL, WEBHOOK_QUEUE
+from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, FILTER_FUNDING_REQUESTS_QUEUE, FUNDING_REQUESTS_URL
 
 logger = getLogger(__name__)
 
@@ -78,4 +78,6 @@ async def filter_funding_requests(_request: Request, payload: FilterFundingReque
     body = {funding_request.id: funding_request.dict() for funding_request in promising_funding_requests}
 
     assert user.webhook_url, f"User {user.id} does not have a webhook URL configured"
-    create_http_task(url=user.webhook_url, payload=body, queue=WEBHOOK_QUEUE)
+
+    logger.info(f"Schedulling funding requests webhook to user {user.id}")
+    create_http_task(f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send", CUMPLO_HERALD_QUEUE, body)
