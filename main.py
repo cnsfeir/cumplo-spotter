@@ -2,10 +2,7 @@ from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import google.cloud.logging
 from fastapi import Depends, FastAPI
-from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.requests import Request
-from fastapi.responses import JSONResponse
 
 from middlewares.authentication import authenticate
 from routers import configurations, funding_requests
@@ -26,15 +23,6 @@ getLogger("werkzeug").setLevel(CRITICAL)
 getLogger("charset_normalizer").setLevel(CRITICAL)
 
 app = FastAPI()
-
-
-@app.exception_handler(HTTPException)
-async def handler(_request: Request, exception: HTTPException) -> JSONResponse:
-    """
-    Manage HTTPExceptions
-    """
-    logger.warning(exception.detail)
-    return JSONResponse(content={"error": exception.detail}, status_code=exception.status_code)
 
 
 app.add_middleware(
