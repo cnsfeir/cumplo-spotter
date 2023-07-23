@@ -32,8 +32,8 @@ class Configuration(BaseModel):
         exclude = {"id", "name", "expiration_minutes"}
         return hash(self.json(exclude=exclude, exclude_defaults=True, exclude_none=True))
 
-    def __eq__(self, wea: Any) -> bool:
-        return self.__hash__() == wea.__hash__()
+    def __eq__(self, other: Any) -> bool:
+        return self.__hash__() == other.__hash__()
 
     def serialize(self, to_firestore: bool = False) -> dict[str, Any]:
         """Serializes a configuration"""
