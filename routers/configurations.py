@@ -64,7 +64,10 @@ async def put_configuration(request: Request, payload: ConfigurationPayload, id_
     """
     user = cast(User, request.state.user)
     if configuration := user.configurations.get(id_configuration):
-        configuration = configuration.copy(update=payload.dict())
+        new_configuration = Configuration(id=configuration.id, **payload.dict(exclude_none=True))
+        if new_configuration in user.configurations.values():
+            raise HTTPException(status_code=HTTPStatus.CONFLICT, detail="Configuration already exists")
+
         return firestore_client.update_configuration(user.id, configuration)
 
     raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
