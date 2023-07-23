@@ -47,11 +47,12 @@ async def post_configuration(request: Request, payload: ConfigurationPayload) ->
     if len(user.configurations) >= MAX_CONFIGURATIONS:
         raise HTTPException(status_code=HTTPStatus.TOO_MANY_REQUESTS, detail="Max configurations reached")
 
-    if payload in user.configurations.values():
+    id_configuration = max(user.configurations.keys(), default=0) + 1
+    configuration = Configuration(id=id_configuration, **payload.dict(exclude_none=True))
+
+    if configuration in user.configurations.values():
         raise HTTPException(status_code=HTTPStatus.CONFLICT, detail="Configuration already exists")
 
-    id_configuration = max(user.configurations.keys(), default=0) + 1
-    configuration = Configuration(id=id_configuration, **payload.dict())
     firestore_client.update_configuration(user.id, configuration)
     return configuration.serialize()
 
