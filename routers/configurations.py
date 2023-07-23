@@ -18,12 +18,12 @@ router = APIRouter(prefix="/configurations")
 
 
 @router.get("", status_code=HTTPStatus.OK)
-async def get_configurations(request: Request) -> dict[int, Configuration]:
+async def get_configurations(request: Request) -> list[Configuration]:
     """
     Gets a list of existing configurations.
     """
     user = cast(User, request.state.user)
-    return user.configurations
+    return list(user.configurations.values())
 
 
 @router.get("/{id_configuration}", status_code=HTTPStatus.OK)

@@ -11,7 +11,7 @@ from utils.constants import IS_TESTING, LOG_FORMAT
 
 if not IS_TESTING:
     client = google.cloud.logging.Client()
-    client.setup_logging()
+    client.setup_logging(log_level=DEBUG)
 
 basicConfig(level=DEBUG, format=LOG_FORMAT)
 logger = getLogger(__name__)

@@ -9,7 +9,7 @@ from utils.constants import DEFAULT_FILTER_NOTIFIED, DEFAULT_NOTIFICATION_EXPIRA
 
 
 class Configuration(BaseModel):
-    id: int = Field(..., exclude=True)
+    id: int = Field(...)
     name: str = Field("")
     filter_dicom: bool = Field(False)
     irr: Decimal | None = Field(None)

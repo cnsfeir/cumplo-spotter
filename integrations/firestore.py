@@ -124,7 +124,7 @@ class FirestoreClient:
         logger.info(f"Getting user {id_user} configurations from Firestore")
         user_document = self._get_user_document(id_user)
         configurations = user_document.collection(CONFIGURATIONS_COLLECTION).stream()
-        return {int(n.id): Configuration(id=int(n.id), **n.to_dict()) for n in configurations}
+        return {int(c.id): Configuration(id=int(c.id), **c.to_dict()) for c in configurations}
 
 
 firestore_client = FirestoreClient()
