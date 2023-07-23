@@ -35,7 +35,8 @@ class NotificationFilter(Filter):
 
         notification = self.user.notifications.get(funding_request.id)
 
-        if not notification or notification.has_expired(self.configuration.notification_expiration):
+        assert self.configuration.expiration_minutes is not None, "Notification expiration is not set"
+        if not notification or notification.has_expired(self.configuration.expiration_minutes):
             firestore_client.update_notification(self.user.id, funding_request.id)
             return True
 

@@ -51,7 +51,7 @@ To not be notified about the same investment opportunities every time, you can s
 
 |name|type|description|
 |-----:|:----:|:-------------------|
-|`notification_expiration`|`int`|The time in hours needed for a notification to expire|
+|`expiration_minutes`|`int`|The time in minutes needed for a notification to expire|
 
 Besides the notifications themself and the automation, the whole logic of this app is contained in a single endpoint. So the scraper can be executed both automatically and on-demand. Although the notification only shows the number of investment opportunities, the endpoint delivers all the information you need to make an informed decision. So whenever you're ready to make an investment, **you can call the endpoint directly (ignoring the notified opportunitites) and get a summary of all the promising investment opportunities available at the moment ordered by their monthly profit rate.**
 

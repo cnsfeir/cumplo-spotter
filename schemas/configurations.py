@@ -3,7 +3,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from utils.constants import DEFAULT_FILTER_NOTIFIED, DEFAULT_NOTIFICATION_EXPIRATION
+from utils.constants import DEFAULT_EXPIRATION_MINUTES, DEFAULT_FILTER_NOTIFIED
 
 
 class ConfigurationPayload(BaseModel):
@@ -18,7 +18,7 @@ class ConfigurationPayload(BaseModel):
     average_days_delinquent: int | None = Field(None)
     monthly_profit_rate: Decimal | None = Field(None)
     paid_in_time_percentage: Decimal | None = Field(None)
-    notification_expiration: int = Field(DEFAULT_NOTIFICATION_EXPIRATION)
+    expiration_minutes: int = Field(DEFAULT_EXPIRATION_MINUTES)
 
     def __hash__(self) -> int:
         return hash(self.json(exclude={"name"}, exclude_defaults=True, exclude_none=True))
