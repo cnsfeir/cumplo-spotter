@@ -54,14 +54,6 @@ class FirestoreClient:
         notifications = self._get_user_notifications(user.id)
         return User(id=user.id, configurations=configurations, notifications=notifications, **user_data)
 
-    def update_user(self, user: User) -> None:
-        """
-        Updates the user data
-        """
-        logger.info(f"Updating user {user.id} at Firestore")
-        user_document = self._get_user_document(user.id)
-        user_document.set(user.dict())
-
     def update_notification(self, id_user: str, id_funding_request: int) -> None:
         """
         Updates the notification for a given user
@@ -76,7 +68,7 @@ class FirestoreClient:
         """
         logger.info(f"Updating configuration {configuration.id} of user {id_user} at Firestore")
         configuration_reference = self._get_configuration_document(id_user, configuration.id)
-        configuration_reference.set(configuration.dict(exclude_none=True))
+        configuration_reference.set(configuration.serialize(to_firestore=True))
 
     def delete_notification(self, id_user: str, id_funding_request: int) -> None:
         """

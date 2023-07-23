@@ -29,6 +29,17 @@ class Configuration(BaseModel):
     def __eq__(self, wea: Any) -> bool:
         return self.__hash__() == wea.__hash__()
 
+    def serialize(self, to_firestore: bool = False) -> dict[str, Any]:
+        """Serializes a configuration"""
+        if to_firestore:
+            content = self.dict(exclude_none=True, exclude={"id"})
+            for key, value in content.items():
+                if isinstance(value, Decimal):
+                    content[key] = float(value)
+            return content
+
+        return self.dict(exclude_none=True)
+
     # TODO: Add filter by credit type
     # TODO: Add filter by minimum investment amount
     # TODO: Add filter by average investment amount

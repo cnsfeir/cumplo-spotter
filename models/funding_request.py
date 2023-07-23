@@ -114,10 +114,10 @@ class FundingRequest(BaseModel):
         """Calculates the monthly profit for a given amount"""
         return ceil(self.monthly_profit_rate * amount)
 
-    def dict(self, *args: Any, **kwargs: Any) -> dict:
+    def serialize(self) -> dict:
         """Builds a dictionary with the funding request data"""
         return {
-            **super().dict(*args, **kwargs),
+            **self.dict(),
             "funded_amount_percentage": self.funded_amount_percentage,
             "monthly_profit_rate": self.monthly_profit_rate,
             "credit_type": self.credit_type,

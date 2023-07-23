@@ -25,7 +25,7 @@ async def get_funding_requests(_request: Request) -> list[Annotated[dict, Fundin
     Gets a list of available funding requests.
     """
     funding_requests = await cumplo.get_available_funding_requests()
-    return [funding_request.dict() for funding_request in funding_requests]
+    return [funding_request.serialize() for funding_request in funding_requests]
 
 
 @router.get("/promising", status_code=HTTPStatus.OK)
@@ -40,7 +40,7 @@ async def get_promising_funding_requests(request: Request) -> list[Annotated[dic
     for configuration in user.configurations.values():
         promising_funding_requests.update(cumplo.filter_funding_requests(funding_requests, user, configuration))
 
-    return [funding_request.dict() for funding_request in promising_funding_requests]
+    return [funding_request.serialize() for funding_request in promising_funding_requests]
 
 
 @internal.post(path="/fetch", status_code=HTTPStatus.NO_CONTENT)
@@ -75,7 +75,7 @@ async def filter_funding_requests(_request: Request, payload: FilterFundingReque
         return
 
     logger.info(f"Found {len(promising_funding_requests)} promising funding requests for user {user.id}")
-    body = {funding_request.id: funding_request.dict() for funding_request in promising_funding_requests}
+    body = {funding_request.id: funding_request.serialize() for funding_request in promising_funding_requests}
 
     assert user.webhook_url, f"User {user.id} does not have a webhook URL configured"
 

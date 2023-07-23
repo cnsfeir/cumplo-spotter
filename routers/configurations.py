@@ -1,6 +1,6 @@
 from http import HTTPStatus
 from logging import getLogger
-from typing import cast
+from typing import Annotated, cast
 
 from fastapi import APIRouter
 from fastapi.exceptions import HTTPException
@@ -18,28 +18,28 @@ router = APIRouter(prefix="/configurations")
 
 
 @router.get("", status_code=HTTPStatus.OK)
-async def get_configurations(request: Request) -> list[Configuration]:
+async def get_configurations(request: Request) -> list[Annotated[dict, Configuration]]:
     """
     Gets a list of existing configurations.
     """
     user = cast(User, request.state.user)
-    return list(user.configurations.values())
+    return [configuration.serialize() for configuration in user.configurations.values()]
 
 
 @router.get("/{id_configuration}", status_code=HTTPStatus.OK)
-async def get_single_configurations(request: Request, id_configuration: int) -> Configuration:
+async def get_single_configurations(request: Request, id_configuration: int) -> Annotated[dict, Configuration]:
     """
     Gets a single configuration.
     """
     user = cast(User, request.state.user)
     if configuration := user.configurations.get(id_configuration):
-        return configuration
+        return configuration.serialize()
 
     raise HTTPException(status_code=HTTPStatus.NOT_FOUND)
 
 
 @router.post("", status_code=HTTPStatus.CREATED)
-async def post_configuration(request: Request, payload: ConfigurationPayload) -> Configuration:
+async def post_configuration(request: Request, payload: ConfigurationPayload) -> Annotated[dict, Configuration]:
     """
     Creates a configuration.
     """
@@ -50,9 +50,10 @@ async def post_configuration(request: Request, payload: ConfigurationPayload) ->
     if payload in user.configurations.values():
         raise HTTPException(status_code=HTTPStatus.CONFLICT, detail="Configuration already exists")
 
-    configuration = Configuration(**payload.dict())
+    id_configuration = max(user.configurations.keys(), default=0) + 1
+    configuration = Configuration(id=id_configuration, **payload.dict())
     firestore_client.update_configuration(user.id, configuration)
-    return configuration
+    return configuration.serialize()
 
 
 @router.put("/{id_configuration}", status_code=HTTPStatus.NO_CONTENT)
