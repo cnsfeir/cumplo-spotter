@@ -20,7 +20,7 @@ router = APIRouter(prefix="/configurations")
 @router.get("", status_code=HTTPStatus.OK)
 async def get_configurations(request: Request) -> dict[int, Configuration]:
     """
-    Gets a list of available funding requests.
+    Gets a list of existing configurations.
     """
     user = cast(User, request.state.user)
     return user.configurations
@@ -29,7 +29,7 @@ async def get_configurations(request: Request) -> dict[int, Configuration]:
 @router.get("/{id_configuration}", status_code=HTTPStatus.OK)
 async def get_single_configurations(request: Request, id_configuration: int) -> Configuration:
     """
-    Gets a list of available funding requests.
+    Gets a single configuration.
     """
     user = cast(User, request.state.user)
     if configuration := user.configurations.get(id_configuration):

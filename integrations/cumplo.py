@@ -29,8 +29,8 @@ from models.user import User
 from utils.constants import (
     AVERAGE_DAYS_DELINQUENT_SELECTOR,
     CREDIT_DETAIL_TITLE,
-    CUMPLO_FUNDING_REQUESTS_API,
     CUMPLO_GRAPHQL_API,
+    CUMPLO_REST_API,
     DICOM_STRINGS,
     IRS_SECTOR_SELECTOR,
     PAID_FUNDING_REQUESTS_COUNT_SELECTOR,
@@ -133,7 +133,7 @@ async def _get_extra_information(
     given funding request's borrower
     """
     logger.info(f"Getting credit history from funding request {id_funding_request}")
-    async with session.get(f"{CUMPLO_FUNDING_REQUESTS_API}/{id_funding_request}") as response:
+    async with session.get(f"{CUMPLO_REST_API}/{id_funding_request}") as response:
         text = await response.text()
         soup = BeautifulSoup(text, "html.parser")
 

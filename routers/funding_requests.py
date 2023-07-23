@@ -11,7 +11,7 @@ from integrations.firestore import firestore_client
 from models.funding_request import FundingRequest
 from models.user import User
 from schemas.funding_requests import FilterFundingRequestPayload
-from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, FILTER_FUNDING_REQUESTS_QUEUE, FUNDING_REQUESTS_URL
+from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, CUMPLO_SPOTTER_QUEUE, CUMPLO_SPOTTER_URL
 
 logger = getLogger(__name__)
 
@@ -56,7 +56,7 @@ async def fetch_funding_requests(_request: Request) -> None:
             continue
 
         payload = FilterFundingRequestPayload(id_user=user.id, funding_requests=funding_requests)
-        create_http_task(f"{FUNDING_REQUESTS_URL}/filter", FILTER_FUNDING_REQUESTS_QUEUE, payload.dict())
+        create_http_task(f"{CUMPLO_SPOTTER_URL}/filter", CUMPLO_SPOTTER_QUEUE, payload.dict())
 
 
 @internal.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
