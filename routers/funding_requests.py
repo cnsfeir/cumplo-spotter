@@ -38,7 +38,7 @@ async def get_promising_funding_requests(request: Request) -> list[Annotated[dic
 
     promising_funding_requests = set()
     for configuration in user.configurations.values():
-        promising_funding_requests.update(cumplo.filter_funding_requests(funding_requests, user, configuration))
+        promising_funding_requests.update(cumplo.filter_funding_requests(funding_requests, configuration))
 
     return [funding_request.serialize() for funding_request in promising_funding_requests]
 
@@ -68,7 +68,7 @@ async def filter_funding_requests(_request: Request, payload: FilterFundingReque
 
     promising_funding_requests = set()
     for configuration in user.configurations.values():
-        promising_funding_requests.update(cumplo.filter_funding_requests(payload.funding_requests, user, configuration))
+        promising_funding_requests.update(cumplo.filter_funding_requests(payload.funding_requests, configuration))
 
     if not promising_funding_requests:
         logger.info(f"No promising funding requests for user {user.id}")
