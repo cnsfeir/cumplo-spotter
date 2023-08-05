@@ -7,7 +7,7 @@ from firebase_admin import credentials, firestore, initialize_app
 from google.cloud.firestore_v1.base_query import FieldFilter
 from google.cloud.firestore_v1.document import DocumentReference
 
-from models.configuration import Configuration
+from models.configuration import FilterConfiguration
 from models.notification import Notification
 from models.user import User
 from utils.constants import CONFIGURATIONS_COLLECTION, NOTIFICATIONS_COLLECTION, PROJECT_ID, USERS_COLLECTION
@@ -62,7 +62,7 @@ class FirestoreClient:
         notification = self._get_notification_document(id_user, id_funding_request)
         notification.set({"date": arrow.utcnow().datetime})
 
-    def update_configuration(self, id_user: str, configuration: Configuration) -> None:
+    def update_configuration(self, id_user: str, configuration: FilterConfiguration) -> None:
         """
         Updates a configuration of a given user
         """
@@ -109,14 +109,14 @@ class FirestoreClient:
         notifications = user_document.collection(NOTIFICATIONS_COLLECTION).stream()
         return {int(n.id): Notification(id=int(n.id), **n.to_dict()) for n in notifications}
 
-    def _get_user_configurations(self, id_user: str) -> dict[int, Configuration]:
+    def _get_user_configurations(self, id_user: str) -> dict[int, FilterConfiguration]:
         """
         Gets the user configurations data
         """
         logger.info(f"Getting user {id_user} configurations from Firestore")
         user_document = self._get_user_document(id_user)
         configurations = user_document.collection(CONFIGURATIONS_COLLECTION).stream()
-        return {int(c.id): Configuration(id=int(c.id), **c.to_dict()) for c in configurations}
+        return {int(c.id): FilterConfiguration(id=int(c.id), **c.to_dict()) for c in configurations}
 
 
 firestore_client = FirestoreClient()

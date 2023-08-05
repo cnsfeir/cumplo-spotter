@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from lxml.etree import HTML
 from retry import retry
 
-from models.configuration import Configuration
+from models.configuration import FilterConfiguration
 from models.filter import (
     AmountRequestedFilter,
     AverageDaysDelinquentFilter,
@@ -20,12 +20,10 @@ from models.filter import (
     DurationFilter,
     IRRFilter,
     MonthlyProfitFilter,
-    NotificationFilter,
     PaidInTimeFilter,
     ScoreFilter,
 )
 from models.funding_request import FundingRequest, FundingRequestExtraInformation
-from models.user import User
 from utils.constants import (
     AVERAGE_DAYS_DELINQUENT_SELECTOR,
     CREDIT_DETAIL_TITLE,
@@ -45,7 +43,7 @@ logger = getLogger(__name__)
 
 
 def filter_funding_requests(
-    funding_requests: list[FundingRequest], user: User, configuration: Configuration
+    funding_requests: list[FundingRequest], configuration: FilterConfiguration
 ) -> list[FundingRequest]:
     """
     Gets all the GOOD available funding requests from the Cumplo API.
@@ -60,7 +58,6 @@ def filter_funding_requests(
         AmountRequestedFilter(configuration),
         CreditsRequestedFilter(configuration),
         AverageDaysDelinquentFilter(configuration),
-        NotificationFilter(configuration, user),
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
