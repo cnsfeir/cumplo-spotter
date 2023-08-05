@@ -1,9 +1,42 @@
+PYTHON_VERSION := $(shell python -c "print(open('.python-version').read().strip())")
+INSTALLED_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+
+.PHONY: \
+  check_python_version \
+  linters \
+  setup_venv \
+  start \
+  build
+
+# Checks if the installed Python version matches the required version
+check_python_version:
+	@if [ "$(PYTHON_VERSION)" != "$(INSTALLED_VERSION)" ]; then \
+		echo "ERROR: Installed Python version $(INSTALLED_VERSION) does not match the required version $(PYTHON_VERSION)"; \
+		exit 1; \
+	fi
+
+# Creates a virtual environment and installs dependencies
+setup_venv:
+	make check_python_version
+	rm -rf .venv
+	poetry install
+
+# Runs linters
+linters:
+	@if [ ! -d ".venv" ]; then \
+		echo "Virtual environment not found. Creating one..."; \
+		make setup_venv; \
+	fi
+
+	.venv/bin/python -m black --check --line-length=120 .
+	.venv/bin/python -m flake8 --config .flake8
+	.venv/bin/python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
+	.venv/bin/python -m mypy --config-file mypy.ini .
+
 # Builds the docker image
-.PHONY: build
 build:
 	docker build -f Dockerfile.development -t cumplo-spotter .
 
 # Starts the API server
-.PHONY: start
 start:
 	docker run -d -p 8080:8080 -v ./:/app cumplo-spotter
