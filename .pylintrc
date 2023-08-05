@@ -20,3 +20,4 @@ load-plugins=
 [FORMAT]
 
 max-line-length=120
+max-args=7
