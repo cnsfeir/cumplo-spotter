@@ -28,10 +28,10 @@ linters:
 		make setup_venv; \
 	fi
 
-	.venv/bin/python -m black --check --line-length=120 .
-	.venv/bin/python -m flake8 --config .flake8
-	.venv/bin/python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
-	.venv/bin/python -m mypy --config-file mypy.ini .
+	poetry run python -m black --check --line-length=120 .
+	poetry run python -m flake8 --config .flake8
+	poetry run python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
+	poetry run python -m mypy --config-file mypy.ini .
 
 # Builds the docker image
 build:
