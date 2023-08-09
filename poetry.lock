@@ -584,13 +584,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "cumplo-common"
-version = "0.1.3"
+version = "0.1.4"
 description = "Python library that contains all common logic throughout Cumplo API project"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "cumplo_common-0.1.3-py3-none-any.whl", hash = "sha256:1a4f178a305e4231cd4b39bdc16589a7dee51a29eabc7ec8532e988cfb524fed"},
-    {file = "cumplo_common-0.1.3.tar.gz", hash = "sha256:2d6aecc39ea535ac5f20efc796a423eabdfda28ad6fa2eebb579022c5a1aee83"},
+    {file = "cumplo_common-0.1.4-py3-none-any.whl", hash = "sha256:b0b3bead937eeac1c2648c67e192fea64056c0bff4fe993ce3fe5e05b8416701"},
+    {file = "cumplo_common-0.1.4.tar.gz", hash = "sha256:514c2f785d4c22aaea4c48991c3f35bcdeff24d9d9938719653d6180388f33f4"},
 ]
 
 [package.dependencies]
