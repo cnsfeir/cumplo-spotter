@@ -7,11 +7,12 @@ from logging import getLogger
 import requests
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
+from cumplo_common.models.configuration import Configuration
+from cumplo_common.utils.text import clean_text
 from dotenv import load_dotenv
 from lxml.etree import HTML
 from retry import retry
 
-from models.configuration import FilterConfiguration
 from models.filter import (
     AmountRequestedFilter,
     AverageDaysDelinquentFilter,
@@ -36,14 +37,13 @@ from utils.constants import (
     SUPPORTING_DOCUMENTS_XPATH,
     TOTAL_AMOUNT_REQUESTED_SELECTOR,
 )
-from utils.text import clean_text
 
 load_dotenv()
 logger = getLogger(__name__)
 
 
 def filter_funding_requests(
-    funding_requests: list[FundingRequest], configuration: FilterConfiguration
+    funding_requests: list[FundingRequest], configuration: Configuration
 ) -> list[FundingRequest]:
     """
     Gets all the GOOD available funding requests from the Cumplo API.

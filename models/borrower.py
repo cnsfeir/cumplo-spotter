@@ -4,9 +4,8 @@ from decimal import Decimal
 from logging import getLogger
 from typing import Any
 
+from cumplo_common.utils.currency import format_currency
 from pydantic import BaseModel, Field
-
-from utils.currency import format_currency
 
 logger = getLogger(__name__)
 

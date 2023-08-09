@@ -1,15 +1,17 @@
+# pylint: disable=no-member
+
 from http import HTTPStatus
 from logging import getLogger
 from typing import Annotated, cast
 
+from cumplo_common.database.firestore import firestore_client
+from cumplo_common.integrations.cloud_tasks import create_http_task
+from cumplo_common.models.user import User
 from fastapi import APIRouter
 from fastapi.requests import Request
 
 from integrations import cumplo
-from integrations.cloud_tasks import create_http_task
-from integrations.firestore import firestore_client
 from models.funding_request import FundingRequest
-from models.user import User
 from schemas.funding_requests import FilterFundingRequestPayload
 from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, CUMPLO_SPOTTER_QUEUE, CUMPLO_SPOTTER_URL
 
@@ -56,7 +58,12 @@ async def fetch_funding_requests(_request: Request) -> None:
             continue
 
         payload = FilterFundingRequestPayload(id_user=user.id, funding_requests=funding_requests)
-        create_http_task(f"{CUMPLO_SPOTTER_URL}/filter", CUMPLO_SPOTTER_QUEUE, payload.dict())
+        create_http_task(
+            url=f"{CUMPLO_SPOTTER_URL}/funding-requests/filter",
+            task_id=f"filter-funding-requests-{user.id}",
+            queue=CUMPLO_SPOTTER_QUEUE,
+            payload=payload.model_dump(),
+        )
 
 
 @internal.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
@@ -80,4 +87,9 @@ async def filter_funding_requests(_request: Request, payload: FilterFundingReque
     assert user.webhook_url, f"User {user.id} does not have a webhook URL configured"
 
     logger.info(f"Schedulling funding requests webhook to user {user.id}")
-    create_http_task(f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send", CUMPLO_HERALD_QUEUE, body)
+    create_http_task(
+        url=f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send",
+        task_id=f"send-funding-requests-webhook-{user.id}",
+        queue=CUMPLO_HERALD_QUEUE,
+        payload=body,
+    )

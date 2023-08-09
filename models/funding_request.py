@@ -5,12 +5,12 @@ from enum import Enum
 from math import ceil
 from typing import Any
 
+from cumplo_common.utils.currency import format_currency
 from pydantic import BaseModel, Field, validator
 
 from models.borrower import Borrower
 from models.request_duration import FundingRequestDuration
 from utils.constants import CUMPLO_BASE_URL
-from utils.currency import format_currency
 
 
 class FundingRequestExtraInformation(BaseModel):
