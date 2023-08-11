@@ -1,52 +1,21 @@
 from abc import ABCMeta, abstractmethod
-from logging import getLogger
 
-from dotenv import load_dotenv
+from cumplo_common.models.configuration import Configuration
 
-from integrations.firestore import firestore_client
-from models.configuration import Configuration
 from models.funding_request import FundingRequest
 from models.request_duration import DurationUnit
-from models.user import User
-
-load_dotenv()
-logger = getLogger(__name__)
 
 
 class Filter(metaclass=ABCMeta):
-    @abstractmethod
-    def apply(self, _funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that don't meet the criteria.
-        """
-
-
-class NotificationFilter(Filter):
-    def __init__(self, configuration: Configuration, user: User) -> None:
-        self.configuration = configuration
-        self.user = user
-
-    def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have already been notified
-        """
-        if not self.configuration.filter_notified:
-            return True
-
-        notification = self.user.notifications.get(funding_request.id)
-
-        assert self.configuration.expiration_minutes is not None, "Notification expiration is not set"
-        if not notification or notification.has_expired(self.configuration.expiration_minutes):
-            firestore_client.update_notification(self.user.id, funding_request.id)
-            return True
-
-        return False
-
-
-class ScoreFilter(Filter):
     def __init__(self, configuration: Configuration) -> None:
         self.configuration = configuration
 
+    @abstractmethod
+    def apply(self, _funding_request: FundingRequest) -> bool:  # pylint: disable=missing-function-docstring
+        ...
+
+
+class ScoreFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a score lower than the minimum.
@@ -58,9 +27,6 @@ class ScoreFilter(Filter):
 
 
 class MonthlyProfitFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a monthly profit lower than the minimum.
@@ -72,9 +38,6 @@ class MonthlyProfitFilter(Filter):
 
 
 class IRRFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have an IRR lower than the minimum.
@@ -86,9 +49,6 @@ class IRRFilter(Filter):
 
 
 class DurationFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a duration lower than the minimum.
@@ -104,9 +64,6 @@ class DurationFilter(Filter):
 
 
 class DicomFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a Dicom
@@ -118,9 +75,6 @@ class DicomFilter(Filter):
 
 
 class CreditsRequestedFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't requested the minimum amount of credits.
@@ -132,9 +86,6 @@ class CreditsRequestedFilter(Filter):
 
 
 class AmountRequestedFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't received the minimum amount of money.
@@ -146,9 +97,6 @@ class AmountRequestedFilter(Filter):
 
 
 class AverageDaysDelinquentFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower has an average delinquent days higher than the maximum.
@@ -163,9 +111,6 @@ class AverageDaysDelinquentFilter(Filter):
 
 
 class PaidInTimeFilter(Filter):
-    def __init__(self, configuration: Configuration) -> None:
-        self.configuration = configuration
-
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower doesn't have the minimum percentage

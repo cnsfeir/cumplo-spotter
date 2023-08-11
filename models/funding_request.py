@@ -10,7 +10,6 @@ from pydantic import BaseModel, Field, validator
 from models.borrower import Borrower
 from models.request_duration import FundingRequestDuration
 from utils.constants import CUMPLO_BASE_URL
-from utils.currency import format_currency
 
 
 class FundingRequestExtraInformation(BaseModel):
@@ -88,7 +87,7 @@ class FundingRequest(BaseModel):
 
     def __hash__(self) -> int:
         """Returns the hash of the funding request"""
-        return hash(self.json())
+        return hash(self.model_dump_json())
 
     @property
     def is_completed(self) -> bool:
@@ -117,10 +116,10 @@ class FundingRequest(BaseModel):
     def serialize(self) -> dict:
         """Builds a dictionary with the funding request data"""
         return {
-            **self.dict(),
+            **self.model_dump(exclude_none=True, exclude_unset=True),
             "funded_amount_percentage": self.funded_amount_percentage,
             "monthly_profit_rate": self.monthly_profit_rate,
+            "borrower": self.borrower.serialize(),
             "credit_type": self.credit_type,
-            "amount": format_currency(self.amount),
             "url": self.url,
         }
