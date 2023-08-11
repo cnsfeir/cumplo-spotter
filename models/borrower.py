@@ -2,16 +2,14 @@
 
 from decimal import Decimal
 from logging import getLogger
-from typing import Any
 
-from cumplo_common.utils.currency import format_currency
 from pydantic import BaseModel, Field
 
 logger = getLogger(__name__)
 
 
 class Borrower(BaseModel):
-    id: str | None = Field(None)
+    id: int | None = Field(None)
     dicom: bool | None = Field(None)
     irs_sector: str | None = Field(None)
     funding_requests_count: int = Field(0)
@@ -33,11 +31,10 @@ class Borrower(BaseModel):
         """Returns the amount paid in time"""
         return round(self.total_amount_requested * self.paid_funding_requests_percentage)
 
-    def dict(self, *args: Any, **kwargs: Any) -> dict:
+    def serialize(self) -> dict:
         """Builds a dictionary with the borrower data"""
         return {
-            **super().dict(*args, **kwargs),
+            **self.model_dump(exclude_none=True, exclude_unset=True),
             "paid_funding_requests_percentage": self.paid_funding_requests_percentage,
-            "total_amount_requested": format_currency(self.total_amount_requested),
-            "amount_paid_in_time": format_currency(self.amount_paid_in_time),
+            "amount_paid_in_time": self.amount_paid_in_time,
         }

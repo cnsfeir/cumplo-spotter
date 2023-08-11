@@ -2,7 +2,7 @@
 
 from http import HTTPStatus
 from logging import getLogger
-from typing import Annotated, cast
+from typing import cast
 
 from cumplo_common.database.firestore import firestore_client
 from cumplo_common.integrations.cloud_tasks import create_http_task
@@ -11,7 +11,6 @@ from fastapi import APIRouter
 from fastapi.requests import Request
 
 from integrations import cumplo
-from models.funding_request import FundingRequest
 from schemas.funding_requests import FilterFundingRequestPayload
 from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, CUMPLO_SPOTTER_QUEUE, CUMPLO_SPOTTER_URL
 
@@ -22,7 +21,7 @@ internal = APIRouter(prefix="/funding-requests")
 
 
 @router.get("", status_code=HTTPStatus.OK)
-async def get_funding_requests(_request: Request) -> list[Annotated[dict, FundingRequest]]:
+async def get_funding_requests(_request: Request) -> list[dict]:
     """
     Gets a list of available funding requests.
     """
@@ -31,7 +30,7 @@ async def get_funding_requests(_request: Request) -> list[Annotated[dict, Fundin
 
 
 @router.get("/promising", status_code=HTTPStatus.OK)
-async def get_promising_funding_requests(request: Request) -> list[Annotated[dict, FundingRequest]]:
+async def get_promising_funding_requests(request: Request) -> list[dict]:
     """
     Gets a list of promising funding requests based on the user's configuration.
     """
