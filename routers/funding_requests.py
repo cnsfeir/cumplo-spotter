@@ -1,5 +1,6 @@
 # pylint: disable=no-member
 
+import json
 from http import HTTPStatus
 from logging import getLogger
 from typing import cast
@@ -61,7 +62,7 @@ async def fetch_funding_requests(_request: Request) -> None:
             url=f"{CUMPLO_SPOTTER_URL}/funding-requests/filter",
             task_id=f"filter-funding-requests-{user.id}",
             queue=CUMPLO_SPOTTER_QUEUE,
-            payload=payload.model_dump(),
+            payload=json.loads(payload.model_dump_json()),
         )
 
 
