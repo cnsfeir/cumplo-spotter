@@ -1,8 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
 from cumplo_common.models.configuration import Configuration
+from cumplo_common.models.funding_request import FundingRequest
 
-from models.funding_request import FundingRequest
 from models.request_duration import DurationUnit
 
 

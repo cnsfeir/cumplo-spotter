@@ -1,41 +1,25 @@
 # pylint: disable=no-self-argument, no-member
 
 from decimal import Decimal
-from enum import Enum
-from math import ceil
+from enum import StrEnum
+from functools import cached_property
 from typing import Any
 
+from cumplo_common.models.credit import CreditType
+from cumplo_common.models.currency import Currency
+from cumplo_common.models.funding_request import FundingRequest
 from pydantic import BaseModel, Field, validator
 
-from models.borrower import Borrower
+from models.borrower import CumploBorrower
 from models.request_duration import FundingRequestDuration
-from utils.constants import CUMPLO_BASE_URL
 
 
-class FundingRequestExtraInformation(BaseModel):
-    paid_funding_requests_count: int = Field(...)
-    paid_in_time_percentage: Decimal = Field(...)
-    supporting_documents: list[str] = Field(...)
-    average_days_delinquent: int = Field(...)
-    funding_requests_count: int = Field(...)
-    total_amount_requested: int = Field(...)
-    irs_sector: str = Field(...)
-    dicom: bool = Field(...)
-
-
-class CumploCreditType(str, Enum):
+class CumploCreditType(StrEnum):
     IRRIGATION = "irrigation"
     BALLOON = "balloon"
     INVOICE = "invoice"
     BULLET = "bullet"
     SIMPLE = "simple"
-
-
-class CreditType(str, Enum):
-    WORKING_CAPITAL = "WORKING CAPITAL"
-    STATE_SUBSIDY = "STATE SUBSIDY"
-    BULLET_LOAN = "BULLET LOAN"
-    FACTORING = "FACTORING"
 
 
 CREDIT_TYPE_TRANSLATIONS = {
@@ -47,14 +31,10 @@ CREDIT_TYPE_TRANSLATIONS = {
 }
 
 
-class Currency(str, Enum):
-    CLP = "CLP"
-
-
-class FundingRequest(BaseModel):
+class CumploFundingRequest(BaseModel):
     id: int = Field(...)
     score: Decimal = Field(...)
-    borrower: Borrower = Field(...)
+    borrower: CumploBorrower = Field(...)
     irr: Decimal = Field(..., alias="tir")
     currency: Currency = Field(..., alias="moneda")
     amount: int = Field(..., alias="monto_financiar")
@@ -68,7 +48,7 @@ class FundingRequest(BaseModel):
     def funded_amount_percentage_validator(cls, value: Any) -> Decimal:
         """
         Validates that the funded_amount_percentage is a valid decimal number.
-        If it is not, it returns None which means that it does not have a credit history yet.
+        If it is not, it returns 0 which means that it does not have a credit history yet.
         """
         try:
             return round(Decimal(int(value) / 100), 2)
@@ -85,41 +65,11 @@ class FundingRequest(BaseModel):
         """Validates that the credit_type has a valid value"""
         return CREDIT_TYPE_TRANSLATIONS[value]
 
-    def __hash__(self) -> int:
-        """Returns the hash of the funding request"""
-        return hash(self.model_dump_json())
-
-    @property
+    @cached_property
     def is_completed(self) -> bool:
         """Checks if the funding request is fully funded"""
         return self.funded_amount_percentage == Decimal(1)
 
-    @property
-    def profit_rate(self) -> Decimal:
-        """Calculates the profit rate for the funding request"""
-        return (1 + self.irr / 100) ** Decimal(self.duration.value / 365) - 1
-
-    @property
-    def monthly_profit_rate(self) -> Decimal:
-        """Calculates the monthly profit rate for the funding request"""
-        return round(self.profit_rate * 30 / self.duration.value, 4)
-
-    @property
-    def url(self) -> str:
-        """Builds the URL for the funding request"""
-        return f"{CUMPLO_BASE_URL}/{self.id}"
-
-    def monthly_profit(self, amount: int) -> int:
-        """Calculates the monthly profit for a given amount"""
-        return ceil(self.monthly_profit_rate * amount)
-
-    def serialize(self) -> dict:
-        """Builds a dictionary with the funding request data"""
-        return {
-            **self.model_dump(exclude_none=True, exclude_unset=True),
-            "funded_amount_percentage": self.funded_amount_percentage,
-            "monthly_profit_rate": self.monthly_profit_rate,
-            "borrower": self.borrower.serialize(),
-            "credit_type": self.credit_type,
-            "url": self.url,
-        }
+    def export(self) -> FundingRequest:
+        """Exports the CumploFundingRequest to a FundingRequest"""
+        return FundingRequest.model_validate(self.model_dump(exclude_none=True, exclude_unset=True))
