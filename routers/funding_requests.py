@@ -57,10 +57,6 @@ async def fetch_funding_requests(_request: Request) -> None:
     body = {funding_request.id: json.loads(funding_request.model_dump_json()) for funding_request in funding_requests}
 
     for user in firestore_client.get_users():
-        if not user.webhook_url:
-            logger.info(f"User {user.id} does not have a webhook URL configured. Skipping")
-            continue
-
         create_http_task(
             url=f"{CUMPLO_SPOTTER_URL}/funding-requests/filter",
             task_id=f"filter-funding-requests-{user.id}",
@@ -87,16 +83,12 @@ async def filter_funding_requests(request: Request, payload: dict[str, FundingRe
 
     logger.info(f"Found {len(promising_funding_requests)} promising funding requests for user {user.id}")
 
-    body = {
-        funding_request.id: json.loads(funding_request.model_dump_json())
-        for funding_request in promising_funding_requests
-    }
-
-    logger.info(f"Schedulling funding requests webhook to user {user.id}")
-    create_http_task(
-        url=f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send",
-        task_id=f"send-funding-requests-webhook-{user.id}",
-        headers={"x-api-key": user.api_key},
-        queue=CUMPLO_HERALD_QUEUE,
-        payload=body,
-    )
+    for funding_request in promising_funding_requests:
+        logger.info(f"Notifying about funding requests {funding_request.id} to user {user.id}")
+        create_http_task(
+            url=f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send",
+            task_id=f"send-funding-requests-webhook-{user.id}",
+            headers={"x-api-key": user.api_key},
+            queue=CUMPLO_HERALD_QUEUE,
+            payload=json.loads(funding_request.model_dump_json()),
+        )
