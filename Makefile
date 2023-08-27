@@ -39,4 +39,4 @@ build:
 
 # Starts the API server
 start:
-	docker run -d -p 8080:8080 -v ./:/app --env-file .env cumplo-spotter
+	docker run -d -p 8000:8080 -v ./:/app --env-file .env cumplo-spotter
