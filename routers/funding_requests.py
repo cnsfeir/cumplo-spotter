@@ -8,6 +8,8 @@ from typing import cast
 from cumplo_common.database.firestore import firestore_client
 from cumplo_common.integrations.cloud_tasks import create_http_task
 from cumplo_common.models.funding_request import FundingRequest
+from cumplo_common.models.template import Template
+from cumplo_common.models.topic import Topic
 from cumplo_common.models.user import User
 from fastapi import APIRouter
 from fastapi.requests import Request
@@ -86,7 +88,7 @@ async def filter_funding_requests(request: Request, payload: dict[str, FundingRe
     for funding_request in promising_funding_requests:
         logger.info(f"Notifying about funding requests {funding_request.id} to user {user.id}")
         create_http_task(
-            url=f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send",
+            url=f"{CUMPLO_HERALD_URL}/{Topic.FUNDING_REQUESTS}/{Template.PROMISING}/notify",
             task_id=f"send-funding-requests-{funding_request.id}-webhook-{user.id}",
             headers={"x-api-key": user.api_key},
             queue=CUMPLO_HERALD_QUEUE,
