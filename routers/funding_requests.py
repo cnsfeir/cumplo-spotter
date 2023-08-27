@@ -87,7 +87,7 @@ async def filter_funding_requests(request: Request, payload: dict[str, FundingRe
         logger.info(f"Notifying about funding requests {funding_request.id} to user {user.id}")
         create_http_task(
             url=f"{CUMPLO_HERALD_URL}/funding-requests/webhook/send",
-            task_id=f"send-funding-requests-webhook-{user.id}",
+            task_id=f"send-funding-requests-{funding_request.id}-webhook-{user.id}",
             headers={"x-api-key": user.api_key},
             queue=CUMPLO_HERALD_QUEUE,
             payload=json.loads(funding_request.model_dump_json()),
