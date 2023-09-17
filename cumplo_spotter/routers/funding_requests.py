@@ -14,8 +14,13 @@ from cumplo_common.models.user import User
 from fastapi import APIRouter
 from fastapi.requests import Request
 
-from integrations import cumplo
-from utils.constants import CUMPLO_HERALD_QUEUE, CUMPLO_HERALD_URL, CUMPLO_SPOTTER_QUEUE, CUMPLO_SPOTTER_URL
+from cumplo_spotter.integrations import cumplo
+from cumplo_spotter.utils.constants import (
+    CUMPLO_HERALD_QUEUE,
+    CUMPLO_HERALD_URL,
+    CUMPLO_SPOTTER_QUEUE,
+    CUMPLO_SPOTTER_URL,
+)
 
 logger = getLogger(__name__)
 

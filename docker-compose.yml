@@ -1,0 +1,16 @@
+version: '3.9'
+services:
+  cumplo-spotter:
+    image: cumplo-spotter
+    env_file: .env
+    ports:
+      - 8000:8080
+    build:
+      context: .
+      dockerfile: Dockerfile.development
+      args: 
+        - CUMPLO_PYPI_BASE64_KEY
+    volumes:
+      - ./cumplo_spotter:/app/cumplo_spotter
+      - ./main.py:/app/main.py
+      - /app/.venv

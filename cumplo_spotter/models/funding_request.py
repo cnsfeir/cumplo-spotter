@@ -1,4 +1,5 @@
-# pylint: disable=no-self-argument, no-member
+# mypy: disable-error-code="call-overload"
+# pylint: disable=no-member
 
 from decimal import Decimal
 from enum import StrEnum
@@ -8,10 +9,11 @@ from typing import Any
 from cumplo_common.models.credit import CreditType
 from cumplo_common.models.currency import Currency
 from cumplo_common.models.funding_request import FundingRequest
-from pydantic import BaseModel, Field, validator
+from cumplo_common.models.pydantic import ValidatorMode
+from pydantic import BaseModel, Field, field_validator
 
-from models.borrower import CumploBorrower
-from models.request_duration import FundingRequestDuration
+from cumplo_spotter.models.borrower import CumploBorrower
+from cumplo_spotter.models.request_duration import FundingRequestDuration
 
 
 class CumploCreditType(StrEnum):
@@ -44,7 +46,8 @@ class CumploFundingRequest(BaseModel):
     funded_amount_percentage: Decimal = Field(..., alias="porcentaje_inversion")
     credit_type: str = Field(..., alias="tipo_respaldo")
 
-    @validator("funded_amount_percentage", pre=True)
+    @field_validator("funded_amount_percentage", mode=ValidatorMode.BEFORE)
+    @classmethod
     def funded_amount_percentage_validator(cls, value: Any) -> Decimal:
         """
         Validates that the funded_amount_percentage is a valid decimal number.
@@ -55,12 +58,14 @@ class CumploFundingRequest(BaseModel):
         except ValueError:
             return Decimal(0)
 
-    @validator("anual_profit_rate", pre=True)
+    @field_validator("anual_profit_rate", mode=ValidatorMode.BEFORE)
+    @classmethod
     def anual_profit_rate_validator(cls, value: Any) -> Decimal:
         """Validates that the anual_profit_rate is a valid decimal number"""
         return round(Decimal(int(value) / 100), 2)
 
-    @validator("credit_type")
+    @field_validator("credit_type")
+    @classmethod
     def credit_type_validator(cls, value: Any) -> CreditType:
         """Validates that the credit_type has a valid value"""
         return CREDIT_TYPE_TRANSLATIONS[value]

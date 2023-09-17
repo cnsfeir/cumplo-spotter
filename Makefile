@@ -6,7 +6,8 @@ INSTALLED_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.ma
   linters \
   setup_venv \
   start \
-  build
+  build \
+  down
 
 # Checks if the installed Python version matches the required version
 check_python_version:
@@ -33,10 +34,12 @@ linters:
 	poetry run python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
 	poetry run python -m mypy --config-file mypy.ini .
 
-# Builds the docker image
 build:
-	docker build -f Dockerfile.development -t cumplo-spotter .
+	docker-compose build cumplo-spotter  \
+	--build-arg CUMPLO_PYPI_BASE64_KEY=`base64 -i cumplo-pypi-credentials.json`
 
-# Starts the API server
 start:
-	docker run -d -p 8000:8080 -v ./:/app --env-file .env cumplo-spotter
+	docker-compose up -d cumplo-spotter
+
+down:
+	docker-compose down

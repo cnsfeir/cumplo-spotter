@@ -1,8 +1,10 @@
-# pylint: disable=no-self-argument, no-member
+# mypy: disable-error-code="call-overload"
+# pylint: disable=no-member
 
 from enum import Enum
 
-from pydantic import BaseModel, Field, validator
+from cumplo_common.models.pydantic import ValidatorMode
+from pydantic import BaseModel, Field, field_validator
 
 
 class DurationUnit(str, Enum):
@@ -17,7 +19,8 @@ class FundingRequestDuration(BaseModel):
     def __str__(self) -> str:
         return f"{self.value} {self.unit}"
 
-    @validator("unit", pre=True)
+    @field_validator("unit", mode=ValidatorMode.BEFORE)
+    @classmethod
     def unit_formatter(cls, value: str) -> DurationUnit:
         """Formats the unit value"""
         return DurationUnit(value.strip().upper())

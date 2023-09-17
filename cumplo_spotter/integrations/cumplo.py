@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from lxml.etree import HTML
 from retry import retry
 
-from models.filter import (
+from cumplo_spotter.models.filter import (
     AmountRequestedFilter,
     AverageDaysDelinquentFilter,
     CreditsRequestedFilter,
@@ -25,8 +25,8 @@ from models.filter import (
     PaidInTimeFilter,
     ScoreFilter,
 )
-from models.funding_request import CumploFundingRequest
-from utils.constants import (
+from cumplo_spotter.models.funding_request import CumploFundingRequest
+from cumplo_spotter.utils.constants import (
     AVERAGE_DAYS_DELINQUENT_SELECTOR,
     CREDIT_DETAIL_TITLE,
     CUMPLO_GRAPHQL_API,
