@@ -6,8 +6,8 @@ from cumplo_common.dependencies.authorization import is_admin
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routers import funding_requests
-from utils.constants import IS_TESTING, LOG_FORMAT
+from cumplo_spotter.routers import funding_requests
+from cumplo_spotter.utils.constants import IS_TESTING, LOG_FORMAT
 
 if not IS_TESTING:
     client = google.cloud.logging.Client()
