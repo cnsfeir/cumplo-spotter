@@ -1,0 +1,17 @@
+# Exclude: everything
+*
+
+# Include: application files
+!cumplo_spotter
+!main.py
+
+# Include: build files
+!pyproject.toml
+!poetry.toml
+!poetry.lock
+
+# Include: miscelaneous files
+!entrypoint.sh
+
+# Include: credentials
+!cumplo-spotter-credentials.json
