@@ -7,24 +7,11 @@ from logging import getLogger
 import requests
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup
-from cumplo_common.models.configuration import Configuration
 from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.utils.text import clean_text
-from dotenv import load_dotenv
 from lxml.etree import HTML
 from retry import retry
 
-from cumplo_spotter.models.filter import (
-    AmountRequestedFilter,
-    AverageDaysDelinquentFilter,
-    CreditsRequestedFilter,
-    DicomFilter,
-    DurationFilter,
-    IRRFilter,
-    MonthlyProfitFilter,
-    PaidInTimeFilter,
-    ScoreFilter,
-)
 from cumplo_spotter.models.funding_request import CumploFundingRequest
 from cumplo_spotter.utils.constants import (
     AVERAGE_DAYS_DELINQUENT_SELECTOR,
@@ -39,76 +26,54 @@ from cumplo_spotter.utils.constants import (
     TOTAL_AMOUNT_REQUESTED_SELECTOR,
 )
 
-load_dotenv()
 logger = getLogger(__name__)
-
-
-def filter_funding_requests(
-    funding_requests: list[FundingRequest], configuration: Configuration
-) -> list[FundingRequest]:
-    """
-    Filters a list of funding requests based on the user's configuration.
-    """
-    filters = [
-        ScoreFilter(configuration),
-        IRRFilter(configuration),
-        MonthlyProfitFilter(configuration),
-        DurationFilter(configuration),
-        DicomFilter(configuration),
-        PaidInTimeFilter(configuration),
-        AmountRequestedFilter(configuration),
-        CreditsRequestedFilter(configuration),
-        AverageDaysDelinquentFilter(configuration),
-    ]
-
-    logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
-    funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
-
-    logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
-    return funding_requests
 
 
 @retry(KeyError, tries=5, delay=1)
 async def get_available_funding_requests() -> list[FundingRequest]:
     """
-    Queries the Cumplo's GraphQL API and returns a list of available FundingRequest ordered by monthly profit rate
+    Queries the Cumplo's GraphQL API and returns a list of available funding requests
+
+    Returns:
+        list[FundingRequest]: List of available funding requests
     """
     logger.info("Getting funding requests from Cumplo API")
-
-    payload = _build_all_funding_requests_query()
+    payload = _build_funding_requests_query()
     response = requests.post(CUMPLO_GRAPHQL_API, json=payload, headers={"Accept-Language": "es-CL"})
     results = response.json()["data"]["fundingRequests"]["results"]
 
-    cumplo_funding_requests = []
+    funding_requests = []
     for result in results:
         funding_request = CumploFundingRequest(**result["operacion"], borrower=result["empresa"])
         if not funding_request.is_completed:
-            cumplo_funding_requests.append(funding_request)
+            funding_requests.append(funding_request)
 
-    logger.info(f"Found {len(cumplo_funding_requests)} funding requests")
-    cumplo_funding_requests = await _gather_full_funding_requests(cumplo_funding_requests)
-
-    funding_requests = [cumplo_funding_request.export() for cumplo_funding_request in cumplo_funding_requests]
-    return funding_requests
+    logger.info(f"Found {len(funding_requests)} available funding requests")
+    funding_requests = await _gather_funding_requests_details(funding_requests)
+    return [request.export() for request in funding_requests]
 
 
-async def _gather_full_funding_requests(
-    cumplo_funding_requests: list[CumploFundingRequest],
-) -> list[CumploFundingRequest]:
+async def _gather_funding_requests_details(funding_requests: list[CumploFundingRequest]) -> list[CumploFundingRequest]:
     """
-    Gathers the full information of the received funding requests.
+    Gathers all the details of the received funding requests
+
+    Args:
+        funding_requests (list[CumploFundingRequest]): A list of Cumplo funding requests
+
+    Returns:
+        list[CumploFundingRequest]: A list of Cumplo funding requests with their details
     """
     tasks = []
     async with ClientSession() as session:
-        for funding_request in cumplo_funding_requests:
-            tasks.append(ensure_future(_get_extra_information(session, funding_request.id)))
+        for funding_request in funding_requests:
+            tasks.append(ensure_future(_get_details(session, funding_request.id)))
 
         logger.info(f"Gathering {len(tasks)} credit history")
-        extra_information = await gather(*tasks)
+        details = await gather(*tasks)
 
-        for funding_request, soup in zip(copy(cumplo_funding_requests), extra_information):
+        for funding_request, soup in zip(copy(funding_requests), details):
             if not soup:
-                cumplo_funding_requests.remove(funding_request)
+                funding_requests.remove(funding_request)
                 continue
 
             paid_count, requested_count = _extract_funding_requests_count(soup)
@@ -122,22 +87,22 @@ async def _gather_full_funding_requests(
             funding_request.borrower.funding_requests_count = requested_count
             funding_request.borrower.paid_funding_requests_count = paid_count
 
-    logger.info(f"Got {len(cumplo_funding_requests)} funding requests with credit history")
-    return cumplo_funding_requests
+    logger.info(f"Got {len(funding_requests)} funding requests with credit history")
+    return funding_requests
 
 
-async def _get_extra_information(session: ClientSession, id_funding_request: int) -> BeautifulSoup | None:
+async def _get_details(session: ClientSession, id_funding_request: int) -> BeautifulSoup | None:
     """
     Queries the Cumplo REST API to obtain the credit history from a given funding request's borrower.
     Also, it obtains the supporting documents from the funding request.
     """
-    logger.info(f"Getting extra information from funding request {id_funding_request}")
+    logger.info(f"Getting details from funding request {id_funding_request}")
     async with session.get(f"{CUMPLO_REST_API}/{id_funding_request}") as response:
         text = await response.text()
         soup = BeautifulSoup(text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in clean_text(soup.get_text()):
-            logger.warning(f"Couldn't get extra information from funding request {id_funding_request}")
+            logger.warning(f"Couldn't get details from funding request {id_funding_request}")
             return None
 
         return soup
@@ -188,7 +153,7 @@ def _extract_total_amount_requested(soup: BeautifulSoup) -> int:
     return int(value[0]) if value else 0
 
 
-def _build_all_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
+def _build_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
     """
     Builds the GraphQL query to fetch funding requests
     """
@@ -200,10 +165,7 @@ def _build_all_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
                 fundingRequests(page: $page, limit: $limit, state: $state, ordering: $ordering) {
                     count allCompleted results {
                         empresa {
-                            historialCumplimiento {
-                                cantidad
-                                tipo
-                            }
+                            historialCumplimiento {cantidad tipo}
                             id
                             logo
                             nombre_fantasia
@@ -212,10 +174,7 @@ def _build_all_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
                             id
                             moneda
                             monto_financiar
-                            plazo {
-                                type
-                                value
-                            }
+                            plazo {type value }
                             porcentaje_inversion
                             score
                             tasa_anual

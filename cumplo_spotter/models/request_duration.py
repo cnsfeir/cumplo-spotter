@@ -1,15 +1,10 @@
 # mypy: disable-error-code="call-overload"
 # pylint: disable=no-member
 
-from enum import Enum
 
+from cumplo_common.models.funding_request import DurationUnit
 from cumplo_common.models.pydantic import ValidatorMode
 from pydantic import BaseModel, Field, field_validator
-
-
-class DurationUnit(str, Enum):
-    MONTH = "MONTH"
-    DAY = "DAY"
 
 
 class FundingRequestDuration(BaseModel):

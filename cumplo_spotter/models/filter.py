@@ -17,9 +17,7 @@ class Filter(metaclass=ABCMeta):
 
 class ScoreFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have a score lower than the minimum.
-        """
+        """Filters out the funding requests that have a score lower than the minimum."""
         if self.configuration.score is None:
             return True
 
@@ -28,9 +26,7 @@ class ScoreFilter(Filter):
 
 class MonthlyProfitFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have a monthly profit lower than the minimum.
-        """
+        """Filters out the funding requests that have a monthly profit lower than the minimum."""
         if self.configuration.monthly_profit_rate is None:
             return True
 
@@ -39,9 +35,7 @@ class MonthlyProfitFilter(Filter):
 
 class IRRFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have an IRR lower than the minimum.
-        """
+        """Filters out the funding requests that have an IRR lower than the minimum."""
         if self.configuration.irr is None:
             return True
 
@@ -50,9 +44,7 @@ class IRRFilter(Filter):
 
 class DurationFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have a duration lower than the minimum.
-        """
+        """Filters out the funding requests that have a duration lower than the minimum."""
         # TODO: Figure out how to compare montlhy profit rate of funding requests with single and monthly payments
         if funding_request.duration.unit != DurationUnit.DAY:
             return False
@@ -65,9 +57,7 @@ class DurationFilter(Filter):
 
 class DicomFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests that have a Dicom
-        """
+        """Filters out the funding requests that have a Dicom"""
         if not self.configuration.filter_dicom:
             return True
 
@@ -76,9 +66,7 @@ class DicomFilter(Filter):
 
 class CreditsRequestedFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests whose borrower hasn't requested the minimum amount of credits.
-        """
+        """Filters out the funding requests whose borrower hasn't requested the minimum amount of credits."""
         if not self.configuration.credits_requested:
             return True
 
@@ -87,9 +75,7 @@ class CreditsRequestedFilter(Filter):
 
 class AmountRequestedFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests whose borrower hasn't received the minimum amount of money.
-        """
+        """Filters out the funding requests whose borrower hasn't received the minimum amount of money."""
         if not self.configuration.amount_requested:
             return True
 
@@ -98,9 +84,7 @@ class AmountRequestedFilter(Filter):
 
 class AverageDaysDelinquentFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
-        """
-        Filters out the funding requests whose borrower has an average delinquent days higher than the maximum.
-        """
+        """Filters out the funding requests whose borrower has an average delinquent days higher than the maximum."""
         if not self.configuration.average_days_delinquent:
             return True
 

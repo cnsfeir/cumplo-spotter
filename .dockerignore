@@ -3,6 +3,7 @@
 
 # Include: application files
 !cumplo_spotter
+!routers
 !main.py
 
 # Include: build files

@@ -14,6 +14,7 @@ from cumplo_common.models.user import User
 from fastapi import APIRouter
 from fastapi.requests import Request
 
+from cumplo_spotter.business import funding_requests
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.utils.constants import (
     CUMPLO_HERALD_QUEUE,
@@ -24,44 +25,21 @@ from cumplo_spotter.utils.constants import (
 
 logger = getLogger(__name__)
 
+
 router = APIRouter(prefix="/funding-requests")
-internal = APIRouter(prefix="/funding-requests")
 
 
-@router.get("", status_code=HTTPStatus.OK)
-async def get_funding_requests(_request: Request) -> list[dict]:
-    """
-    Gets a list of available funding requests.
-    """
-    funding_requests = await cumplo.get_available_funding_requests()
-    funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
-    return [funding_request.model_dump() for funding_request in funding_requests]
-
-
-@router.get("/promising", status_code=HTTPStatus.OK)
-async def get_promising_funding_requests(request: Request) -> list[dict]:
-    """
-    Gets a list of promising funding requests based on the user's configuration.
-    """
-    funding_requests = await cumplo.get_available_funding_requests()
-    user = cast(User, request.state.user)
-
-    promising_requests = set()
-    for configuration in user.configurations.values():
-        promising_requests.update(cumplo.filter_funding_requests(funding_requests, configuration))
-
-    sorted_promising_requests = sorted(list(promising_requests), key=lambda x: x.monthly_profit_rate, reverse=True)
-    return [funding_request.model_dump() for funding_request in sorted_promising_requests]
-
-
-@internal.post(path="/fetch", status_code=HTTPStatus.NO_CONTENT)
-async def fetch_funding_requests(_request: Request) -> None:
+@router.post(path="/fetch", status_code=HTTPStatus.NO_CONTENT)
+async def _fetch_funding_requests(_request: Request) -> None:
     """
     Fetches a list of funding requests and schedules the filtering process.
     """
-    funding_requests = await cumplo.get_available_funding_requests()
+    available_funding_requests = await cumplo.get_available_funding_requests()
 
-    body = {funding_request.id: json.loads(funding_request.model_dump_json()) for funding_request in funding_requests}
+    body = {
+        funding_request.id: json.loads(funding_request.model_dump_json())
+        for funding_request in available_funding_requests
+    }
 
     for user in firestore_client.get_users():
         create_http_task(
@@ -73,8 +51,8 @@ async def fetch_funding_requests(_request: Request) -> None:
         )
 
 
-@internal.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
-async def filter_funding_requests(request: Request, payload: dict[str, FundingRequest]) -> None:
+@router.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
+async def _filter_funding_requests(request: Request, payload: dict[str, FundingRequest]) -> None:
     """
     Filters a list of funding requests based on the user's configuration.
     """
@@ -82,7 +60,7 @@ async def filter_funding_requests(request: Request, payload: dict[str, FundingRe
 
     promising_funding_requests = set()
     for configuration in user.configurations.values():
-        promising_funding_requests.update(cumplo.filter_funding_requests(list(payload.values()), configuration))
+        promising_funding_requests.update(funding_requests.filter_(list(payload.values()), configuration))
 
     if not promising_funding_requests:
         logger.info(f"No promising funding requests for user {user.id}")
