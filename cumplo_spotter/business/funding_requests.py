@@ -2,7 +2,7 @@
 
 from logging import getLogger
 
-from cumplo_common.models.configuration import Configuration
+from cumplo_common.models.filter import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.models.user import User
 
@@ -47,19 +47,19 @@ async def get_promising(user: User) -> list[FundingRequest]:
     funding_requests = await cumplo.get_available_funding_requests()
 
     promising_requests = set()
-    for configuration in user.configurations.values():
+    for configuration in user.filters.values():
         promising_requests.update(filter_(funding_requests, configuration))
 
     return sorted(list(promising_requests), key=lambda x: x.monthly_profit_rate, reverse=True)
 
 
-def filter_(funding_requests: list[FundingRequest], configuration: Configuration) -> list[FundingRequest]:
+def filter_(funding_requests: list[FundingRequest], configuration: FilterConfiguration) -> list[FundingRequest]:
     """
-    Filters a list of funding requests based on the user's configuration
+    Filters a list of funding requests based on the user's filter
 
     Args:
         funding_requests (list[FundingRequest]): List of funding requests
-        configuration (Configuration): User's configuration
+        configuration (FilterConfiguration): User's filter
 
     Returns:
         list[FundingRequest]: Filtered funding requests
@@ -77,7 +77,7 @@ def filter_(funding_requests: list[FundingRequest], configuration: Configuration
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
-    funding_requests = list(filter(lambda x: all(filter_.apply(x) for filter_ in filters), funding_requests))
+    funding_requests = list(filter(lambda x: all(f.apply(x) for f in filters), funding_requests))
 
     logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
     return funding_requests

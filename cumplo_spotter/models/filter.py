@@ -1,13 +1,13 @@
 from abc import ABCMeta, abstractmethod
 
-from cumplo_common.models.configuration import Configuration
+from cumplo_common.models.filter import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 
 from cumplo_spotter.models.request_duration import DurationUnit
 
 
 class Filter(metaclass=ABCMeta):
-    def __init__(self, configuration: Configuration) -> None:
+    def __init__(self, configuration: FilterConfiguration) -> None:
         self.configuration = configuration
 
     @abstractmethod
