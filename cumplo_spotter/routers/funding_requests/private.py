@@ -5,7 +5,7 @@ from http import HTTPStatus
 from logging import getLogger
 from typing import cast
 
-from cumplo_common.database.firestore import firestore_client
+from cumplo_common.database import firestore
 from cumplo_common.integrations.cloud_tasks import create_http_task
 from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.models.template import Template
@@ -35,13 +35,9 @@ async def _fetch_funding_requests(_request: Request) -> None:
     Fetches a list of funding requests and schedules the filtering process.
     """
     available_funding_requests = await cumplo.get_available_funding_requests()
+    body = {funding_request.id: funding_request.export() for funding_request in available_funding_requests}
 
-    body = {
-        funding_request.id: json.loads(funding_request.model_dump_json())
-        for funding_request in available_funding_requests
-    }
-
-    for user in firestore_client.get_users():
+    for user in firestore.client.users.get_all():
         create_http_task(
             url=f"{CUMPLO_SPOTTER_URL}/funding-requests/filter",
             task_id=f"filter-funding-requests-{user.id}",
@@ -54,13 +50,13 @@ async def _fetch_funding_requests(_request: Request) -> None:
 @router.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
 async def _filter_funding_requests(request: Request, payload: dict[str, FundingRequest]) -> None:
     """
-    Filters a list of funding requests based on the user's configuration.
+    Filters a list of funding requests based on the user's filters.
     """
     user = cast(User, request.state.user)
 
     promising_funding_requests = set()
-    for configuration in user.configurations.values():
-        promising_funding_requests.update(funding_requests.filter_(list(payload.values()), configuration))
+    for filters in user.filters.values():
+        promising_funding_requests.update(funding_requests.filter_(list(payload.values()), filters))
 
     if not promising_funding_requests:
         logger.info(f"No promising funding requests for user {user.id}")
