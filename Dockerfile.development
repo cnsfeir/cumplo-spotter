@@ -77,4 +77,4 @@ ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 COPY . ./
 
 # Run the app
-CMD exec uvicorn --reload --host 0.0.0.0 --port 8080 main:app
+CMD exec uvicorn --reload --host 0.0.0.0 --port 8080 cumplo_spotter.main:app
