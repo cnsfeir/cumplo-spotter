@@ -2,4 +2,4 @@
 A simple yet powerful API for spotting secure and high-return Cumplo investment opportunities
 """
 
-__version__ = "0.1.3"
+__version__ = "0.2.0"
