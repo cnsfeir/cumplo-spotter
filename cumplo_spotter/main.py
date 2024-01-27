@@ -16,7 +16,7 @@ basicConfig(level=DEBUG, format=LOG_FORMAT)
 logger = getLogger(__name__)
 
 # NOTE: Mute noisy third-party loggers
-for module in ("google", "urllib3", "asyncio", "werkzeug"):
+for module in ("google", "urllib3", "werkzeug"):
     getLogger(module).setLevel(CRITICAL)
 
 if not IS_TESTING:
