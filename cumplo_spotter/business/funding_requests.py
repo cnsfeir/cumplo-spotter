@@ -22,19 +22,19 @@ from cumplo_spotter.models.filter import (
 logger = getLogger(__name__)
 
 
-async def get_available() -> list[FundingRequest]:
+def get_available() -> list[FundingRequest]:
     """
     Gets a list of available funding requests sorted by monthly profit rate
 
     Returns:
         list[dict]: List of available funding requests
     """
-    funding_requests = await cumplo.get_available_funding_requests()
+    funding_requests = cumplo.get_available_funding_requests()
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
     return funding_requests
 
 
-async def get_promising(user: User) -> list[FundingRequest]:
+def get_promising(user: User) -> list[FundingRequest]:
     """
     Gets a list of promising funding requests based on the user's configuration sorted by monthly profit rate
 
@@ -44,7 +44,7 @@ async def get_promising(user: User) -> list[FundingRequest]:
     Returns:
         list[FundingRequest]: List of promising funding requests
     """
-    funding_requests = await cumplo.get_available_funding_requests()
+    funding_requests = cumplo.get_available_funding_requests()
 
     promising_requests = set()
     for configuration in user.filters.values():
