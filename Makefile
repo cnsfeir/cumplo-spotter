@@ -18,9 +18,9 @@ check_python_version:
 
 # Creates a virtual environment and installs dependencies
 setup_venv:
-	make check_python_version
-	rm -rf .venv
-	poetry install
+	@make check_python_version
+	@rm -rf .venv
+	@poetry install
 
 # Runs linters
 linters:
@@ -29,17 +29,16 @@ linters:
 		make setup_venv; \
 	fi
 
-	poetry run python -m black --check --line-length=120 .
-	poetry run python -m flake8 --config .flake8
-	poetry run python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
-	poetry run python -m mypy --config-file mypy.ini .
+	@poetry run python -m black --check --line-length=120 .
+	@poetry run python -m flake8 --config .flake8
+	@poetry run python -m pylint --rcfile=.pylintrc --recursive=y --ignore=.venv --disable=fixme .
+	@poetry run python -m mypy --config-file mypy.ini .
 
 build:
-	docker-compose build cumplo-spotter  \
-	--build-arg CUMPLO_PYPI_BASE64_KEY=`base64 -i cumplo-pypi-credentials.json`
+	@docker-compose build cumplo-spotter --build-arg CUMPLO_PYPI_BASE64_KEY=`base64 -i cumplo-pypi-credentials.json`
 
 start:
-	docker-compose up -d cumplo-spotter
+	@docker-compose up -d cumplo-spotter
 
 down:
-	docker-compose down
+	@docker-compose down
