@@ -49,13 +49,13 @@ ARG CUMPLO_PYPI_BASE64_KEY
 ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account-credentials.json
 
 # Save the service account key contents from the build argument to the temporary file.
-RUN echo $CUMPLO_PYPI_BASE64_KEY | base64 -d> $GOOGLE_APPLICATION_CREDENTIALS
+RUN echo "$CUMPLO_PYPI_BASE64_KEY" | base64 -d> "$GOOGLE_APPLICATION_CREDENTIALS"
 
 # Install base dependencies + REST API dependencies
 RUN poetry install --without dev --with rest-api && rm -rf /tmp/poetry_cache
 
 # Remove the service acccount key file.
-RUN rm $GOOGLE_APPLICATION_CREDENTIALS
+RUN rm "$GOOGLE_APPLICATION_CREDENTIALS"
 
 # =================================================================
 

@@ -13,13 +13,7 @@
     "editor.rulers": [80, 120],
     "editor.tabSize": 4,
     "editor.codeActionsOnSave": {
-      "source.organizeImports": true
-    },
-  
-    "[json]": {
-      "editor.defaultFormatter": "esbenp.prettier-vscode",
-      "editor.tabSize": 2,
-      "editor.formatOnSave": true
+      "source.organizeImports": "explicit"
     },
 
     "[python]": {
@@ -35,21 +29,11 @@
     "python.analysis.inlayHints.variableTypes": true,
     "python.analysis.inlayHints.functionReturnTypes": true,
 
-    // PyLint
-    "python.linting.pylintEnabled": true,
-
     // MyPy
-    "python.linting.mypyEnabled": true,
     "mypy.runUsingActiveInterpreter": true,
-    "python.linting.mypyArgs": ["--config-file=mypy.ini"],
-
-    // Flake8
-    "python.linting.flake8Enabled": true,
 
     // Black
-    "python.formatting.provider": "black",
     "black-formatter.args": ["--line-length=120"],
-    "python.formatting.blackArgs": ["--line-length=120"],
 
     // Debugger
     "launch": {
@@ -57,17 +41,10 @@
       "compounds": []
     },
 
-    // Locales
-    "i18n-ally.displayLanguage": "es",
-    "i18n-ally.keystyle": "nested",
-    "i18n-ally.localesPaths": ["src/locales"],
-
     // Removes git warning at startup
     "git.detectSubmodulesLimit": 9999,
     "git.branchProtection": ["master", "main", "development"],
 
-    // Removes Makefile warning at startup
-    "makefile.extensionOutputFolder": "./.vscode"
   },
   "extensions": {
     "recommendations": [
