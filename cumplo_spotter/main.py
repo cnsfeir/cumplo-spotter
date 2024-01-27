@@ -7,7 +7,6 @@ import google.cloud.logging
 from cumplo_common.dependencies.authentication import authenticate
 from cumplo_common.dependencies.authorization import is_admin
 from fastapi import Depends, FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 
 from cumplo_spotter.routers import funding_requests
 from cumplo_spotter.utils.constants import IS_TESTING, LOG_FORMAT
@@ -25,14 +24,6 @@ if not IS_TESTING:
 
 
 app = FastAPI(dependencies=[Depends(authenticate)])
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 app.include_router(funding_requests.public.router)
 app.include_router(funding_requests.private.router, dependencies=[Depends(is_admin)])
