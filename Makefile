@@ -1,3 +1,6 @@
+include .env
+export
+
 PYTHON_VERSION := $(shell python -c "print(open('.python-version').read().strip())")
 INSTALLED_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 
@@ -21,6 +24,11 @@ setup_venv:
 	@make check_python_version
 	@rm -rf .venv
 	@poetry install
+
+# Activates the project configuration and logs in to gcloud
+login:
+	@gcloud config configurations activate $(PROJECT_ID)
+	@gcloud auth application-default login
 
 # Runs linters
 linters:
