@@ -22,5 +22,5 @@ This project is licensed under the [CC BY-NC 4.0 DEED](https://creativecommons.o
 Feel free to reach out through one of the following channels:
 
 - 📧 hello@cristobalsfeir.com
-- ✨ [Project Issues](https://github.com/cnsfeir/pubsub-emulator/issues)
+- ✨ [Project Issues](https://github.com/cnsfeir/cumplo-spotter/issues)
 - 💼 [LinkedIn](https://www.linkedin.com/in/cnsfeir/)
