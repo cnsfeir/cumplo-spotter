@@ -50,5 +50,5 @@ def _filter_funding_requests(request: Request, payload: list[FundingRequest]) ->
     logger.info(f"Found {len(promising_funding_requests)} promising funding requests for user {user.id}")
 
     for funding_request in promising_funding_requests:
-        logger.info(f"Notifying about funding requests {funding_request.id} to user {user.id}")
+        logger.info(f"Notifying about funding request {funding_request.id} to user {user.id}")
         publish_event(funding_request.json(), PROMISING_FUNDING_REQUESTS_TOPIC, id_user=str(user.id))
