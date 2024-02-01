@@ -10,7 +10,8 @@ INSTALLED_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.ma
   setup_venv \
   start \
   build \
-  down
+  down \
+  login
 
 # Checks if the installed Python version matches the required version
 check_python_version:
