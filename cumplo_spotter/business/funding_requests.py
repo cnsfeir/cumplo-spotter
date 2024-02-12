@@ -2,21 +2,22 @@
 
 from logging import getLogger
 
-from cumplo_common.models.filter import FilterConfiguration
+from cumplo_common.models.filter_configuration import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.models.user import User
 
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.models.filter import (
-    AmountRequestedFilter,
-    AverageDaysDelinquentFilter,
-    CreditsRequestedFilter,
     DicomFilter,
-    DurationFilter,
-    IRRFilter,
-    MonthlyProfitFilter,
-    PaidInTimeFilter,
-    ScoreFilter,
+    MaximumAverageDaysDelinquentFilter,
+    MaximumDurationFilter,
+    MinimumAmountRequestedFilter,
+    MinimumCreditsRequestedFilter,
+    MinimumDurationFilter,
+    MinimumIRRFilter,
+    MinimumMonthlyProfitFilter,
+    MinimumPaidInTimeFilter,
+    MinimumScoreFilter,
 )
 
 logger = getLogger(__name__)
@@ -65,15 +66,16 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
         list[FundingRequest]: Filtered funding requests
     """
     filters = [
-        ScoreFilter(configuration),
-        IRRFilter(configuration),
-        MonthlyProfitFilter(configuration),
-        DurationFilter(configuration),
+        MinimumScoreFilter(configuration),
+        MinimumIRRFilter(configuration),
+        MinimumMonthlyProfitFilter(configuration),
         DicomFilter(configuration),
-        PaidInTimeFilter(configuration),
-        AmountRequestedFilter(configuration),
-        CreditsRequestedFilter(configuration),
-        AverageDaysDelinquentFilter(configuration),
+        MinimumDurationFilter(configuration),
+        MaximumDurationFilter(configuration),
+        MinimumPaidInTimeFilter(configuration),
+        MinimumAmountRequestedFilter(configuration),
+        MinimumCreditsRequestedFilter(configuration),
+        MaximumAverageDaysDelinquentFilter(configuration),
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
