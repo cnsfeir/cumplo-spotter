@@ -11,14 +11,13 @@ from fastapi import Depends, FastAPI
 from cumplo_spotter.routers import funding_requests
 from cumplo_spotter.utils.constants import IS_TESTING, LOG_FORMAT
 
-basicConfig(level=DEBUG, format=LOG_FORMAT)
-logger = getLogger(__name__)
-
 # NOTE: Mute noisy third-party loggers
 for module in ("google", "urllib3", "werkzeug"):
     getLogger(module).setLevel(CRITICAL)
 
-if not IS_TESTING:
+if IS_TESTING:
+    basicConfig(level=DEBUG, format=LOG_FORMAT)
+else:
     client = google.cloud.logging.Client()
     client.setup_logging(log_level=DEBUG)
 
