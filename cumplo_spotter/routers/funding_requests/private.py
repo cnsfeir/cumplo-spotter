@@ -28,8 +28,8 @@ def _fetch_funding_requests(request: Request) -> None:
     available_funding_requests = funding_requests.get_available()
     logger.info(f"Found {len(available_funding_requests)} available funding requests")
 
-    content = [funding_request.json() for funding_request in available_funding_requests]
-    publish_event(content, AVAILABLE_FUNDING_REQUESTS_TOPIC, id_user=str(user.id))
+    if content := [funding_request.json() for funding_request in available_funding_requests]:
+        publish_event(content, AVAILABLE_FUNDING_REQUESTS_TOPIC, id_user=str(user.id))
 
 
 @router.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
