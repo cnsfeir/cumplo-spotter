@@ -5,21 +5,23 @@ from logging import getLogger
 
 import requests
 from bs4 import BeautifulSoup
-from cumplo_common.models.funding_request import FundingRequest
+from cumplo_common.models.funding_request import DurationUnit, FundingRequest
 from cumplo_common.utils.text import clean_text
 from lxml.etree import HTML
 from retry import retry
 
-from cumplo_spotter.models.funding_request import CumploFundingRequest
+from cumplo_spotter.models.cumplo import CumploFundingRequest, CumploFundingRequestSimulation
 from cumplo_spotter.utils.constants import (
     AVERAGE_DAYS_DELINQUENT_SELECTOR,
     CREDIT_DETAIL_TITLE,
+    CUMPLO_GLOBAL_API,
     CUMPLO_GRAPHQL_API,
     CUMPLO_REST_API,
     DICOM_STRINGS,
     IRS_SECTOR_SELECTOR,
     PAID_FUNDING_REQUESTS_COUNT_SELECTOR,
     PAID_IN_TIME_PERCENTAGE_SELECTOR,
+    SIMULATION_AMOUNT,
     SUPPORTING_DOCUMENTS_XPATH,
     TOTAL_AMOUNT_REQUESTED_SELECTOR,
 )
@@ -69,12 +71,33 @@ def _gather_funding_requests_details(funding_requests: list[CumploFundingRequest
             funding_request = funding_request_by_future[future]
 
             if soup := future.result():
+                # TODO: Create a function that calls the 3 requests asynchronously
                 _extract_details(funding_request, soup)
             else:
                 funding_requests.remove(funding_request)
 
     logger.info(f"Got {len(funding_requests)} funding requests with credit history")
     return funding_requests
+
+
+def _get_simulation(funding_request: CumploFundingRequest) -> CumploFundingRequestSimulation | None:
+    """
+    Queries the Cumplo REST API to obtain the simulation from a given funding request
+    """
+    logger.info(f"Getting simulation from funding request {funding_request.id}")
+    body = {
+        "data": {
+            "monto_simulacion": SIMULATION_AMOUNT,
+            "plazo": funding_request.duration.value,
+            "tasa_anual": funding_request.anual_profit_rate,
+            "cuotas": 1 if funding_request.duration.unit == DurationUnit.DAY else funding_request.duration.value,
+            "fecha_vencimiento": "2024-06-17T00:00:00.000Z",  # TODO: Obtain this value from a different request
+            "id_operacion": funding_request.id,
+        }
+    }
+    response = requests.post(f"{CUMPLO_GLOBAL_API}/simulador/inversionista/ANTICIPO_FACTURA/CL/CL", json=body)
+    simulation = response.json()["data"]["attributes"]
+    return CumploFundingRequestSimulation.model_validate(simulation) if simulation else None
 
 
 def _get_details(id_funding_request: int) -> BeautifulSoup | None:
