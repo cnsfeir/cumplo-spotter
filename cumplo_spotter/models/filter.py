@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from cumplo_common.models.filter_configuration import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 
-from cumplo_spotter.models.request_duration import DurationUnit
+from cumplo_spotter.models.cumplo.request_duration import DurationUnit
 
 
 class Filter(metaclass=ABCMeta):

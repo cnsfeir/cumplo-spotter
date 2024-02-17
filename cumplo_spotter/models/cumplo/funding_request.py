@@ -12,8 +12,7 @@ from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.models.pydantic import ValidatorMode
 from pydantic import BaseModel, Field, field_validator
 
-from cumplo_spotter.models.borrower import CumploBorrower
-from cumplo_spotter.models.request_duration import FundingRequestDuration
+from cumplo_spotter.models.cumplo import CumploBorrower, CumploFundingRequestDuration, CumploFundingRequestSimulation
 
 
 class CumploCreditType(StrEnum):
@@ -41,10 +40,11 @@ class CumploFundingRequest(BaseModel):
     currency: Currency = Field(..., alias="moneda")
     amount: int = Field(..., alias="monto_financiar")
     anual_profit_rate: Decimal = Field(..., alias="tasa_anual")
-    duration: FundingRequestDuration = Field(..., alias="plazo")
+    duration: CumploFundingRequestDuration = Field(..., alias="plazo")
     supporting_documents: list[str] = Field(default_factory=list)
     funded_amount_percentage: Decimal = Field(..., alias="porcentaje_inversion")
     credit_type: str = Field(..., alias="tipo_respaldo")
+    simulation: CumploFundingRequestSimulation | None = Field(None)
 
     @field_validator("funded_amount_percentage", mode=ValidatorMode.BEFORE)
     @classmethod

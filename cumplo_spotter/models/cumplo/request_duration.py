@@ -7,7 +7,7 @@ from cumplo_common.models.pydantic import ValidatorMode
 from pydantic import BaseModel, Field, field_validator
 
 
-class FundingRequestDuration(BaseModel):
+class CumploFundingRequestDuration(BaseModel):
     unit: DurationUnit = Field(..., alias="type")
     value: int = Field(...)
 
