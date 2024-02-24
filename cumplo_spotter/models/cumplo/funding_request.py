@@ -9,10 +9,13 @@ from typing import Any
 from cumplo_common.models.credit import CreditType
 from cumplo_common.models.currency import Currency
 from cumplo_common.models.funding_request import FundingRequest
-from cumplo_common.models.pydantic import ValidatorMode
+from cumplo_common.utils.text import clean_text
 from pydantic import BaseModel, Field, field_validator
 
-from cumplo_spotter.models.cumplo import CumploBorrower, CumploFundingRequestDuration, CumploFundingRequestSimulation
+from cumplo_spotter.models.cumplo.borrower import Borrower
+from cumplo_spotter.models.cumplo.debtor import Debtor
+from cumplo_spotter.models.cumplo.request_duration import CumploFundingRequestDuration
+from cumplo_spotter.models.cumplo.simulation import CumploFundingRequestSimulation
 
 
 class CumploCreditType(StrEnum):
@@ -33,38 +36,38 @@ CREDIT_TYPE_TRANSLATIONS = {
 
 
 class CumploFundingRequest(BaseModel):
-    id: int = Field(...)
+    id: int = Field(..., alias="id_operacion")
     score: Decimal = Field(...)
-    borrower: CumploBorrower = Field(...)
     irr: Decimal = Field(..., alias="tir")
+    installments: int = Field(..., alias="cuotas")
     currency: Currency = Field(..., alias="moneda")
     amount: int = Field(..., alias="monto_financiar")
-    anual_profit_rate: Decimal = Field(..., alias="tasa_anual")
+    credit_type: CreditType = Field(..., alias="tipo_credito")
+    due_date: str = Field(..., alias="fecha_vencimiento")
+    raised_amount: int = Field(..., alias="total_inversion")
+    maximum_investment: int = Field(..., alias="max_inversion")
+    investors: int = Field(..., alias="cantidad_inversionistas")
+    funded_percentage: Decimal = Field(..., alias="porcentaje_inversion")
+
+    supporting_documents: list[str] = Field(default_factory=list, alias="tipo_respaldo")
     duration: CumploFundingRequestDuration = Field(..., alias="plazo")
-    supporting_documents: list[str] = Field(default_factory=list)
-    funded_amount_percentage: Decimal = Field(..., alias="porcentaje_inversion")
-    credit_type: str = Field(..., alias="tipo_respaldo")
-    simulation: CumploFundingRequestSimulation | None = Field(None)
+    simulation: CumploFundingRequestSimulation = Field(...)
+    debtors: list[Debtor] = Field(default_factory=list, alias="pagadores")
+    borrower: Borrower = Field(..., alias="solicitante")
 
-    @field_validator("funded_amount_percentage", mode=ValidatorMode.BEFORE)
+    @field_validator("supporting_documents", mode="before")
     @classmethod
-    def funded_amount_percentage_validator(cls, value: Any) -> Decimal:
-        """
-        Validates that the funded_amount_percentage is a valid decimal number.
-        If it is not, it returns 0 which means that it does not have a credit history yet.
-        """
-        try:
-            return round(Decimal(int(value) / 100), 2)
-        except ValueError:
-            return Decimal(0)
+    def _format_supporting_documents(cls, value: Any) -> list[str]:
+        """Formats the supporting documents names"""
+        return [clean_text(document) for document in value]
 
-    @field_validator("anual_profit_rate", mode=ValidatorMode.BEFORE)
+    @field_validator("funded_percentage", mode="before")
     @classmethod
-    def anual_profit_rate_validator(cls, value: Any) -> Decimal:
-        """Validates that the anual_profit_rate is a valid decimal number"""
+    def funded_percentage_validator(cls, value: Any) -> Decimal:
+        """Validates that the funded percentage is a valid decimal number"""
         return round(Decimal(int(value) / 100), 2)
 
-    @field_validator("credit_type")
+    @field_validator("credit_type", mode="before")
     @classmethod
     def credit_type_validator(cls, value: Any) -> CreditType:
         """Validates that the credit_type has a valid value"""
@@ -73,7 +76,7 @@ class CumploFundingRequest(BaseModel):
     @cached_property
     def is_completed(self) -> bool:
         """Checks if the funding request is fully funded"""
-        return self.funded_amount_percentage == Decimal(1)
+        return self.funded_percentage == Decimal(1)
 
     def export(self) -> FundingRequest:
         """Exports the CumploFundingRequest to a FundingRequest"""

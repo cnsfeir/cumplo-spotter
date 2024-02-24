@@ -30,12 +30,11 @@ class CumploFundingRequestSimulation(BaseModel):
         """
         Unpacks the simulation values
         """
-        simulation = values.get("data", {}).get("attributes")
         result = {
-            "net_returns": simulation["ganancia_liquida"],
-            "payment_schedule": simulation["forma_pago"],
+            "net_returns": values["ganancia_liquida"],
+            "payment_schedule": values["forma_pago"],
         }
-        for cost in simulation["costos"]["valores"]:
+        for cost in values["costos"]["valores"]:
             if CUMPLO_POINTS_KEY in clean_text(cost["nombre"]):
                 result["cumplo_points"] = cost["valor"]
             elif PLATFORM_FEE_KEY in clean_text(cost["nombre"]):

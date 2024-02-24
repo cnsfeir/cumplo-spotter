@@ -1,5 +1,3 @@
-# mypy: disable-error-code="call-overload"
-
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
@@ -8,24 +6,30 @@ from cumplo_common.utils.text import clean_text
 from pydantic import BaseModel, Field, field_validator
 
 
-class BorrowerPortfolio(BaseModel):
+class DebtPortfolio(BaseModel):
     active: int = Field(..., alias="activas")
+    delinquent: int = Field(..., alias="mora")
     completed: int = Field(..., alias="completadas")
+    in_time: int = Field(..., alias="pagadas_tiempo")
     total_amount: int = Field(..., alias="monto_total")
     total_requests: int = Field(..., alias="total_operaciones")
-    in_time: Decimal = Field(..., alias="pagados_plazo_normal")
-    cured: Decimal = Field(..., alias="pagados_mora_mayor_30")
-    delinquent: Decimal = Field(..., alias="mora_mayor_30")
-    outstanding: Decimal = Field(..., alias="vigente")
 
 
-class Borrower(BaseModel):
-    id: int | None = Field(None)
-    average_days_delinquent: int | None = Field(None)
+class Debtor(BaseModel):
+    amount: int = Field(..., alias="monto_total")
+    share: Decimal = Field(..., alias="participacion")
+    name: str | None = Field(None, alias="nombre_pagador")
     sector: str | None = Field(None, alias="giro_detalle")
+    portfolio: DebtPortfolio = Field(..., alias="historial")
     description: str | None = Field(..., alias="descripcion")
-    portfolio: BorrowerPortfolio = Field(..., alias="historial")
     first_appearance: datetime = Field(..., alias="fecha_primera_operacion")
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def _format_name(cls, value: Any) -> str | None:
+        """Cleans the value and checks if the name is empty and returns None"""
+        clean_value = clean_text(value)
+        return clean_value if clean_value else None
 
     @field_validator("description", mode="before")
     @classmethod

@@ -1,4 +1,5 @@
-from cumplo_spotter.models.cumplo.borrower import CumploBorrower
+from cumplo_spotter.models.cumplo.borrower import Borrower as CumploBorrower
+from cumplo_spotter.models.cumplo.debtor import Debtor as CumploDebtor
 from cumplo_spotter.models.cumplo.funding_request import CumploFundingRequest
 from cumplo_spotter.models.cumplo.request_duration import CumploFundingRequestDuration
 from cumplo_spotter.models.cumplo.simulation import CumploFundingRequestSimulation
