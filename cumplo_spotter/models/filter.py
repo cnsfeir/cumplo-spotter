@@ -57,14 +57,15 @@ class MinimumDurationFilter(Filter):
         """
         Filters out the funding requests that have a duration lower than the minimum.
         """
-        # TODO: Figure out how to compare montlhy profit rate of funding requests with single and monthly payments
-        if funding_request.duration.unit != DurationUnit.DAY:
-            return False
-
         if self.configuration.minimum_duration is None:
             return True
 
-        return funding_request.duration.value >= self.configuration.minimum_duration
+        duration = (
+            funding_request.duration.value
+            if funding_request.duration.unit == DurationUnit.DAY
+            else funding_request.duration.value * 30
+        )
+        return duration >= self.configuration.minimum_duration
 
 
 class MaximumDurationFilter(Filter):
@@ -72,14 +73,15 @@ class MaximumDurationFilter(Filter):
         """
         Filters out the funding requests that have a duration greater than the maximum.
         """
-        # TODO: Figure out how to compare montlhy profit rate of funding requests with single and monthly payments
-        if funding_request.duration.unit != DurationUnit.DAY:
-            return False
-
         if self.configuration.maximum_duration is None:
             return True
 
-        return funding_request.duration.value <= self.configuration.maximum_duration
+        duration = (
+            funding_request.duration.value
+            if funding_request.duration.unit == DurationUnit.DAY
+            else funding_request.duration.value * 30
+        )
+        return duration <= self.configuration.maximum_duration
 
 
 class DicomFilter(Filter):
