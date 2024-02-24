@@ -3,18 +3,17 @@
 
 
 from cumplo_common.models.funding_request import DurationUnit
-from cumplo_common.models.pydantic import ValidatorMode
 from pydantic import BaseModel, Field, field_validator
 
 
-class FundingRequestDuration(BaseModel):
+class CumploFundingRequestDuration(BaseModel):
     unit: DurationUnit = Field(..., alias="type")
     value: int = Field(...)
 
     def __str__(self) -> str:
         return f"{self.value} {self.unit}"
 
-    @field_validator("unit", mode=ValidatorMode.BEFORE)
+    @field_validator("unit", mode="before")
     @classmethod
     def unit_formatter(cls, value: str) -> DurationUnit:
         """Formats the unit value"""

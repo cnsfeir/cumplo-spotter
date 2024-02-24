@@ -3,7 +3,7 @@ from abc import ABCMeta, abstractmethod
 from cumplo_common.models.filter_configuration import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 
-from cumplo_spotter.models.request_duration import DurationUnit
+from cumplo_spotter.models.cumplo.request_duration import DurationUnit
 
 
 class Filter(metaclass=ABCMeta):
@@ -15,7 +15,26 @@ class Filter(metaclass=ABCMeta):
         ...
 
 
-# TODO: Implement the minimum_investment_amount filter
+class CreditTypeFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests that don't have the target credit types.
+        """
+        if self.configuration.target_credit_types is None:
+            return True
+
+        return funding_request.credit_type in self.configuration.target_credit_types
+
+
+class MinimumInvestmentFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests that have a available investment lower than the minimum.
+        """
+        if self.configuration.minimum_investment_amount is None:
+            return True
+
+        return funding_request.maximum_investment >= self.configuration.minimum_investment_amount
 
 
 class MinimumScoreFilter(Filter):
@@ -56,14 +75,15 @@ class MinimumDurationFilter(Filter):
         """
         Filters out the funding requests that have a duration lower than the minimum.
         """
-        # TODO: Figure out how to compare montlhy profit rate of funding requests with single and monthly payments
-        if funding_request.duration.unit != DurationUnit.DAY:
-            return False
-
         if self.configuration.minimum_duration is None:
             return True
 
-        return funding_request.duration.value >= self.configuration.minimum_duration
+        duration = (
+            funding_request.duration.value
+            if funding_request.duration.unit == DurationUnit.DAY
+            else funding_request.duration.value * 30
+        )
+        return duration >= self.configuration.minimum_duration
 
 
 class MaximumDurationFilter(Filter):
@@ -71,14 +91,15 @@ class MaximumDurationFilter(Filter):
         """
         Filters out the funding requests that have a duration greater than the maximum.
         """
-        # TODO: Figure out how to compare montlhy profit rate of funding requests with single and monthly payments
-        if funding_request.duration.unit != DurationUnit.DAY:
-            return False
-
         if self.configuration.maximum_duration is None:
             return True
 
-        return funding_request.duration.value <= self.configuration.maximum_duration
+        duration = (
+            funding_request.duration.value
+            if funding_request.duration.unit == DurationUnit.DAY
+            else funding_request.duration.value * 30
+        )
+        return duration <= self.configuration.maximum_duration
 
 
 class DicomFilter(Filter):
@@ -100,7 +121,7 @@ class MinimumCreditsRequestedFilter(Filter):
         if not self.configuration.minimum_requested_credits:
             return True
 
-        return funding_request.borrower.funding_requests_count >= self.configuration.minimum_requested_credits
+        return funding_request.borrower.portfolio.total_requests >= self.configuration.minimum_requested_credits
 
 
 class MinimumAmountRequestedFilter(Filter):
@@ -111,7 +132,7 @@ class MinimumAmountRequestedFilter(Filter):
         if not self.configuration.minimum_requested_amount:
             return True
 
-        return funding_request.borrower.total_amount_requested >= self.configuration.minimum_requested_amount
+        return funding_request.borrower.portfolio.total_amount >= self.configuration.minimum_requested_amount
 
 
 class MaximumAverageDaysDelinquentFilter(Filter):
@@ -137,10 +158,10 @@ class MinimumPaidInTimeFilter(Filter):
         if not self.configuration.minimum_paid_in_time_percentage:
             return True
 
-        if not funding_request.borrower.funding_requests_count:
+        if not funding_request.borrower.portfolio.total_requests:
             return True
 
-        if paid_in_time_percentage := funding_request.borrower.paid_in_time_percentage:
+        if paid_in_time_percentage := funding_request.borrower.portfolio.in_time:
             return paid_in_time_percentage >= self.configuration.minimum_paid_in_time_percentage
 
         return True
