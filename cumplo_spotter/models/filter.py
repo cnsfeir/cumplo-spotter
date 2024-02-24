@@ -16,6 +16,7 @@ class Filter(metaclass=ABCMeta):
 
 
 # TODO: Implement the minimum_investment_amount filter
+# TODO: Implement missing filters based on new funding request attributes
 
 
 class MinimumScoreFilter(Filter):
@@ -100,7 +101,7 @@ class MinimumCreditsRequestedFilter(Filter):
         if not self.configuration.minimum_requested_credits:
             return True
 
-        return funding_request.borrower.funding_requests_count >= self.configuration.minimum_requested_credits
+        return funding_request.borrower.portfolio.total_requests >= self.configuration.minimum_requested_credits
 
 
 class MinimumAmountRequestedFilter(Filter):
@@ -111,7 +112,7 @@ class MinimumAmountRequestedFilter(Filter):
         if not self.configuration.minimum_requested_amount:
             return True
 
-        return funding_request.borrower.total_amount_requested >= self.configuration.minimum_requested_amount
+        return funding_request.borrower.portfolio.total_amount >= self.configuration.minimum_requested_amount
 
 
 class MaximumAverageDaysDelinquentFilter(Filter):
@@ -137,10 +138,10 @@ class MinimumPaidInTimeFilter(Filter):
         if not self.configuration.minimum_paid_in_time_percentage:
             return True
 
-        if not funding_request.borrower.funding_requests_count:
+        if not funding_request.borrower.portfolio.total_requests:
             return True
 
-        if paid_in_time_percentage := funding_request.borrower.paid_in_time_percentage:
+        if paid_in_time_percentage := funding_request.borrower.portfolio.in_time:
             return paid_in_time_percentage >= self.configuration.minimum_paid_in_time_percentage
 
         return True
