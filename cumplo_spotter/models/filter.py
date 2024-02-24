@@ -15,8 +15,26 @@ class Filter(metaclass=ABCMeta):
         ...
 
 
-# TODO: Implement the minimum_investment_amount filter
-# TODO: Implement missing filters based on new funding request attributes
+class CreditTypeFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests that don't have the target credit types.
+        """
+        if self.configuration.target_credit_types is None:
+            return True
+
+        return funding_request.credit_type in self.configuration.target_credit_types
+
+
+class MinimumInvestmentFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests that have a available investment lower than the minimum.
+        """
+        if self.configuration.minimum_investment_amount is None:
+            return True
+
+        return funding_request.maximum_investment >= self.configuration.minimum_investment_amount
 
 
 class MinimumScoreFilter(Filter):
