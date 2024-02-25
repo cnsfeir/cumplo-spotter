@@ -49,7 +49,7 @@ class CumploHTMLAPI:
             BeautifulSoup: The parsed HTML of the funding request
         """
         logger.debug(f"Getting funding request {id_funding_request} from Cumplo's HTML API")
-        response = cls._request(HTTPMethod.POST, f"/{id_funding_request}")
+        response = cls._request(HTTPMethod.GET, f"/{id_funding_request}")
         soup = BeautifulSoup(response.text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in clean_text(soup.get_text()):
