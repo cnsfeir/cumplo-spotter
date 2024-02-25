@@ -13,6 +13,8 @@ class BorrowerPortfolio(BaseModel):
     completed: int = Field(..., alias="completadas")
     total_amount: int = Field(..., alias="monto_total")
     total_requests: int = Field(..., alias="total_operaciones")
+
+    # NOTE: The following fields are based on the total requests and should add up to 100%
     in_time: Decimal = Field(..., alias="pagados_plazo_normal")
     cured: Decimal = Field(..., alias="pagados_mora_mayor_30")
     delinquent: Decimal = Field(..., alias="mora_mayor_30")
