@@ -161,7 +161,7 @@ class MinimumPaidInTimeFilter(Filter):
         if not funding_request.borrower.portfolio.total_requests:
             return True
 
-        if paid_in_time_percentage := funding_request.borrower.portfolio.in_time:
+        if paid_in_time_percentage := funding_request.borrower.portfolio.paid_in_time:
             return paid_in_time_percentage >= self.configuration.minimum_paid_in_time_percentage
 
         return True

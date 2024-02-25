@@ -41,7 +41,7 @@ def get_available_funding_requests() -> list[FundingRequest]:
             if not funding_request.is_completed:
                 funding_requests.append(funding_request.export())
 
-    logger.info(f"Got {len(funding_requests)} funding requests with credit history")
+    logger.info(f"Got {len(funding_requests)} funding requests")
     return funding_requests
 
 
