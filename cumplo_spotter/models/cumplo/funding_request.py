@@ -10,12 +10,13 @@ from cumplo_common.models.credit import CreditType
 from cumplo_common.models.currency import Currency
 from cumplo_common.models.funding_request import FundingRequest
 from cumplo_common.utils.text import clean_text
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from cumplo_spotter.models.cumplo.borrower import Borrower
 from cumplo_spotter.models.cumplo.debtor import Debtor
 from cumplo_spotter.models.cumplo.request_duration import CumploFundingRequestDuration
 from cumplo_spotter.models.cumplo.simulation import CumploFundingRequestSimulation
+from cumplo_spotter.utils.constants import DicomMarker
 
 
 class CumploCreditType(StrEnum):
@@ -54,6 +55,55 @@ class CumploFundingRequest(BaseModel):
     simulation: CumploFundingRequestSimulation = Field(...)
     debtors: list[Debtor] = Field(default_factory=list, alias="pagadores")
     borrower: Borrower = Field(..., alias="solicitante")
+
+    @model_validator(mode="before")
+    @classmethod
+    def _preprocess_data(cls, data: dict) -> dict:
+        """Formats the data before validating"""
+        cls._set_dicom_status(data)
+        return data
+
+    @classmethod
+    def _set_dicom_status(cls, data: dict) -> None:
+        """
+        Sets the DICOM status of the borrower and debtors
+        """
+        debtor_dicom, borrower_dicom = cls._identify_dicom_status(data)
+
+        data["solicitante"]["dicom"] = borrower_dicom
+        for debtor in data["pagadores"]:
+            debtor["dicom"] = debtor_dicom
+
+    @staticmethod
+    def _identify_dicom_status(data: dict) -> tuple[bool | None, bool | None]:
+        """
+        Identifies the DICOM status of the borrower and debtors
+        """
+        description = clean_text(data["solicitante"]["descripcion"])
+        debtor_dicom, borrower_dicom = None, None
+
+        if DicomMarker.BOTH_TRUE in description:
+            return True, True
+
+        if DicomMarker.BOTH_FALSE in description:
+            return False, False
+
+        if DicomMarker.DEBTOR_TRUE in description:
+            debtor_dicom = True
+
+        if any(marker in description for marker in DicomMarker.BORROWER_TRUE):
+            borrower_dicom = True
+
+        if DicomMarker.BORROWER_FALSE in description:
+            borrower_dicom = False
+
+        if borrower_dicom is None and any(marker in description for marker in DicomMarker.SINGLE_FALSE):
+            borrower_dicom = False
+
+        elif borrower_dicom is None and any(marker in description for marker in DicomMarker.SINGLE_TRUE):
+            borrower_dicom = True
+
+        return debtor_dicom, borrower_dicom
 
     @field_validator("supporting_documents", mode="before")
     @classmethod

@@ -28,6 +28,7 @@ class Borrower(BaseModel):
     description: str | None = Field(..., alias="descripcion")
     portfolio: BorrowerPortfolio = Field(..., alias="historial")
     first_appearance: datetime = Field(..., alias="fecha_primera_operacion")
+    dicom: bool | None = Field(None)
 
     @field_validator("description", mode="before")
     @classmethod
