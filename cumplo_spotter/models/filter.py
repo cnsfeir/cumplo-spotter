@@ -102,12 +102,23 @@ class MaximumDurationFilter(Filter):
         return duration <= self.configuration.maximum_duration
 
 
-class DicomFilter(Filter):
+class DebtorDicomFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
         """
-        Filters out the funding requests that have a Dicom
+        Filters out the funding requests whose debtor has DICOM.
         """
-        if self.configuration.ignore_dicom:
+        if self.configuration.ignore_debtor_dicom:
+            return True
+
+        return not any(debtor.dicom for debtor in funding_request.debtors)
+
+
+class BorrowerDicomFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests whose borrower has DICOM.
+        """
+        if self.configuration.ignore_borrower_dicom:
             return True
 
         return not funding_request.borrower.dicom

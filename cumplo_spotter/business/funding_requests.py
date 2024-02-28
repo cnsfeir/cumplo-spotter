@@ -8,8 +8,9 @@ from cumplo_common.models.user import User
 
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.models.filter import (
+    BorrowerDicomFilter,
     CreditTypeFilter,
-    DicomFilter,
+    DebtorDicomFilter,
     MaximumAverageDaysDelinquentFilter,
     MaximumDurationFilter,
     MinimumAmountRequestedFilter,
@@ -73,7 +74,8 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
         MinimumScoreFilter(configuration),
         MinimumIRRFilter(configuration),
         MinimumMonthlyProfitFilter(configuration),
-        DicomFilter(configuration),
+        BorrowerDicomFilter(configuration),
+        DebtorDicomFilter(configuration),
         MinimumDurationFilter(configuration),
         MaximumDurationFilter(configuration),
         MinimumPaidInTimeFilter(configuration),

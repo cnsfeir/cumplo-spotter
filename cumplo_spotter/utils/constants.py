@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
@@ -21,7 +22,26 @@ IRS_SECTOR_SELECTOR = "strong.loan-view-primary-color + span"
 PAID_FUNDING_REQUESTS_COUNT_SELECTOR = "div.loan-view-item span:nth-of-type(1)"
 PAID_IN_TIME_PERCENTAGE_SELECTOR = "div.loan-view-item span:nth-of-type(5)"
 TOTAL_AMOUNT_REQUESTED_SELECTOR = "div.loan-view-page-subtitle + p"
-DICOM_STRINGS = ["CON DICOM", "CONDICOM", "PRESENTA DICOM"]
+
+# Markers
+GOVERNMENT_TREASURY_DEBT_MARKER = [
+    "NO TIENE DEUDAS CON LA TGR",
+    "NO PRESENTA DEUDAS CON LA TGR",
+    "NO PRESENTA DEUDA CON LA TESORERIA",
+    "NO PRESENTA DEUDAS CON LA TESORERIA",
+]
+
+
+@dataclass
+class DicomMarker:
+    BOTH_TRUE = "DEUDOR Y CLIENTE CON DICOM"
+    BOTH_FALSE = "DEUDOR Y CLIENTE SIN DICOM"
+    DEBTOR_TRUE = "DEUDOR CON DICOM"
+    BORROWER_TRUE = ("CLIENTE CON DICOM", "CIENTE CON DICOM", "SOLICITANTE CON DICOM")
+    BORROWER_FALSE = "SOLICITANTE SIN DICOM"
+    SINGLE_FALSE = ("SIN DICOM", "TAMPOCO PRESENTA DICOM", "NO TIENE DICOM", "DICOM NO")
+    SINGLE_TRUE = ("CON DICOM", "CONDICOM", "PRESENTA DICOM")
+
 
 # Firestore Collections
 CONFIGURATIONS_COLLECTION = os.getenv("CONFIGURATIONS_COLLECTION", "configurations")

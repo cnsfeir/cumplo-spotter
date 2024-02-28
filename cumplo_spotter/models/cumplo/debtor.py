@@ -25,6 +25,7 @@ class Debtor(BaseModel):
     portfolio: DebtPortfolio = Field(..., alias="historial")
     description: str | None = Field(..., alias="descripcion")
     first_appearance: datetime = Field(..., alias="fecha_primera_operacion")
+    dicom: bool | None = Field(None)
 
     @field_validator("name", mode="before")
     @classmethod
