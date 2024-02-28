@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cumplo-spotter"
-version = "1.0.1"
+version = "1.1.0"
 description = "A simple yet powerful API for spotting secure and high-return Cumplo investment opportunities"
 authors = ["Cristobal Sfeir <cnsfeir@uc.cl>"]
 packages = [{ include = "cumplo_spotter" }]
