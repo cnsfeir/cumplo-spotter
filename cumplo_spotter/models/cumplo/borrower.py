@@ -24,7 +24,7 @@ class BorrowerPortfolio(BaseModel):
 class Borrower(BaseModel):
     id: int | None = Field(None)
     average_days_delinquent: int | None = Field(None)
-    sector: str | None = Field(None, alias="giro_detalle")
+    economic_sector: str | None = Field(None, alias="giro_detalle")
     description: str | None = Field(..., alias="descripcion")
     portfolio: BorrowerPortfolio = Field(..., alias="historial")
     first_appearance: datetime = Field(..., alias="fecha_primera_operacion")
