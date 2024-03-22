@@ -9,9 +9,11 @@ from cumplo_common.models.user import User
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.models.filter import (
     BorrowerDicomFilter,
+    BorrowerMaximumAverageDaysDelinquentFilter,
+    BorrowerMinimumPaidInTimeFilter,
     CreditTypeFilter,
     DebtorDicomFilter,
-    MaximumAverageDaysDelinquentFilter,
+    DebtorMinimumPaidInTimeFilter,
     MaximumDurationFilter,
     MinimumAmountRequestedFilter,
     MinimumCreditsRequestedFilter,
@@ -19,7 +21,6 @@ from cumplo_spotter.models.filter import (
     MinimumInvestmentFilter,
     MinimumIRRFilter,
     MinimumMonthlyProfitFilter,
-    MinimumPaidInTimeFilter,
     MinimumScoreFilter,
 )
 
@@ -78,10 +79,11 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
         DebtorDicomFilter(configuration),
         MinimumDurationFilter(configuration),
         MaximumDurationFilter(configuration),
-        MinimumPaidInTimeFilter(configuration),
+        BorrowerMinimumPaidInTimeFilter(configuration),
         MinimumAmountRequestedFilter(configuration),
         MinimumCreditsRequestedFilter(configuration),
-        MaximumAverageDaysDelinquentFilter(configuration),
+        BorrowerMaximumAverageDaysDelinquentFilter(configuration),
+        DebtorMinimumPaidInTimeFilter(configuration),
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
