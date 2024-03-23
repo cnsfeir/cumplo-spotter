@@ -9,17 +9,19 @@ from cumplo_common.models.user import User
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.models.filter import (
     BorrowerDicomFilter,
+    BorrowerMaximumAverageDaysDelinquentFilter,
+    BorrowerMinimumPaidInTimeFilter,
+    BorrowerMinimumRequestedAmountFilter,
+    BorrowerMinimumRequestedCreditsFilter,
     CreditTypeFilter,
     DebtorDicomFilter,
-    MaximumAverageDaysDelinquentFilter,
+    DebtorMinimumPaidInTimeFilter,
+    DebtorMinimumRequestedCreditsFilter,
     MaximumDurationFilter,
-    MinimumAmountRequestedFilter,
-    MinimumCreditsRequestedFilter,
     MinimumDurationFilter,
     MinimumInvestmentFilter,
     MinimumIRRFilter,
     MinimumMonthlyProfitFilter,
-    MinimumPaidInTimeFilter,
     MinimumScoreFilter,
 )
 
@@ -78,10 +80,12 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
         DebtorDicomFilter(configuration),
         MinimumDurationFilter(configuration),
         MaximumDurationFilter(configuration),
-        MinimumPaidInTimeFilter(configuration),
-        MinimumAmountRequestedFilter(configuration),
-        MinimumCreditsRequestedFilter(configuration),
-        MaximumAverageDaysDelinquentFilter(configuration),
+        BorrowerMinimumPaidInTimeFilter(configuration),
+        BorrowerMinimumRequestedAmountFilter(configuration),
+        BorrowerMinimumRequestedCreditsFilter(configuration),
+        BorrowerMaximumAverageDaysDelinquentFilter(configuration),
+        DebtorMinimumRequestedCreditsFilter(configuration),
+        DebtorMinimumPaidInTimeFilter(configuration),
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
