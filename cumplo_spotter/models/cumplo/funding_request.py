@@ -48,7 +48,7 @@ class CumploFundingRequest(BaseModel):
     raised_amount: int = Field(..., alias="total_inversion")
     maximum_investment: int = Field(..., alias="max_inversion")
     investors: int = Field(..., alias="cantidad_inversionistas")
-    funded_percentage: Decimal = Field(..., alias="porcentaje_inversion")
+    raised_percentage: Decimal = Field(..., alias="porcentaje_inversion")
 
     supporting_documents: list[str] = Field(default_factory=list, alias="tipo_respaldo")
     duration: CumploFundingRequestDuration = Field(..., alias="plazo")
@@ -111,10 +111,10 @@ class CumploFundingRequest(BaseModel):
         """Formats the supporting documents names"""
         return [clean_text(document) for document in value]
 
-    @field_validator("funded_percentage", mode="before")
+    @field_validator("raised_percentage", mode="before")
     @classmethod
-    def funded_percentage_validator(cls, value: Any) -> Decimal:
-        """Validates that the funded percentage is a valid decimal number"""
+    def raised_percentage_validator(cls, value: Any) -> Decimal:
+        """Validates that the raised percentage is a valid decimal number"""
         return round(Decimal(int(value) / 100), 2)
 
     @field_validator("credit_type", mode="before")
@@ -126,7 +126,7 @@ class CumploFundingRequest(BaseModel):
     @cached_property
     def is_completed(self) -> bool:
         """Checks if the funding request is fully funded"""
-        return self.funded_percentage == Decimal(1)
+        return self.raised_percentage == Decimal(1)
 
     def export(self) -> FundingRequest:
         """Exports the CumploFundingRequest to a FundingRequest"""

@@ -13,12 +13,10 @@ class DebtPortfolio(BaseModel):
     delinquent: int = Field(..., alias="mora")
     completed: int = Field(..., alias="completadas")
     in_time: int = Field(..., alias="pagadas_tiempo")
-    total_amount: int = Field(..., alias="monto_total")
     total_requests: int = Field(..., alias="total_operaciones")
 
 
 class Debtor(BaseModel):
-    amount: int = Field(..., alias="monto_total")
     share: Decimal = Field(..., alias="participacion")
     name: str | None = Field(None, alias="nombre_pagador")
     sector: str | None = Field(None, alias="giro_detalle")

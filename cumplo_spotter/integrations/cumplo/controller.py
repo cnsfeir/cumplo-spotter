@@ -38,7 +38,7 @@ def get_available_funding_requests() -> list[FundingRequest]:
             funding_request.borrower.average_days_delinquent = average_days_delinquent
             funding_request.borrower.id = raw_funding_request["empresa"]["id"]
 
-            if not funding_request.is_completed:
+            if not funding_request.is_completed and funding_request.maximum_investment:
                 funding_requests.append(funding_request.export())
 
     logger.info(f"Got {len(funding_requests)} funding requests")
