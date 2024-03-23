@@ -37,10 +37,10 @@ class Borrower(BaseModel):
         clean_value = clean_text(value)
         return clean_value if clean_value else None
 
-    @field_validator("sector", mode="before")
+    @field_validator("economic_sector", mode="before")
     @classmethod
-    def _format_sector(cls, value: Any) -> str | None:
-        """Cleans the value and checks if the IRS sector is 'null' and returns None"""
+    def _format_economic_sector(cls, value: Any) -> str | None:
+        """Cleans the value and checks if the economic sector is 'null' and returns None"""
         clean_value = clean_text(value)
         return None if clean_value == "NULL" else clean_value
 
