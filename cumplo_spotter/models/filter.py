@@ -107,7 +107,7 @@ class DebtorDicomFilter(Filter):
         """
         Filters out the funding requests whose debtor has DICOM.
         """
-        if self.configuration.debtor.ignore_debtor_dicom:
+        if self.configuration.debtor and self.configuration.debtor.ignore_dicom:
             return True
 
         return not any(debtor.dicom for debtor in funding_request.debtors)
@@ -118,32 +118,48 @@ class BorrowerDicomFilter(Filter):
         """
         Filters out the funding requests whose borrower has DICOM.
         """
-        if self.configuration.borrower.ignore_borrower_dicom:
+        if self.configuration.borrower and self.configuration.borrower.ignore_dicom:
             return True
 
         return not funding_request.borrower.dicom
 
 
-class MinimumCreditsRequestedFilter(Filter):
+class BorrowerMinimumCreditsRequestedFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't requested the minimum amount of credits.
         """
-        if not self.configuration.minimum_requested_credits:
+        if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_credits:
             return True
 
-        return funding_request.borrower.portfolio.total_requests >= self.configuration.minimum_requested_credits
+        total_requests = funding_request.borrower.portfolio.total_requests
+        return total_requests >= self.configuration.borrower.minimum_requested_credits
 
 
-class MinimumAmountRequestedFilter(Filter):
+class DebtorMinimumCreditsRequestedFilter(Filter):
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """
+        Filters out the funding requests whose at least one debtor hasn't requested the minimum amount of credits.
+        """
+        if not self.configuration.debtor or not self.configuration.debtor.minimum_requested_credits:
+            return True
+
+        return any(
+            debtor.portfolio.total_requests >= self.configuration.debtor.minimum_requested_credits
+            for debtor in funding_request.debtors
+        )
+
+
+class BorrowerMinimumAmountRequestedFilter(Filter):
     def apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't received the minimum amount of money.
         """
-        if not self.configuration.minimum_requested_amount:
+        if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_amount:
             return True
 
-        return funding_request.borrower.portfolio.total_amount >= self.configuration.minimum_requested_amount
+        total_amount = funding_request.borrower.portfolio.total_amount
+        return total_amount >= self.configuration.borrower.minimum_requested_amount
 
 
 class BorrowerMaximumAverageDaysDelinquentFilter(Filter):
@@ -185,9 +201,6 @@ class DebtorMinimumPaidInTimeFilter(Filter):
         of funding requests paid in time.
         """
         if not self.configuration.debtor or not self.configuration.debtor.minimum_paid_in_time_percentage:
-            return True
-
-        if not funding_request.debtor.portfolio.total_requests:
             return True
 
         return any(
