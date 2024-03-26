@@ -11,7 +11,8 @@ INSTALLED_VERSION := $(shell python -c "import sys; print(f'{sys.version_info.ma
   start \
   build \
   down \
-  login
+  login \
+  update_common
 
 # Checks if the installed Python version matches the required version
 check_python_version:
@@ -51,3 +52,8 @@ start:
 
 down:
 	@docker-compose down
+
+update_common:
+	@rm -rf .venv
+	@poetry cache clear --no-interaction --all cumplo-pypi
+	@poetry update
