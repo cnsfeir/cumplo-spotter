@@ -443,13 +443,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "cumplo-common"
-version = "1.2.0"
+version = "1.2.1"
 description = "A one-stop library that centralizes the core logic and protects the domain of the Cumplo API project"
 optional = false
 python-versions = ">=3.11,<4.0"
 files = [
-    {file = "cumplo_common-1.2.0-py3-none-any.whl", hash = "sha256:df80b6e8c05caf13b3feb0fec36283e9af2d809c2faca6096a25a884f4378b3f"},
-    {file = "cumplo_common-1.2.0.tar.gz", hash = "sha256:9a22555e8ec33df0726cf86fb14d4d1e6595f751b6f9e4f3b7c54ac16b21ed99"},
+    {file = "cumplo_common-1.2.1-py3-none-any.whl", hash = "sha256:93b059bab5525cb572cb79f5cd9c88c9d27e354008f009307ed9dc23d333c02f"},
+    {file = "cumplo_common-1.2.1.tar.gz", hash = "sha256:6a1319f6db42bd5003e3384289dc3f0c444d040acaebc2913cfa22a8c65da9fa"},
 ]
 
 [package.dependencies]
@@ -2019,4 +2019,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "26dc244b9bfe709d1ead155e5a8d18ef91ffd2d4601159ea402e29cbc7a62d91"
+content-hash = "bd5b6843aed451fc52eb7ed3be921b5b521d126e662aee1beea6f779d1ad76a7"
