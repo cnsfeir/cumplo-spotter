@@ -110,6 +110,9 @@ class DebtorDicomFilter(Filter):
         if self.configuration.debtor and self.configuration.debtor.ignore_dicom:
             return True
 
+        if not funding_request.debtors:
+            return True
+
         return not any(debtor.dicom for debtor in funding_request.debtors)
 
 
@@ -142,6 +145,9 @@ class DebtorMinimumRequestedCreditsFilter(Filter):
         Filters out the funding requests whose at least one debtor hasn't requested the minimum amount of credits.
         """
         if not self.configuration.debtor or not self.configuration.debtor.minimum_requested_credits:
+            return True
+
+        if not funding_request.debtors:
             return True
 
         return any(
@@ -201,6 +207,9 @@ class DebtorMinimumPaidInTimeFilter(Filter):
         of funding requests paid in time.
         """
         if not self.configuration.debtor or not self.configuration.debtor.minimum_paid_in_time_percentage:
+            return True
+
+        if not funding_request.debtors:
             return True
 
         return any(
