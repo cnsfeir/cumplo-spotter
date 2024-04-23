@@ -20,6 +20,7 @@ from cumplo_spotter.utils.constants import DicomMarker
 
 
 class CumploCreditType(StrEnum):
+    SHORT_TERM_CAPITAL = "short_term_capital"
     IRRIGATION = "irrigation"
     BALLOON = "balloon"
     INVOICE = "invoice"
@@ -28,6 +29,7 @@ class CumploCreditType(StrEnum):
 
 
 CREDIT_TYPE_TRANSLATIONS = {
+    CumploCreditType.SHORT_TERM_CAPITAL: CreditType.WORKING_CAPITAL,
     CumploCreditType.IRRIGATION: CreditType.STATE_SUBSIDY,
     CumploCreditType.SIMPLE: CreditType.WORKING_CAPITAL,
     CumploCreditType.BALLOON: CreditType.BULLET_LOAN,
