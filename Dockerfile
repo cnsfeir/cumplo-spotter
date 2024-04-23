@@ -77,4 +77,4 @@ ENTRYPOINT ["/usr/bin/entrypoint.sh"]
 COPY . ./
 
 # Run the app
-CMD exec uvicorn --workers 4 --host 0.0.0.0 --port 8080 cumplo_spotter.main:app
+CMD exec uvicorn --workers 6 --host 0.0.0.0 --port 8080 cumplo_spotter.main:app
