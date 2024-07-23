@@ -1,0 +1,21 @@
+{
+    "recommendations": [
+        // Python
+        "ms-python.black-formatter",
+        "ms-python.vscode-pylance",
+        "ms-python.flake8",
+        "ms-python.python",
+        "ms-python.pylint",
+        "ms-python.isort",
+        "matangover.mypy",
+        "nwgh.bandit",
+        // Others
+        "tamasfe.even-better-toml", // TOML
+        "ms-vscode.makefile-tools", // Makefile
+        "eamodio.gitlens",
+        "usernamehw.errorlens",
+        "Gruntfuggly.todo-tree",
+        "GitHub.copilot",
+        "ms-azuretools.vscode-docker"
+    ]
+}
