@@ -2,35 +2,32 @@
 name = "cumplo-spotter"
 version = "1.2.1"
 description = "A simple yet powerful API for spotting secure and high-return Cumplo investment opportunities"
-authors = ["Cristobal Sfeir <cnsfeir@uc.cl>"]
+authors = ["Cristobal Sfeir <hello@cristobalsfeir.com>"]
 packages = [{ include = "cumplo_spotter" }]
 
-[tool.poetry.group.rest-api]
-optional = true
-
-[tool.poetry.group.rest-api.dependencies]
-fastapi = "^0.109.1"
-uvicorn = "^0.23.1"
-
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
 requests = "^2.28.1"
 arrow = "^1.2.3"
 pydantic = "^2.1.1"
+fastapi = "^0.109.1"
+uvicorn = "^0.23.1"
+gunicorn = "^21.2.0"
 python-dotenv = "^1.0.0"
 bs4 = "^0.0.1"
 retry = "^0.9.2"
 lxml = "^4.9.2"
 google-cloud-logging = "^3.5.0"
 httpx = "^0.26.0"
-gunicorn = "^21.2.0"
 cumplo-common = { version = "^1.2.1", source = "cumplo-pypi" }
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.17.5"
 flake8 = "^6.1.0"
-black = "^23.7.0"
+black = "^22.3.0"
 mypy = "^1.4.1"
+bandit = "^1.7.9"
+isort = "^5.13.2"
 
 [[tool.poetry.source]]
 name = "cumplo-pypi"
@@ -40,3 +37,61 @@ priority = "supplemental"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+target-version = ['py312']
+line-length = 120
+
+[tool.isort]
+profile = "black"
+line_length = 120
+force_grid_wrap = 0
+multi_line_output = 3
+include_trailing_comma = true
+ensure_newline_before_comments = true
+
+[tool.bandit]
+skips = ["B101"]
+exclude_dirs = [".venv"]
+
+[tool.mypy]
+python_version = "3.12"
+disallow_untyped_defs = true
+exclude = ".venv"
+
+[[tool.mypy.overrides]]
+module = [
+    "requests.*",
+    "pydantic.*",
+    "psycopg2.*",
+    "lxml.*",
+    "babel.*",
+    "bs4.*",
+    "functions_framework.*",
+    "firebase_admin.*",
+    "retry.*",
+    "starlette.*",
+]
+ignore_missing_imports = true
+
+[tool.pylint.'MAIN']
+py-version = 3.12
+load-plugins = [
+    "pylint.extensions.redefined_variable_type",
+    "pylint.extensions.check_elif",
+    "pylint.extensions.code_style",
+    "pylint.extensions.typing",
+]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = ["C0114", "C0115", "R0903", "W1203", "W3101"]
+
+[tool.pylint.'FORMAT']
+max-line-length = 120
+
+[tool.pylint.'DESIGN']
+max-attributes = 15
+max-args = 6
+
+[tool.pylint.'SIMILARITIES']
+min-similarity-lines = 5

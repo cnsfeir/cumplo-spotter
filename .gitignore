@@ -104,9 +104,6 @@ fabric.properties
 # .idea/misc.xml
 # *.ipr
 
-# Sonarlint plugin
-.idea/sonarlint
-
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -252,5 +249,5 @@ credentials.json
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocodeß
 .vscode/settings.json
-cumplo-spotter-credentials.json
-cumplo-pypi-credentials.json
+cumplo_spotter_credentials.json
+cumplo_pypi_credentials.json

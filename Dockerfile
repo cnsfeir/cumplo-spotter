@@ -1,7 +1,7 @@
-# Base container with Python 3.11 official image
-FROM python:3.11-bullseye AS base
+# Base container with Python 3.12 official image
+FROM python:3.12-slim-bookworm AS base
 
-# Set up environment variables
+# Set up Python environment variables
 ENV LANG=C.UTF-8 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONHASHSEED=random \
@@ -16,20 +16,18 @@ WORKDIR /app
 # Build container with Poetry
 FROM base AS builder
 
-# Set Poetry version and environment variables
-ENV POETRY_VERSION=1.6.1 \
+# Set Poetry and pip environment variables
+ENV POETRY_VERSION=1.8.2 \
     POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1
-
-# Set up Pip environment variables
-ENV PIP_NO_CACHE_DIR=off \
+    POETRY_VIRTUALENVS_CREATE=false \
+    PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
-    PIP_DISABLE_PIP_VERSION_CHECK=on
+    PIP_NO_CACHE_DIR=off
 
 # Install OS package dependencies
 RUN apt-get update && \
     apt-get install -y libpq-dev gcc && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Poetry
@@ -46,32 +44,25 @@ COPY cumplo_spotter ./cumplo_spotter
 ARG CUMPLO_PYPI_BASE64_KEY
 
 # Set the service account key location to a temporary file.
-ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account-credentials.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service_account_credentials.json
 
 # Save the service account key contents from the build argument to the temporary file.
 RUN echo "$CUMPLO_PYPI_BASE64_KEY" | base64 -d> "$GOOGLE_APPLICATION_CREDENTIALS"
 
-# Install base dependencies + REST API dependencies
-RUN poetry install --without dev --with rest-api && rm -rf /tmp/poetry_cache
-
-# Remove the service acccount key file.
-RUN rm "$GOOGLE_APPLICATION_CREDENTIALS"
+# Install dependencies and the project globally
+RUN poetry install --without dev && \
+    rm -rf /root/.cache/pypoetry && \
+    rm -rf /tmp/poetry_cache && \
+    rm -rf "$GOOGLE_APPLICATION_CREDENTIALS"
 
 # =================================================================
 
 # Final container with the app
 FROM base AS final
 
-# Copy virtual environment from builder
-COPY --from=builder /app/.venv /app/.venv
-
-# Activate the virtual environment
-ENV PATH=/app/.venv/bin:$PATH
-
-# Import the entrypoint script and make it executable
-COPY entrypoint.sh /usr/bin/
-RUN chmod +x /usr/bin/entrypoint.sh
-ENTRYPOINT ["/usr/bin/entrypoint.sh"]
+# Copy global site-packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy the rest of the code
 COPY . ./
