@@ -1,22 +1,33 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
+from logging import getLogger
+from typing import final
 
 from cumplo_common.models.filter_configuration import FilterConfiguration
 from cumplo_common.models.funding_request import FundingRequest
 
 from cumplo_spotter.models.cumplo.request_duration import DurationUnit
 
+logger = getLogger(__name__)
 
-class Filter(metaclass=ABCMeta):
+
+class Filter(ABC):
     def __init__(self, configuration: FilterConfiguration) -> None:
         self.configuration = configuration
 
     @abstractmethod
-    def apply(self, funding_request: FundingRequest) -> bool:  # pylint: disable=missing-function-docstring
+    def _apply(self, funding_request: FundingRequest) -> bool:  # pylint: disable=missing-function-docstring
         ...
+
+    @final
+    def apply(self, funding_request: FundingRequest) -> bool:
+        """Apply the filter to the funding request."""
+        if not (result := self._apply(funding_request)):
+            logger.info(f"Funding request {funding_request.id} filtered out by {self.__class__.__name__}")
+        return result
 
 
 class CreditTypeFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that don't have the target credit types.
         """
@@ -27,7 +38,7 @@ class CreditTypeFilter(Filter):
 
 
 class MinimumInvestmentFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a available investment lower than the minimum.
         """
@@ -38,7 +49,7 @@ class MinimumInvestmentFilter(Filter):
 
 
 class MinimumScoreFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a score lower than the minimum.
         """
@@ -49,7 +60,7 @@ class MinimumScoreFilter(Filter):
 
 
 class MinimumMonthlyProfitFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a monthly profit lower than the minimum.
         """
@@ -60,7 +71,7 @@ class MinimumMonthlyProfitFilter(Filter):
 
 
 class MinimumIRRFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have an IRR lower than the minimum.
         """
@@ -71,7 +82,7 @@ class MinimumIRRFilter(Filter):
 
 
 class MinimumDurationFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a duration lower than the minimum.
         """
@@ -87,7 +98,7 @@ class MinimumDurationFilter(Filter):
 
 
 class MaximumDurationFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests that have a duration greater than the maximum.
         """
@@ -103,7 +114,7 @@ class MaximumDurationFilter(Filter):
 
 
 class DebtorDicomFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose debtor has DICOM.
         """
@@ -117,7 +128,7 @@ class DebtorDicomFilter(Filter):
 
 
 class BorrowerDicomFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower has DICOM.
         """
@@ -128,7 +139,7 @@ class BorrowerDicomFilter(Filter):
 
 
 class BorrowerMinimumRequestedCreditsFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't requested the minimum amount of credits.
         """
@@ -140,7 +151,7 @@ class BorrowerMinimumRequestedCreditsFilter(Filter):
 
 
 class DebtorMinimumRequestedCreditsFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose at least one debtor hasn't requested the minimum amount of credits.
         """
@@ -157,7 +168,7 @@ class DebtorMinimumRequestedCreditsFilter(Filter):
 
 
 class BorrowerMinimumRequestedAmountFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower hasn't received the minimum amount of money.
         """
@@ -169,7 +180,7 @@ class BorrowerMinimumRequestedAmountFilter(Filter):
 
 
 class BorrowerMaximumAverageDaysDelinquentFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower has an average delinquent days higher than the maximum.
         """
@@ -183,7 +194,7 @@ class BorrowerMaximumAverageDaysDelinquentFilter(Filter):
 
 
 class BorrowerMinimumPaidInTimeFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose borrower doesn't have the minimum percentage
         of funding requests paid in time.
@@ -201,7 +212,7 @@ class BorrowerMinimumPaidInTimeFilter(Filter):
 
 
 class DebtorMinimumPaidInTimeFilter(Filter):
-    def apply(self, funding_request: FundingRequest) -> bool:
+    def _apply(self, funding_request: FundingRequest) -> bool:
         """
         Filters out the funding requests whose debtor doesn't have the minimum percentage
         of funding requests paid in time.
