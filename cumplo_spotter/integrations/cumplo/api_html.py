@@ -53,7 +53,6 @@ class CumploHTMLAPI:
         soup = BeautifulSoup(response.text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in clean_text(soup.get_text()):
-            logger.warning(f"Couldn't get funding request {id_funding_request} from Cumplo's HTML API")
             raise NoResultFound()
 
         return soup
