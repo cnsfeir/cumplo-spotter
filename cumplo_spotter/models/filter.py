@@ -15,8 +15,7 @@ class Filter(ABC):
         self.configuration = configuration
 
     @abstractmethod
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        ...
+    def _apply(self, funding_request: FundingRequest) -> bool: ...
 
     @final
     def apply(self, funding_request: FundingRequest) -> bool:
