@@ -1,5 +1,6 @@
 {
   "name": "${localWorkspaceFolderBasename}",
+  "remoteUser": "root",
   "runArgs": [
     "--privileged"
   ],

@@ -22,8 +22,7 @@ class CumploFundingRequestSimulation(BaseModel):
     @classmethod
     def format_values(cls, values: dict) -> dict:
         """Format the values to the expected format."""
-        values = cls._unpack_simulation(values)
-        return values
+        return cls._unpack_simulation(values)
 
     @staticmethod
     def _unpack_simulation(values: dict) -> dict:

@@ -58,7 +58,7 @@ def get_promising(user: User) -> list[FundingRequest]:
     for configuration in user.filters.values():
         promising_requests.update(filter_(funding_requests, configuration))
 
-    return sorted(list(promising_requests), key=lambda x: x.monthly_profit_rate, reverse=True)
+    return sorted(promising_requests, key=lambda x: x.monthly_profit_rate, reverse=True)
 
 
 def filter_(funding_requests: list[FundingRequest], configuration: FilterConfiguration) -> list[FundingRequest]:

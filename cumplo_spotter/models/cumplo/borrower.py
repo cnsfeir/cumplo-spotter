@@ -34,8 +34,7 @@ class Borrower(BaseModel):
     @classmethod
     def _format_description(cls, value: Any) -> str | None:
         """Clean the value and checks if the description is empty and returns None."""
-        clean_value = clean_text(value)
-        return clean_value if clean_value else None
+        return clean_text(value) or None
 
     @field_validator("economic_sector", mode="before")
     @classmethod

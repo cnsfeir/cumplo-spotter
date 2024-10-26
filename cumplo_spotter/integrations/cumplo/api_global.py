@@ -71,7 +71,7 @@ class CumploGlobalAPI:
                 "tasa_anual": 10,
                 "cuotas": 1,
                 "plazo": 1,
-            }
+            },
         }
         response = cls._request(HTTPMethod.POST, "/simulador/inversionista/ANTICIPO_FACTURA/CL/CL", payload=payload)
         return response.json()["data"]["attributes"]

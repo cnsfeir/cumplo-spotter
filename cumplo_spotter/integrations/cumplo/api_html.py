@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 from cumplo_common.utils.text import clean_text
 
-from cumplo_spotter.integrations.cumplo.exceptions import NoResultFound
+from cumplo_spotter.integrations.cumplo.exceptions import NoResultFoundError
 from cumplo_spotter.utils.constants import AVERAGE_DAYS_DELINQUENT_SELECTOR, CREDIT_DETAIL_TITLE, CUMPLO_HTML_API
 
 logger = getLogger(__name__)
@@ -42,7 +42,7 @@ class CumploHTMLAPI:
             id_funding_request (int): The ID of the funding request
 
         Raises:
-            NoResultFound: If the funding request information is not available
+            NoResultFoundError: If the funding request information is not available
 
         Returns:
             BeautifulSoup: The parsed HTML of the funding request
@@ -53,7 +53,7 @@ class CumploHTMLAPI:
         soup = BeautifulSoup(response.text, "html.parser")
 
         if CREDIT_DETAIL_TITLE not in clean_text(soup.get_text()):
-            raise NoResultFound()
+            raise NoResultFoundError
 
         return soup
 
@@ -71,7 +71,7 @@ class CumploHTMLAPI:
         """
         try:
             soup = cls.get_funding_requests(id_funding_request)
-        except NoResultFound:
+        except NoResultFoundError:
             return None
 
         element = soup.select_one(AVERAGE_DAYS_DELINQUENT_SELECTOR)

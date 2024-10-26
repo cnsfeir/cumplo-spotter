@@ -4,7 +4,7 @@ from logging import getLogger
 import requests
 from retry import retry
 
-from cumplo_spotter.utils.constants import CUMPLO_GRAPHQL_API
+from cumplo_spotter.utils.constants import CUMPLO_GRAPHQL_API, CUMPLO_GRAPHQL_HEADERS
 
 logger = getLogger(__name__)
 
@@ -13,7 +13,7 @@ class CumploGraphQLAPI:
     """Class to interact with Cumplo's GraphQL API."""
 
     url = CUMPLO_GRAPHQL_API
-    headers = {"Accept-Language": "es-CL"}
+    headers = CUMPLO_GRAPHQL_HEADERS
 
     @classmethod
     def _request(cls, method: HTTPMethod, payload: dict | None = None) -> requests.Response:
@@ -32,7 +32,7 @@ class CumploGraphQLAPI:
 
     @classmethod
     @retry((KeyError, requests.exceptions.JSONDecodeError), tries=5, delay=1)
-    def get_funding_requests(cls, ignore_completed: bool = False) -> list[dict]:
+    def get_funding_requests(cls, *, ignore_completed: bool = False) -> list[dict]:
         """
         Query the Cumplo's GraphQL API for the existing funding requests.
 
