@@ -34,6 +34,15 @@
     // MyPy
     "mypy.runUsingActiveInterpreter": true,
     "mypy.configFile": "pyproject.toml",
+    // Run On Save
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.py$",
+                "cmd": "docformatter -i ${file}"
+            }
+        ]
+    },
     // Todo Tree
     "todo-tree.general.tags": [
         "HACK",

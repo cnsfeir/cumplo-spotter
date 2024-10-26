@@ -24,7 +24,8 @@
         "usernamehw.errorlens",
         "Gruntfuggly.todo-tree",
         "GitHub.copilot",
-        "ms-azuretools.vscode-docker"
+        "ms-azuretools.vscode-docker",
+        "emeraldwalk.runonsave"
       ]
     }
   }

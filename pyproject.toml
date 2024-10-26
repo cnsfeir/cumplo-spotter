@@ -24,6 +24,7 @@ cumplo-common = { version = "^1.2.1", source = "cumplo-pypi" }
 [tool.poetry.dev-dependencies]
 mypy = "^1.13.0"
 ruff = "^0.7.1"
+docformatter = "^1.7.5"
 
 [[tool.poetry.source]]
 name = "cumplo-pypi"
@@ -145,3 +146,10 @@ lint.extend-select = [
 [tool.ruff.format]
 docstring-code-format = false
 docstring-code-line-length = 120
+
+[tool.docformatter]
+pre-summary-newline = true # Ensures that multiline docstrings start on a new line.
+wrap-descriptions = 120    # Wraps descriptions at 114 characters, ensuring consistent line width.
+wrap-summaries = 120       # Wraps summary lines only if they exceed 114 characters.
+recursive = true           # Recursively formats all Python files in the specified directories.
+blank = true               # Adds a blank line before the end of multiline docstrings.
