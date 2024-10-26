@@ -13,16 +13,14 @@ logger = getLogger(__name__)
 
 
 class CumploHTMLAPI:
-    """
-    Class to interact with Cumplo's HTML API
-    """
+    """Class to interact with Cumplo's HTML API."""
 
     url = CUMPLO_HTML_API
 
     @classmethod
     def _request(cls, method: HTTPMethod, endpoint: str, payload: dict | None = None) -> requests.Response:
         """
-        Makes a request to Cumplo's HTML API
+        Make a request to Cumplo's HTML API.
 
         Args:
             method (HTTPMethod): HTTP method to use
@@ -31,13 +29,14 @@ class CumploHTMLAPI:
 
         Returns:
             requests.Response: Response from the API
+
         """
         return requests.request(method=method, url=f"{cls.url}{endpoint}", json=payload)
 
     @classmethod
     def get_funding_requests(cls, id_funding_request: int) -> BeautifulSoup:
         """
-        Queries the Cumplo's HTML API for the given funding request information
+        Query the Cumplo's HTML API for the given funding request information.
 
         Args:
             id_funding_request (int): The ID of the funding request
@@ -47,6 +46,7 @@ class CumploHTMLAPI:
 
         Returns:
             BeautifulSoup: The parsed HTML of the funding request
+
         """
         logger.debug(f"Getting funding request {id_funding_request} from Cumplo's HTML API")
         response = cls._request(HTTPMethod.GET, f"/{id_funding_request}")
@@ -60,13 +60,14 @@ class CumploHTMLAPI:
     @classmethod
     def get_average_days_delinquent(cls, id_funding_request: int) -> int | None:
         """
-        Obtains the average days delinquent from a given funding request
+        Obtain the average days delinquent from a given funding request.
 
         Args:
             id_funding_request (int): The ID of the funding request
 
         Returns:
             int | None: The average days delinquent or None if the information is not available
+
         """
         try:
             soup = cls.get_funding_requests(id_funding_request)

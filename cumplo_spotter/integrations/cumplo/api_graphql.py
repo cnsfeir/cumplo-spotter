@@ -10,9 +10,7 @@ logger = getLogger(__name__)
 
 
 class CumploGraphQLAPI:
-    """
-    Class to interact with Cumplo's GraphQL API
-    """
+    """Class to interact with Cumplo's GraphQL API."""
 
     url = CUMPLO_GRAPHQL_API
     headers = {"Accept-Language": "es-CL"}
@@ -20,7 +18,7 @@ class CumploGraphQLAPI:
     @classmethod
     def _request(cls, method: HTTPMethod, payload: dict | None = None) -> requests.Response:
         """
-        Makes a request to Cumplo's GraphQL API
+        Make a request to Cumplo's GraphQL API.
 
         Args:
             method (HTTPMethod): HTTP method to use
@@ -28,6 +26,7 @@ class CumploGraphQLAPI:
 
         Returns:
             requests.Response: Response from the API
+
         """
         return requests.request(method=method, url=cls.url, json=payload, headers=cls.headers)
 
@@ -35,10 +34,11 @@ class CumploGraphQLAPI:
     @retry((KeyError, requests.exceptions.JSONDecodeError), tries=5, delay=1)
     def get_funding_requests(cls, ignore_completed: bool = False) -> list[dict]:
         """
-        Queries the Cumplo's GraphQL API for the existing funding requests
+        Query the Cumplo's GraphQL API for the existing funding requests.
 
         Returns:
             list[dict]: List of the existing funding requests
+
         """
         logger.debug("Getting funding requests from Cumplo's GraphQL API")
         payload = cls._build_funding_requests_query()
@@ -57,9 +57,7 @@ class CumploGraphQLAPI:
 
     @staticmethod
     def _build_funding_requests_query(limit: int = 50, page: int = 1) -> dict:
-        """
-        Builds the GraphQL query to fetch funding requests
-        """
+        """Build the GraphQL query to fetch funding requests."""
         return {
             "operationName": "FundingRequests",
             "variables": {"page": page, "limit": limit},

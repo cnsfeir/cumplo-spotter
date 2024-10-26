@@ -19,9 +19,7 @@ router = APIRouter(prefix="/funding-requests")
 
 @router.post(path="/fetch", status_code=HTTPStatus.NO_CONTENT)
 def _fetch_funding_requests(request: Request) -> None:
-    """
-    Fetches a list of funding requests and emits an event containing them.
-    """
+    """Fetch a list of funding requests and emits an event containing them."""
     user = cast(User, request.state.user)
 
     available_funding_requests = funding_requests.get_available()

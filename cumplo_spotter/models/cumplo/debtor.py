@@ -28,30 +28,28 @@ class Debtor(BaseModel):
     @field_validator("name", mode="before")
     @classmethod
     def _format_name(cls, value: Any) -> str | None:
-        """Cleans the value and checks if the name is empty and returns None"""
+        """Clean the value and checks if the name is empty and returns None."""
         clean_value = clean_text(value)
         return clean_value if clean_value else None
 
     @field_validator("description", mode="before")
     @classmethod
     def _format_description(cls, value: Any) -> str | None:
-        """Cleans the value and checks if the description is empty and returns None"""
+        """Clean the value and checks if the description is empty and return None."""
         clean_value = clean_text(value)
         return clean_value if clean_value else None
 
     @field_validator("sector", mode="before")
     @classmethod
     def _format_sector(cls, value: Any) -> str | None:
-        """Cleans the value and checks if the IRS sector is 'null' and returns None"""
+        """Clean the value and checks if the IRS sector is 'null' and return None."""
         clean_value = clean_text(value)
         return None if clean_value == "NULL" else clean_value
 
     @field_validator("portfolio", mode="before")
     @classmethod
     def _format_portfolio(cls, value: Any) -> dict[str, Decimal]:
-        """
-        Reformats the portfolio values
-        """
+        """Reformat the portfolio values."""
 
         def _format_percentage(value: str | int) -> Decimal:
             value = str(value)

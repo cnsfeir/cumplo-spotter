@@ -21,18 +21,14 @@ router = APIRouter(prefix="/funding-requests")
 
 @router.get("", status_code=HTTPStatus.OK)
 def _get_funding_requests(_request: Request) -> list[dict]:
-    """
-    Gets a list of available funding requests
-    """
+    """Get a list of available funding requests."""
     available_funding_requests = funding_requests.get_available()
     return [funding_request.json() for funding_request in available_funding_requests]
 
 
 @router.get("/promising", status_code=HTTPStatus.OK)
 def _get_promising_funding_requests(request: Request) -> list[dict]:
-    """
-    Gets a list of promising funding requests based on the user's configuration
-    """
+    """Get a list of promising funding requests based on the user's configuration."""
     user = cast(User, request.state.user)
     promising_funding_requests = funding_requests.get_promising(user)
     return [request.json() for request in promising_funding_requests]
@@ -40,9 +36,7 @@ def _get_promising_funding_requests(request: Request) -> list[dict]:
 
 @router.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
 def _filter_funding_requests(request: Request, payload: list[FundingRequest]) -> None:
-    """
-    Filters a list of funding requests based on the user's filters.
-    """
+    """Filter a list of funding requests based on the user's filters."""
     user = cast(User, request.state.user)
     promising_funding_requests = set() if user.filters else set(payload)
 

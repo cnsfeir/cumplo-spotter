@@ -16,5 +16,5 @@ class CumploFundingRequestDuration(BaseModel):
     @field_validator("unit", mode="before")
     @classmethod
     def unit_formatter(cls, value: str) -> DurationUnit:
-        """Formats the unit value"""
+        """Format the unit value."""
         return DurationUnit(value.strip().upper())

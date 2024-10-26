@@ -30,10 +30,11 @@ logger = getLogger(__name__)
 
 def get_available() -> list[FundingRequest]:
     """
-    Gets a list of available funding requests sorted by monthly profit rate
+    Get a list of available funding requests sorted by monthly profit rate.
 
     Returns:
         list[dict]: List of available funding requests
+
     """
     funding_requests = cumplo.get_available_funding_requests()
     funding_requests.sort(key=lambda x: x.monthly_profit_rate, reverse=True)
@@ -42,13 +43,14 @@ def get_available() -> list[FundingRequest]:
 
 def get_promising(user: User) -> list[FundingRequest]:
     """
-    Gets a list of promising funding requests based on the user's configuration sorted by monthly profit rate
+    Get a list of promising funding requests based on the user's configuration sorted by monthly profit rate.
 
     Args:
         user (User): User to get the configuration from
 
     Returns:
         list[FundingRequest]: List of promising funding requests
+
     """
     funding_requests = cumplo.get_available_funding_requests()
 
@@ -61,7 +63,7 @@ def get_promising(user: User) -> list[FundingRequest]:
 
 def filter_(funding_requests: list[FundingRequest], configuration: FilterConfiguration) -> list[FundingRequest]:
     """
-    Filters a list of funding requests based on the user's filter
+    Filter a list of funding requests based on the user's filter.
 
     Args:
         funding_requests (list[FundingRequest]): List of funding requests
@@ -69,6 +71,7 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
 
     Returns:
         list[FundingRequest]: Filtered funding requests
+
     """
     filters = [
         CreditTypeFilter(configuration),
