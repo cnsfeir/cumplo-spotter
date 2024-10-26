@@ -22,12 +22,8 @@ httpx = "^0.26.0"
 cumplo-common = { version = "^1.2.1", source = "cumplo-pypi" }
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.17.5"
-flake8 = "^6.1.0"
-black = "^22.3.0"
 mypy = "^1.4.1"
-bandit = "^1.7.9"
-isort = "^5.13.2"
+ruff = "^0.7.1"
 
 [[tool.poetry.source]]
 name = "cumplo-pypi"
@@ -37,22 +33,6 @@ priority = "supplemental"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-target-version = ['py312']
-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-force_grid_wrap = 0
-multi_line_output = 3
-include_trailing_comma = true
-ensure_newline_before_comments = true
-
-[tool.bandit]
-skips = ["B101"]
-exclude_dirs = [".venv"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -74,24 +54,38 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.pylint.'MAIN']
-py-version = 3.12
-load-plugins = [
-    "pylint.extensions.redefined_variable_type",
-    "pylint.extensions.check_elif",
-    "pylint.extensions.code_style",
-    "pylint.extensions.typing",
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+ignore = [
+    "ANN101", # Missing type annotation for self in method
+    "ANN102", # Missing type annotation for cls in method
+    "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
+    "D100",   # Missing docstring in public module
+    "D107",   # Missing docstring in __init__
+    "D105",   # Missing docstring in magic method
+    "D212",   # Multi-line docstring summary should start at the second line
+    "D203",   # One blank line required before class docstring
+    "D101",   # Missing docstring in public class
+    "D104",   # Missing docstring in public package
+]
+extend-select = [
+    "UP",  # pyupgrade
+    "D",   # pydocstyle
+    "F",   # pyflakes
+    "E",   #pycodestyle
+    "ANN", #flake8-annotations
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
 ]
 
-[tool.pylint.'MESSAGES CONTROL']
-disable = ["C0114", "C0115", "R0903", "W1203", "W3101"]
 
-[tool.pylint.'FORMAT']
-max-line-length = 120
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
-[tool.pylint.'DESIGN']
-max-attributes = 15
-max-args = 6
-
-[tool.pylint.'SIMILARITIES']
-min-similarity-lines = 5
+[tool.ruff.format]
+docstring-code-format = false
+docstring-code-line-length = 120

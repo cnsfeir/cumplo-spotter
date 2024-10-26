@@ -14,14 +14,9 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.black-formatter",
-        "ms-python.vscode-pylance",
-        "ms-python.flake8",
         "ms-python.python",
-        "ms-python.pylint",
-        "ms-python.isort",
+        "charliermarsh.ruff",
         "matangover.mypy",
-        "nwgh.bandit",
         "tamasfe.even-better-toml",
         "ms-vscode.makefile-tools",
         "eamodio.gitlens",
