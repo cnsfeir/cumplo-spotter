@@ -13,14 +13,11 @@ WORKDIR /app
 
 # =================================================================
 
-# Build container with Poetry
+# Build container with UV
 FROM base AS builder
 
-# Set Poetry and pip environment variables
-ENV POETRY_VERSION=1.8.2 \
-    POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_CREATE=false \
-    PIP_DISABLE_PIP_VERSION_CHECK=on \
+# Set pip environment variables
+ENV PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_DEFAULT_TIMEOUT=100 \
     PIP_NO_CACHE_DIR=off
 
@@ -30,14 +27,14 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
-RUN pip install "poetry==$POETRY_VERSION"
+# Install uv
+RUN pip install uv
 
 # Install Keyrings support for Google Artifact Registry
-RUN poetry self add keyrings.google-artifactregistry-auth
+RUN uv pip install keyrings.google-artifactregistry-auth
 
 # Copy only the dependencies related files
-COPY pyproject.toml poetry.lock ./
+COPY pyproject.toml uv.lock ./
 COPY cumplo_spotter ./cumplo_spotter
 
 # Define the service account key as a build argument.
@@ -50,9 +47,9 @@ ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service_account_credentials.json
 RUN echo "$CUMPLO_PYPI_BASE64_KEY" | base64 -d> "$GOOGLE_APPLICATION_CREDENTIALS"
 
 # Install dependencies and the project globally
-RUN poetry install --without dev && \
-    rm -rf /root/.cache/pypoetry && \
-    rm -rf /tmp/poetry_cache && \
+RUN uv pip sync && \
+    rm -rf /root/.cache/uv && \
+    rm -rf /tmp/uv_cache && \
     rm -rf "$GOOGLE_APPLICATION_CREDENTIALS"
 
 # =================================================================

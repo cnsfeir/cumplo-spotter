@@ -14,21 +14,16 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-python.black-formatter",
-        "ms-python.vscode-pylance",
-        "ms-python.flake8",
         "ms-python.python",
-        "ms-python.pylint",
-        "ms-python.isort",
-        "matangover.mypy",
-        "nwgh.bandit",
+        "charliermarsh.ruff",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker",
         "tamasfe.even-better-toml",
         "ms-vscode.makefile-tools",
-        "eamodio.gitlens",
-        "usernamehw.errorlens",
         "Gruntfuggly.todo-tree",
-        "GitHub.copilot",
-        "ms-azuretools.vscode-docker"
+        "usernamehw.errorlens",
+        "eamodio.gitlens",
+        "GitHub.copilot"
       ]
     }
   }
