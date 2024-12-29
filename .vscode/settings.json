@@ -1,0 +1,103 @@
+{
+    // General
+    "editor.suggestSelection": "first",
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.rulers": [
+        80,
+        120
+    ],
+    "editor.tabSize": 4,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    // Python
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.trimFinalNewlines": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true
+    },
+    // Native type hints
+    "python.analysis.typeCheckingMode": "off",
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.analysis.completeFunctionParens": true,
+    "python.analysis.useLibraryCodeForTypes": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.inlayHints.variableTypes": true,
+    "python.analysis.inlayHints.functionReturnTypes": true,
+    "python.analysis.inlayHints.callArgumentNames": "all",
+    "python.analysis.gotoDefinitionInStringLiteral": true,
+    // MyPy
+    "mypy.runUsingActiveInterpreter": true,
+    "mypy.configFile": "pyproject.toml",
+    // Run On Save
+    "emeraldwalk.runonsave": {
+        "commands": [
+            {
+                "match": "\\.py$",
+                "cmd": "docformatter -i ${file}"
+            }
+        ]
+    },
+    // Todo Tree
+    "todo-tree.general.tags": [
+        "HACK",
+        "FIXME",
+        "TODO",
+        "REVIEW",
+        "OPTIMIZE",
+        "NOTE"
+    ],
+    "todo-tree.highlights.defaultHighlight": {
+        "gutterIcon": true,
+        "type": "tag-and-comment"
+    },
+    "todo-tree.highlights.customHighlight": {
+        "HACK": {
+            "icon": "tools",
+            "rulerColour": "#F9992C",
+            "iconColour": "#F9992C",
+            "foreground": "#F9992C",
+            "background": "#FFFFFF00",
+        },
+        "FIXME": {
+            "icon": "alert",
+            "rulerColour": "#FF5B5B",
+            "iconColour": "#FF5B5B",
+            "foreground": "#FF5B5B",
+            "background": "#FFFFFF00",
+        },
+        "TODO": {
+            "icon": "checkbox",
+            "rulerColour": "#1A9EFD",
+            "iconColour": "#1A9EFD",
+            "foreground": "#1A9EFD",
+            "background": "#FFFFFF00",
+        },
+        "REVIEW": {
+            "icon": "comment-discussion",
+            "rulerColour": "#08C45D",
+            "iconColour": "#08C45D",
+            "foreground": "#08C45D",
+            "background": "#FFFFFF00",
+        },
+        "OPTIMIZE": {
+            "icon": "zap",
+            "rulerColour": "#FFDE0D",
+            "iconColour": "#FFDE0D",
+            "foreground": "#FFDE0D",
+            "background": "#FFFFFF00",
+        },
+        "NOTE": {
+            "icon": "bookmark",
+            "rulerColour": "#D876FF",
+            "iconColour": "#D876FF",
+            "foreground": "#D876FF",
+            "background": "#FFFFFF00",
+        }
+    }
+}

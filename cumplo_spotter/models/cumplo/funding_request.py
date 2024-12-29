@@ -61,15 +61,13 @@ class CumploFundingRequest(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _preprocess_data(cls, data: dict) -> dict:
-        """Formats the data before validating"""
+        """Format the data before validating."""
         cls._set_dicom_status(data)
         return data
 
     @classmethod
     def _set_dicom_status(cls, data: dict) -> None:
-        """
-        Sets the DICOM status of the borrower and debtors
-        """
+        """Set the DICOM status of the borrower and debtors."""
         debtor_dicom, borrower_dicom = cls._identify_dicom_status(data)
 
         data["solicitante"]["dicom"] = borrower_dicom
@@ -78,9 +76,7 @@ class CumploFundingRequest(BaseModel):
 
     @staticmethod
     def _identify_dicom_status(data: dict) -> tuple[bool | None, bool | None]:
-        """
-        Identifies the DICOM status of the borrower and debtors
-        """
+        """Identify the DICOM status of the borrower and debtors."""
         description = clean_text(data["solicitante"]["descripcion"])
         debtor_dicom, borrower_dicom = None, None
 
@@ -110,26 +106,26 @@ class CumploFundingRequest(BaseModel):
     @field_validator("supporting_documents", mode="before")
     @classmethod
     def _format_supporting_documents(cls, value: Any) -> list[str]:
-        """Formats the supporting documents names"""
+        """Format the supporting documents names."""
         return [clean_text(document) for document in value]
 
     @field_validator("raised_percentage", mode="before")
     @classmethod
     def raised_percentage_validator(cls, value: Any) -> Decimal:
-        """Validates that the raised percentage is a valid decimal number"""
+        """Validate that the raised percentage is a valid decimal number."""
         return round(Decimal(int(value) / 100), 2)
 
     @field_validator("credit_type", mode="before")
     @classmethod
     def credit_type_validator(cls, value: Any) -> CreditType:
-        """Validates that the credit_type has a valid value"""
+        """Validate that the credit_type has a valid value."""
         return CREDIT_TYPE_TRANSLATIONS[value]
 
     @cached_property
     def is_completed(self) -> bool:
-        """Checks if the funding request is fully funded"""
+        """Check if the funding request is fully funded."""
         return self.raised_percentage == Decimal(1)
 
     def export(self) -> FundingRequest:
-        """Exports the CumploFundingRequest to a FundingRequest"""
+        """Export the CumploFundingRequest to a FundingRequest."""
         return FundingRequest.model_validate(self.model_dump(exclude_none=True, exclude_unset=True))

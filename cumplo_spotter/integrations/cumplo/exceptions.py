@@ -1,2 +1,2 @@
-class NoResultFound(Exception):
-    """Exception raised when no result is found in a Cumplo API"""
+class NoResultFoundError(Exception):
+    """Exception raised when no result is found in a Cumplo API."""

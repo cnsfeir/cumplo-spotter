@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cumplo-spotter"
-version = "1.2.1"
+version = "1.2.2"
 description = "A simple yet powerful API for spotting secure and high-return Cumplo investment opportunities"
 authors = ["Cristobal Sfeir <hello@cristobalsfeir.com>"]
 packages = [{ include = "cumplo_spotter" }]
@@ -19,15 +19,12 @@ retry = "^0.9.2"
 lxml = "^4.9.2"
 google-cloud-logging = "^3.5.0"
 httpx = "^0.26.0"
-cumplo-common = { version = "^1.2.1", source = "cumplo-pypi" }
+cumplo-common = { version = "^1.3.2", source = "cumplo-pypi" }
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.17.5"
-flake8 = "^6.1.0"
-black = "^22.3.0"
-mypy = "^1.4.1"
-bandit = "^1.7.9"
-isort = "^5.13.2"
+mypy = "^1.13.0"
+ruff = "^0.7.1"
+docformatter = "^1.7.5"
 
 [[tool.poetry.source]]
 name = "cumplo-pypi"
@@ -37,22 +34,6 @@ priority = "supplemental"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.black]
-target-version = ['py312']
-line-length = 120
-
-[tool.isort]
-profile = "black"
-line_length = 120
-force_grid_wrap = 0
-multi_line_output = 3
-include_trailing_comma = true
-ensure_newline_before_comments = true
-
-[tool.bandit]
-skips = ["B101"]
-exclude_dirs = [".venv"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -74,24 +55,42 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.pylint.'MAIN']
-py-version = 3.12
-load-plugins = [
-    "pylint.extensions.redefined_variable_type",
-    "pylint.extensions.check_elif",
-    "pylint.extensions.code_style",
-    "pylint.extensions.typing",
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+preview = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN101",  # Missing type annotation for self in method
+    "ANN102",  # Missing type annotation for cls in method
+    "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed
+    "D100",    # Missing docstring in public module
+    "D107",    # Missing docstring in __init__
+    "D105",    # Missing docstring in magic method
+    "D212",    # Multi-line docstring summary should start at the second line
+    "D203",    # One blank line required before class docstring
+    "D101",    # Missing docstring in public class
+    "D104",    # Missing docstring in public package
+    "G004",    # Logging statement uses string formatting
+    "S113",    # Use of requests call without timeout
+    "DOC201",  # Missing documentation for `return` in docstring
+    "COM812",  # Missing trailing comma in a dictionary
+    "ISC001",  # Implicit string concatenation
+    "CPY001",  # Copying notice
 ]
 
-[tool.pylint.'MESSAGES CONTROL']
-disable = ["C0114", "C0115", "R0903", "W1203", "W3101"]
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
 
-[tool.pylint.'FORMAT']
-max-line-length = 120
+[tool.ruff.format]
+docstring-code-format = false
+docstring-code-line-length = 120
 
-[tool.pylint.'DESIGN']
-max-attributes = 15
-max-args = 6
-
-[tool.pylint.'SIMILARITIES']
-min-similarity-lines = 5
+[tool.docformatter]
+pre-summary-newline = true # Ensures that multiline docstrings start on a new line.
+wrap-descriptions = 120    # Wraps descriptions at 114 characters, ensuring consistent line width.
+wrap-summaries = 120       # Wraps summary lines only if they exceed 114 characters.
+recursive = true           # Recursively formats all Python files in the specified directories.
+blank = true               # Adds a blank line before the end of multiline docstrings.

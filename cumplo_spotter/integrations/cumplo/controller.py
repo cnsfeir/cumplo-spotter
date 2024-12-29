@@ -13,10 +13,11 @@ logger = getLogger(__name__)
 
 def get_available_funding_requests() -> list[FundingRequest]:
     """
-    Queries the Cumplo's GraphQL API and returns a list of available funding requests
+    Query the Cumplo's GraphQL API and returns a list of available funding requests.
 
     Returns:
         list[FundingRequest]: List of available funding requests
+
     """
     logger.info("Getting funding requests from Cumplo API")
 
@@ -46,9 +47,7 @@ def get_available_funding_requests() -> list[FundingRequest]:
 
 
 def _get_funding_request_details(id_funding_request: int) -> tuple[int | None, dict, dict]:
-    """
-    Requests the details of a given funding request
-    """
+    """Request the details of a given funding request."""
     with ThreadPoolExecutor(max_workers=3) as executor:
         attribute_by_future = {
             executor.submit(CumploHTMLAPI.get_average_days_delinquent, id_funding_request): "average_days_delinquent",

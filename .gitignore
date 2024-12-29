@@ -248,6 +248,6 @@ credentials.json
 
 
 # End of https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocodeß
-.vscode/settings.json
+
 cumplo_spotter_credentials.json
 cumplo_pypi_credentials.json

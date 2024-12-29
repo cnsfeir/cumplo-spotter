@@ -21,15 +21,12 @@ class CumploFundingRequestSimulation(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def format_values(cls, values: dict) -> dict:
-        """Formats the values to the expected format"""
-        values = cls._unpack_simulation(values)
-        return values
+        """Format the values to the expected format."""
+        return cls._unpack_simulation(values)
 
     @staticmethod
     def _unpack_simulation(values: dict) -> dict:
-        """
-        Unpacks the simulation values
-        """
+        """Unpack the simulation values."""
         result = {
             "net_returns": values["ganancia_liquida"],
             "payment_schedule": values["forma_pago"],
