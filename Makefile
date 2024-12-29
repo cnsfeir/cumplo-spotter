@@ -33,8 +33,8 @@ down:
 	@docker compose down
 
 # Updates the common library
-.PHONY: update_common
-update_common:
+.PHONY: update-common
+update-common:
 	@rm -rf .venv
 	@poetry cache clear --no-interaction --all cumplo-pypi
 	@poetry update
