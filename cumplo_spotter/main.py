@@ -1,6 +1,3 @@
-# pylint: disable=no-member
-
-
 from logging import CRITICAL, DEBUG, basicConfig, getLogger
 
 import google.cloud.logging

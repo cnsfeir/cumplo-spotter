@@ -1,5 +1,3 @@
-# pylint: disable=no-member
-
 from http import HTTPStatus
 from logging import getLogger
 from typing import cast
