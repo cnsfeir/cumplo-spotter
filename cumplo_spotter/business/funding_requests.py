@@ -1,5 +1,3 @@
-# pylint: disable=no-member
-
 from logging import getLogger
 
 from cumplo_common.models.filter_configuration import FilterConfiguration

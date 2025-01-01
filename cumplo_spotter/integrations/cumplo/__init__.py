@@ -1,1 +1,1 @@
-from cumplo_spotter.integrations.cumplo.controller import get_available_funding_requests
+from cumplo_spotter.integrations.cumplo.controller import cache, get_available_funding_requests

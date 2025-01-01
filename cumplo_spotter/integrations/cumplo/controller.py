@@ -1,16 +1,20 @@
 from concurrent.futures import ALL_COMPLETED, ThreadPoolExecutor, as_completed, wait
 from logging import getLogger
 
+from cachetools import TTLCache, cached
 from cumplo_common.models.funding_request import FundingRequest
 
 from cumplo_spotter.integrations.cumplo.api_global import CumploGlobalAPI
 from cumplo_spotter.integrations.cumplo.api_graphql import CumploGraphQLAPI
 from cumplo_spotter.integrations.cumplo.api_html import CumploHTMLAPI
 from cumplo_spotter.models.cumplo import CumploFundingRequest
+from cumplo_spotter.utils.constants import CACHE_MAXSIZE, CACHE_TTL
 
 logger = getLogger(__name__)
+cache = TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_TTL)
 
 
+@cached(cache=cache)
 def get_available_funding_requests() -> list[FundingRequest]:
     """
     Query the Cumplo's GraphQL API and returns a list of available funding requests.

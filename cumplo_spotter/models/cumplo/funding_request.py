@@ -1,5 +1,4 @@
 # mypy: disable-error-code="call-overload"
-# pylint: disable=no-member
 
 from decimal import Decimal
 from enum import StrEnum
