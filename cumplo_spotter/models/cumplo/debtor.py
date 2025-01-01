@@ -49,8 +49,8 @@ class Debtor(BaseModel):
     def _format_portfolio(cls, value: Any) -> dict[str, Decimal]:
         """Reformat the portfolio values."""
 
-        def _format_percentage(value: str | int) -> Decimal:
-            value = str(value)
+        def _format_percentage(value: str | int | None) -> Decimal:
+            value = str(value) if value else "0"
             return round(Decimal(value.rstrip("%")) / 100, 3) if "%" in value else Decimal(value)
 
-        return {element["tipo"]: _format_percentage(element["cantidad"]) for element in value}
+        return {element["tipo"]: _format_percentage(element.get("cantidad")) for element in value}
