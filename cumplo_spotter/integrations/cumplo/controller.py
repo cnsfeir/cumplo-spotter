@@ -8,10 +8,10 @@ from cumplo_spotter.integrations.cumplo.api_global import CumploGlobalAPI
 from cumplo_spotter.integrations.cumplo.api_graphql import CumploGraphQLAPI
 from cumplo_spotter.integrations.cumplo.api_html import CumploHTMLAPI
 from cumplo_spotter.models.cumplo import CumploFundingRequest
-from cumplo_spotter.utils.constants import CACHE_MAXSIZE, CACHE_TTL
+from cumplo_spotter.utils.constants import CACHE_MAXSIZE, CUMPLO_CACHE_TTL
 
 logger = getLogger(__name__)
-cache = TTLCache(maxsize=CACHE_MAXSIZE, ttl=CACHE_TTL)
+cache = TTLCache(maxsize=CACHE_MAXSIZE, ttl=CUMPLO_CACHE_TTL)
 
 
 @cached(cache=cache)

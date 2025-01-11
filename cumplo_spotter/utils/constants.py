@@ -11,10 +11,6 @@ PROJECT_ID = os.getenv("PROJECT_ID")
 LOG_FORMAT = "\n%(levelname)s: %(message)s"
 IS_TESTING = bool(os.getenv("IS_TESTING"))
 
-# Topics
-AVAILABLE_FUNDING_REQUESTS_TOPIC = os.getenv("AVAILABLE_FUNDING_REQUESTS_TOPIC", "available-funding-requests")
-PROMISING_FUNDING_REQUESTS_TOPIC = os.getenv("PROMISING_FUNDING_REQUESTS_TOPIC", "promising-funding-requests")
-
 # Selectors
 SUPPORTING_DOCUMENTS_XPATH = "//div[@class='loan-view-documents-section']//img/parent::span/following-sibling::span"
 AVERAGE_DAYS_DELINQUENT_SELECTOR = "div.loan-view-item span:nth-of-type(3)"
@@ -44,8 +40,6 @@ class DicomMarker:
 
 
 # Firestore Collections
-CONFIGURATIONS_COLLECTION = os.getenv("CONFIGURATIONS_COLLECTION", "configurations")
-NOTIFICATIONS_COLLECTION = os.getenv("NOTIFICATIONS_COLLECTION", "notifications")
 USERS_COLLECTION = os.getenv("USERS_COLLECTION", "users")
 
 # Cumplo
@@ -65,4 +59,4 @@ DEFAULT_EXPIRATION_MINUTES = int(os.getenv("DEFAULT_EXPIRATION_MINUTES", "30"))
 
 # Cache
 CACHE_MAXSIZE = int(os.getenv("CACHE_MAXSIZE", "1000"))
-CACHE_TTL = int(os.getenv("CACHE_TTL", "180"))
+CUMPLO_CACHE_TTL = int(os.getenv("CUMPLO_CACHE_TTL", "180"))
