@@ -3,13 +3,13 @@ from logging import getLogger
 from typing import cast
 
 from cumplo_common.integrations.cloud_pubsub import CloudPubSub
+from cumplo_common.models import PrivateEvent
 from cumplo_common.models.user import User
 from fastapi import APIRouter
 from fastapi.requests import Request
 
 from cumplo_spotter.business import funding_requests
 from cumplo_spotter.integrations import cumplo
-from cumplo_spotter.utils.constants import AVAILABLE_FUNDING_REQUESTS_TOPIC
 
 logger = getLogger(__name__)
 
@@ -26,4 +26,4 @@ def _fetch_funding_requests(request: Request) -> None:
     logger.info(f"Found {len(available_funding_requests)} available funding requests")
 
     if content := [funding_request.json() for funding_request in available_funding_requests]:
-        CloudPubSub.publish(content, AVAILABLE_FUNDING_REQUESTS_TOPIC, id_user=str(user.id))
+        CloudPubSub.publish(content=content, topic=PrivateEvent.FUNDING_REQUEST_AVAILABLE, id_user=str(user.id))
