@@ -10,10 +10,10 @@ from fastapi.requests import Request
 logger = getLogger(__name__)
 
 
-router = APIRouter(prefix="/users")
+router = APIRouter(prefix="/cache")
 
 
-@router.post("/filters", status_code=HTTPStatus.OK)
+@router.post("/users/filters/clear", status_code=HTTPStatus.OK)
 def _clear_users_cache(request: Request) -> None:
     """Clear a specific user from the Firestore cache so it can be updated."""
     user = cast(User, request.state.user)
