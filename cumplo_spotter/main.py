@@ -5,7 +5,7 @@ from cumplo_common.dependencies import authenticate, is_admin
 from cumplo_common.middlewares import PubSubMiddleware
 from fastapi import Depends, FastAPI
 
-from cumplo_spotter.routers import funding_requests, users
+from cumplo_spotter.routers import cache, funding_requests
 from cumplo_spotter.utils.constants import IS_TESTING, LOG_FORMAT
 
 # NOTE: Mute noisy third-party loggers
@@ -26,4 +26,4 @@ app.add_middleware(PubSubMiddleware)
 
 app.include_router(funding_requests.public.router)
 app.include_router(funding_requests.private.router, dependencies=[Depends(is_admin)])
-app.include_router(users.router)
+app.include_router(cache.router)
