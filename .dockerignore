@@ -13,5 +13,5 @@
 !entrypoint.sh
 
 # Include: credentials
-!cumplo_spotter_credentials.json
-!cumplo_pypi_credentials.json
+!cumplo-spotter-credentials.json
+!cumplo-pypi-credentials.json

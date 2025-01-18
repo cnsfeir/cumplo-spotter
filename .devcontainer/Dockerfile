@@ -37,8 +37,8 @@ COPY pyproject.toml poetry.lock ./
 COPY cumplo_spotter ./cumplo_spotter
 
 # Add the Google Cloud credentials
-COPY cumplo_pypi_credentials.json /tmp/cumplo_pypi_credentials.json
-ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/cumplo_pypi_credentials.json
+COPY cumplo-pypi-credentials.json /tmp/cumplo-pypi-credentials.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/cumplo-pypi-credentials.json
 
 # Install all dependencies
 RUN poetry install

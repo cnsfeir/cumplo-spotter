@@ -44,7 +44,7 @@ COPY cumplo_spotter ./cumplo_spotter
 ARG CUMPLO_PYPI_BASE64_KEY
 
 # Set the service account key location to a temporary file.
-ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service_account_credentials.json
+ENV GOOGLE_APPLICATION_CREDENTIALS=/tmp/service-account-credentials.json
 
 # Save the service account key contents from the build argument to the temporary file.
 RUN echo "$CUMPLO_PYPI_BASE64_KEY" | base64 -d> "$GOOGLE_APPLICATION_CREDENTIALS"
