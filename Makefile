@@ -20,7 +20,7 @@ lint:
 # Builds the Docker image
 .PHONY: build
 build:
-	@docker compose build cumplo-spotter --build-arg CUMPLO_PYPI_BASE64_KEY=`base64 -i cumplo_pypi_credentials.json`
+	@docker compose build cumplo-spotter --build-arg CUMPLO_PYPI_BASE64_KEY=`base64 -i cumplo-pypi-credentials.json`
 
 # Starts the Docker container
 .PHONY: start
