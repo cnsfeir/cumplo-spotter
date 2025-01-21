@@ -11,4 +11,3 @@ services:
         - CUMPLO_PYPI_BASE64_KEY
     volumes:
       - ./cumplo_spotter:/app/cumplo_spotter
-      - /app/.venv
