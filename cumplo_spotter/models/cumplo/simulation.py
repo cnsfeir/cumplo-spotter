@@ -11,12 +11,29 @@ class CumploSimulationInstallment(BaseModel):
     amount: int = Field(..., alias="monto_cuota")
     due_date: datetime = Field(..., alias="fecha_vencimiento")
 
+    @model_validator(mode="before")
+    @classmethod
+    def round_values(cls, values: dict) -> dict:
+        """Round the amount and interest values."""
+        values["monto_cuota"] = round(values["monto_cuota"])
+        values["interes"] = round(values["interes"])
+        return values
+
 
 class CumploFundingRequestSimulation(BaseModel):
     cumplo_points: int = Field(...)
     platform_fee: int = Field(...)
     net_returns: int = Field(...)
     payment_schedule: list[CumploSimulationInstallment] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def round_values(cls, values: dict) -> dict:
+        """Round the amount and interest values."""
+        values["cumplo_points"] = round(values["cumplo_points"])
+        values["platform_fee"] = round(values["platform_fee"])
+        values["net_returns"] = round(values["net_returns"])
+        return values
 
     @model_validator(mode="before")
     @classmethod

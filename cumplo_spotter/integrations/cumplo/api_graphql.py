@@ -60,7 +60,7 @@ class CumploGraphQLAPI:
         """Build the GraphQL query to fetch funding requests."""
         return {
             "operationName": "FundingRequests",
-            "variables": {"page": page, "limit": limit},
+            "variables": {"page": page, "limit": limit, "ordering": "-operacion.id", "state": 1},
             "query": """
                 query FundingRequests($page: Int!, $limit: Int!, $state: Int, $ordering: String) {
                     fundingRequests(page: $page, limit: $limit, state: $state, ordering: $ordering) {
