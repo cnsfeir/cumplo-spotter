@@ -11,7 +11,13 @@ from retry import retry
 
 from cumplo_spotter.models.cumplo.funding_request import CumploCreditType
 from cumplo_spotter.models.cumplo.request_duration import CumploFundingRequestDuration
-from cumplo_spotter.utils.constants import CUMPLO_GLOBAL_API, SIMULATION_AMOUNT
+from cumplo_spotter.utils.constants import (
+    CUMPLO_GLOBAL_API,
+    CUMPLO_GLOBAL_API_DETAILS,
+    CUMPLO_GLOBAL_API_FUNDING_REQUESTS,
+    CUMPLO_GLOBAL_API_SIMULATION,
+    SIMULATION_AMOUNT,
+)
 
 logger = getLogger(__name__)
 
@@ -73,7 +79,8 @@ class CumploGlobalAPI:
 
         """
         logger.debug(f"Getting funding request {id_funding_request} from Cumplo's Global API")
-        response = cls._request(HTTPMethod.GET, f"/inversionista/operacion/{id_funding_request}/CL/historial")
+        endpoint = CUMPLO_GLOBAL_API_DETAILS.format(id_funding_request=id_funding_request)
+        response = cls._request(HTTPMethod.GET, endpoint)
         return response.json()["data"]["attributes"]
 
     @classmethod
@@ -101,7 +108,7 @@ class CumploGlobalAPI:
                 "fecha_vencimiento": due_date,
             },
         }
-        endpoint = f"//simulador/inversionista/{funding_request.credit_type.value}/CL/CLP"
+        endpoint = CUMPLO_GLOBAL_API_SIMULATION.format(credit_type=funding_request.credit_type.value)
         response = cls._request(HTTPMethod.POST, endpoint, payload=payload)
         return response.json()["data"]["attributes"]
 
@@ -112,11 +119,11 @@ class CumploGlobalAPI:
         Query the Cumplo's Global API for the existing funding requests.
 
         Returns:
-            list[FundingRequest]: List of the existing funding requests
+            list[GlobalFundingRequest]: List of the existing funding requests
 
         """
         logger.debug("Getting funding requests from Cumplo's Global API")
-        response = cls._request(HTTPMethod.GET, "/operaciones/vitrina/sin-historial/CL")
+        response = cls._request(HTTPMethod.GET, CUMPLO_GLOBAL_API_FUNDING_REQUESTS)
 
         data = [x["attributes"] for x in response.json()["data"]]
 
