@@ -3,15 +3,28 @@ from decimal import Decimal
 from typing import Any
 
 from cumplo_common.utils.text import clean_text
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class DebtPortfolio(BaseModel):
-    active: int = Field(..., alias="activas")
-    delinquent: int = Field(..., alias="mora")
-    completed: int = Field(..., alias="completadas")
-    in_time: int = Field(..., alias="pagadas_tiempo")
-    total_requests: int = Field(..., alias="total_operaciones")
+    active: int = Field(..., alias="cantidad_operaciones_activas_pagador")
+    delinquent: int = Field(..., alias="cantidad_operaciones_mora_mayor_30_pagador")
+    completed: int = Field(..., alias="cantidad_pagadas_pagador")
+    in_time: int = Field(..., alias="cantidad_pagadas_plazo_normal_pagador")
+    total_requests: int = Field(..., alias="cantidad_total_pagador")
+
+    @model_validator(mode="before")
+    @classmethod
+    def round_values(cls, values: dict) -> dict:
+        """Round the amount and interest values."""
+        for key in [
+            "cantidad_operaciones_activas_pagador",
+            "cantidad_operaciones_mora_mayor_30_pagador",
+            "cantidad_pagadas_pagador",
+            "cantidad_total_pagador",
+        ]:
+            values[key] = round(values[key])
+        return values
 
 
 class Debtor(BaseModel):

@@ -125,7 +125,7 @@ class BorrowerMinimumRequestedCreditsFilter(Filter):
         if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_credits:
             return True
 
-        total_requests = funding_request.borrower.portfolio.total_requests
+        total_requests = funding_request.borrower.portfolio.total.count
         return total_requests >= self.configuration.borrower.minimum_requested_credits
 
 
@@ -150,7 +150,7 @@ class BorrowerMinimumRequestedAmountFilter(Filter):
         if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_amount:
             return True
 
-        total_amount = funding_request.borrower.portfolio.total_amount
+        total_amount = funding_request.borrower.portfolio.total.amount
         return total_amount >= self.configuration.borrower.minimum_requested_amount
 
 
@@ -172,10 +172,10 @@ class BorrowerMinimumPaidInTimeFilter(Filter):
         if not self.configuration.borrower or not self.configuration.borrower.minimum_paid_in_time_percentage:
             return True
 
-        if not funding_request.borrower.portfolio.total_requests:
+        if not funding_request.borrower.portfolio.total.count:
             return True
 
-        if paid_in_time_percentage := funding_request.borrower.portfolio.paid_in_time:
+        if paid_in_time_percentage := funding_request.borrower.portfolio.on_time.percentage:
             return paid_in_time_percentage >= self.configuration.borrower.minimum_paid_in_time_percentage
 
         return True
