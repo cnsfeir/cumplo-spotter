@@ -1,7 +1,4 @@
-# mypy: disable-error-code="call-overload"
-
-
-from cumplo_common.models.funding_request import DurationUnit
+from cumplo_common.models import DurationUnit
 from pydantic import BaseModel, Field, field_validator
 
 

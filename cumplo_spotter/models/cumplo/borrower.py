@@ -4,40 +4,40 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from cumplo_common.models.borrower import BorrowerPortfolioStatus
+from cumplo_common.models import PortfolioStatus
 from cumplo_common.utils.text import clean_text
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 BORROWER_PORTFOLIO_STATUS_MAPPING = {
     # ON TIME
-    "cantidad_pagadas_plazo_normal_solicitante": {"status": BorrowerPortfolioStatus.ON_TIME, "type": "count"},
-    "monto_pagadas_plazo_normal_solicitante": {"status": BorrowerPortfolioStatus.ON_TIME, "type": "amount"},
-    "porcentaje_pagado_plazo_normal": {"status": BorrowerPortfolioStatus.ON_TIME, "type": "percentage"},
+    "cantidad_pagadas_plazo_normal_solicitante": {"status": PortfolioStatus.ON_TIME, "type": "count"},
+    "monto_pagadas_plazo_normal_solicitante": {"status": PortfolioStatus.ON_TIME, "type": "amount"},
+    "porcentaje_pagado_plazo_normal": {"status": PortfolioStatus.ON_TIME, "type": "percentage"},
     # CURED
-    "cantidad_pagadas_en_mora_solicitante": {"status": BorrowerPortfolioStatus.CURED, "type": "count"},
-    "monto_pagadas_en_mora_solicitante": {"status": BorrowerPortfolioStatus.CURED, "type": "amount"},
-    "porcentaje_pagado_mora": {"status": BorrowerPortfolioStatus.CURED, "type": "percentage"},
+    "cantidad_pagadas_en_mora_solicitante": {"status": PortfolioStatus.CURED, "type": "count"},
+    "monto_pagadas_en_mora_solicitante": {"status": PortfolioStatus.CURED, "type": "amount"},
+    "porcentaje_pagado_mora": {"status": PortfolioStatus.CURED, "type": "percentage"},
     # ACTIVE
-    "cantidad_operaciones_activas_solicitante": {"status": BorrowerPortfolioStatus.ACTIVE, "type": "count"},
-    "monto_operaciones_activas_solicitante": {"status": BorrowerPortfolioStatus.ACTIVE, "type": "amount"},
-    "porcentaje_monto_activo": {"status": BorrowerPortfolioStatus.ACTIVE, "type": "percentage"},
+    "cantidad_operaciones_activas_solicitante": {"status": PortfolioStatus.ACTIVE, "type": "count"},
+    "monto_operaciones_activas_solicitante": {"status": PortfolioStatus.ACTIVE, "type": "amount"},
+    "porcentaje_monto_activo": {"status": PortfolioStatus.ACTIVE, "type": "percentage"},
     # OVERDUE
-    "cantidad_operaciones_mora_menor_30_solicitante": {"status": BorrowerPortfolioStatus.OVERDUE, "type": "count"},
-    "monto_operaciones_mora_menor_30_solicitante": {"status": BorrowerPortfolioStatus.OVERDUE, "type": "amount"},
-    "porcentaje_en_mora_menor_30": {"status": BorrowerPortfolioStatus.OVERDUE, "type": "percentage"},
+    "cantidad_operaciones_mora_menor_30_solicitante": {"status": PortfolioStatus.OVERDUE, "type": "count"},
+    "monto_operaciones_mora_menor_30_solicitante": {"status": PortfolioStatus.OVERDUE, "type": "amount"},
+    "porcentaje_en_mora_menor_30": {"status": PortfolioStatus.OVERDUE, "type": "percentage"},
     # DELINQUENT
-    "cantidad_operaciones_mora_mayor_30_solicitante": {"status": BorrowerPortfolioStatus.DELINQUENT, "type": "count"},
-    "monto_operaciones_mora_mayor_30_solicitante": {"status": BorrowerPortfolioStatus.DELINQUENT, "type": "amount"},
-    "porcentaje_en_mora_mayor_30": {"status": BorrowerPortfolioStatus.DELINQUENT, "type": "percentage"},
+    "cantidad_operaciones_mora_mayor_30_solicitante": {"status": PortfolioStatus.DELINQUENT, "type": "count"},
+    "monto_operaciones_mora_mayor_30_solicitante": {"status": PortfolioStatus.DELINQUENT, "type": "amount"},
+    "porcentaje_en_mora_mayor_30": {"status": PortfolioStatus.DELINQUENT, "type": "percentage"},
     # PAID
-    "cantidad_pagadas_solicitante": {"status": BorrowerPortfolioStatus.PAID, "type": "count"},
-    "monto_pagadas_solicitante": {"status": BorrowerPortfolioStatus.PAID, "type": "amount"},
+    "cantidad_pagadas_solicitante": {"status": PortfolioStatus.PAID, "type": "count"},
+    "monto_pagadas_solicitante": {"status": PortfolioStatus.PAID, "type": "amount"},
     # TOTAL
-    "cantidad_total_solicitante": {"status": BorrowerPortfolioStatus.TOTAL, "type": "count"},
-    "monto_total_solicitante": {"status": BorrowerPortfolioStatus.TOTAL, "type": "amount"},
+    "cantidad_total_solicitante": {"status": PortfolioStatus.TOTAL, "type": "count"},
+    "monto_total_solicitante": {"status": PortfolioStatus.TOTAL, "type": "amount"},
     # OUTSTANDING
-    "cantidad_vigentes_solicitante": {"status": BorrowerPortfolioStatus.OUTSTANDING, "type": "count"},
-    "monto_vigentes_solicitante": {"status": BorrowerPortfolioStatus.OUTSTANDING, "type": "amount"},
+    "cantidad_vigentes_solicitante": {"status": PortfolioStatus.OUTSTANDING, "type": "count"},
+    "monto_vigentes_solicitante": {"status": PortfolioStatus.OUTSTANDING, "type": "amount"},
 }
 
 
@@ -93,6 +93,7 @@ class BorrowerPortfolio(BaseModel):
 
 class Borrower(BaseModel):
     id: int | None = Field(None)
+    name: str | None = Field(None, alias="nombre_solicitante")
     average_days_delinquent: int | None = Field(None)
     economic_sector: str | None = Field(None, alias="giro_detalle")
     description: str | None = Field(..., alias="descripcion")
@@ -100,10 +101,10 @@ class Borrower(BaseModel):
     first_appearance: datetime | None = Field(None, alias="fecha_primera_operacion")
     dicom: bool | None = Field(None)
 
-    @field_validator("description", mode="before")
+    @field_validator("description", "name", mode="before")
     @classmethod
-    def _format_description(cls, value: Any) -> str | None:
-        """Clean the value and checks if the description is empty and returns None."""
+    def _format_text_field(cls, value: Any) -> str | None:
+        """Clean the text value and return None if empty."""
         return clean_text(value) or None
 
     @field_validator("economic_sector", mode="before")

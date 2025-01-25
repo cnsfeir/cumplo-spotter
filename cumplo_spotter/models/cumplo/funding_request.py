@@ -1,13 +1,9 @@
-# mypy: disable-error-code="call-overload"
-
 from decimal import Decimal
 from enum import StrEnum
 from functools import cached_property
 from typing import Any
 
-from cumplo_common.models.credit import CreditType
-from cumplo_common.models.currency import Currency
-from cumplo_common.models.funding_request import FundingRequest
+from cumplo_common.models import CreditType, Currency, FundingRequest
 from cumplo_common.utils.text import clean_text
 from pydantic import BaseModel, Field, field_validator, model_validator
 
