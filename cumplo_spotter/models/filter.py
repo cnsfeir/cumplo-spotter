@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from logging import getLogger
 from typing import final
 
-from cumplo_common.models.filter_configuration import FilterConfiguration
-from cumplo_common.models.funding_request import FundingRequest
+from cumplo_common.models import FilterConfiguration, FundingRequest
 
 from cumplo_spotter.models.cumplo.request_duration import DurationUnit
 
@@ -139,7 +138,7 @@ class DebtorMinimumRequestedCreditsFilter(Filter):
             return True
 
         return any(
-            debtor.portfolio.total_requests >= self.configuration.debtor.minimum_requested_credits
+            debtor.portfolio.total.count >= self.configuration.debtor.minimum_requested_credits
             for debtor in funding_request.debtors
         )
 
@@ -152,18 +151,6 @@ class BorrowerMinimumRequestedAmountFilter(Filter):
 
         total_amount = funding_request.borrower.portfolio.total.amount
         return total_amount >= self.configuration.borrower.minimum_requested_amount
-
-
-class BorrowerMaximumAverageDaysDelinquentFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the funding requests whose borrower has an average delinquent days higher than the maximum."""
-        if not self.configuration.borrower or not self.configuration.borrower.maximum_average_days_delinquent:
-            return True
-
-        if average_days_delinquent := funding_request.borrower.average_days_delinquent:
-            return average_days_delinquent <= self.configuration.borrower.maximum_average_days_delinquent
-
-        return True
 
 
 class BorrowerMinimumPaidInTimeFilter(Filter):
@@ -191,7 +178,7 @@ class DebtorMinimumPaidInTimeFilter(Filter):
             return True
 
         return any(
-            debtor.portfolio.paid_in_time >= self.configuration.debtor.minimum_paid_in_time_percentage
+            debtor.portfolio.on_time.percentage >= self.configuration.debtor.minimum_paid_in_time_percentage
             for debtor in funding_request.debtors
-            if debtor.portfolio.paid_in_time is not None
+            if debtor.portfolio.on_time.percentage is not None
         )

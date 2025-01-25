@@ -5,7 +5,7 @@ from logging import getLogger
 from typing import Any
 
 import requests
-from cumplo_common.models.currency import Currency
+from cumplo_common.models import Currency
 from pydantic import BaseModel, Field, field_validator
 from retry import retry
 

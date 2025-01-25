@@ -3,8 +3,7 @@ from logging import getLogger
 from typing import cast
 
 from cumplo_common.integrations.cloud_pubsub import CloudPubSub
-from cumplo_common.models import PrivateEvent
-from cumplo_common.models.user import User
+from cumplo_common.models import PrivateEvent, User
 from fastapi import APIRouter
 from fastapi.requests import Request
 
