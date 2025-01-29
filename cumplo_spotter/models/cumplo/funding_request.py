@@ -32,18 +32,18 @@ class CumploCreditType(StrEnum):
 
 CREDIT_TYPE_TRANSLATIONS = {
     CumploCreditType.SIMPLE: CreditType.WORKING_CAPITAL,
+    CumploCreditType.BULLET: CreditType.WORKING_CAPITAL,
+    CumploCreditType.BALLOON: CreditType.WORKING_CAPITAL,
     CumploCreditType.ONE_SHOT: CreditType.WORKING_CAPITAL,
     CumploCreditType.CAPITAL_TRABAJO: CreditType.WORKING_CAPITAL,
     CumploCreditType.CREDITO_CONTRATO: CreditType.WORKING_CAPITAL,
     CumploCreditType.SHORT_TERM_CAPITAL: CreditType.WORKING_CAPITAL,
-    CumploCreditType.ANTICIPO_FACTURA: CreditType.FACTORING,
-    CumploCreditType.FACTURA_FUTURA: CreditType.FACTORING,
     CumploCreditType.INVOICE: CreditType.FACTORING,
-    CumploCreditType.BULLET: CreditType.BULLET_LOAN,
-    CumploCreditType.BALLOON: CreditType.BULLET_LOAN,
-    CumploCreditType.IRRIGATION: CreditType.STATE_SUBSIDY,
-    CumploCreditType.ANTICIPO_SERVIU: CreditType.HUP_SUBSIDY,
+    CumploCreditType.FACTURA_FUTURA: CreditType.FACTORING,
+    CumploCreditType.ANTICIPO_FACTURA: CreditType.FACTORING,
     CumploCreditType.ANTICIPO_RIEGO: CreditType.TREASURY_SUBSIDY,
+    CumploCreditType.IRRIGATION: CreditType.TREASURY_SUBSIDY,
+    CumploCreditType.ANTICIPO_SERVIU: CreditType.HUP_SUBSIDY,
 }
 
 
@@ -53,7 +53,7 @@ class CumploFundingRequest(BaseModel):
     irr: Decimal = Field(..., alias="tir")
     currency: Currency = Field(..., alias="moneda")
     amount: int = Field(..., alias="monto_financiar")
-    credit_type: CreditType = Field(CreditType.UNKNOWN, alias="codigo_producto")
+    credit_type: CreditType = Field(..., alias="codigo_producto")
     due_date: str = Field(..., alias="fecha_vencimiento")
     raised_amount: int = Field(..., alias="total_inversion")
     maximum_investment: int = Field(..., alias="max_inversion")

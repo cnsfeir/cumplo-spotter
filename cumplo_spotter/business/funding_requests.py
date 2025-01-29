@@ -4,20 +4,15 @@ from cumplo_common.models import FilterConfiguration, FundingRequest, User
 
 from cumplo_spotter.integrations import cumplo
 from cumplo_spotter.models.filter import (
-    BorrowerDicomFilter,
-    BorrowerMinimumPaidInTimeFilter,
-    BorrowerMinimumRequestedAmountFilter,
-    BorrowerMinimumRequestedCreditsFilter,
     CreditTypeFilter,
-    DebtorDicomFilter,
-    DebtorMinimumPaidInTimeFilter,
-    DebtorMinimumRequestedCreditsFilter,
+    DicomFilter,
     MaximumDurationFilter,
     MinimumDurationFilter,
     MinimumInvestmentFilter,
     MinimumIRRFilter,
     MinimumMonthlyProfitFilter,
     MinimumScoreFilter,
+    PortfolioFilter,
 )
 
 logger = getLogger(__name__)
@@ -74,19 +69,14 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
         MinimumScoreFilter(configuration),
         MinimumIRRFilter(configuration),
         MinimumMonthlyProfitFilter(configuration),
-        BorrowerDicomFilter(configuration),
-        DebtorDicomFilter(configuration),
+        DicomFilter(configuration),
         MinimumDurationFilter(configuration),
         MaximumDurationFilter(configuration),
-        BorrowerMinimumPaidInTimeFilter(configuration),
-        BorrowerMinimumRequestedAmountFilter(configuration),
-        BorrowerMinimumRequestedCreditsFilter(configuration),
-        DebtorMinimumRequestedCreditsFilter(configuration),
-        DebtorMinimumPaidInTimeFilter(configuration),
+        PortfolioFilter(configuration),
     ]
 
     logger.info(f"Applying {len(filters)} filters to {len(funding_requests)} funding requests")
     funding_requests = list(filter(lambda x: all(f.apply(x) for f in filters), funding_requests))
 
-    logger.info(f"Got {len(funding_requests)} funding requests after applying filters")
+    logger.info(f"Got {len(funding_requests)} funding requests after applying filter {configuration.name}")
     return funding_requests

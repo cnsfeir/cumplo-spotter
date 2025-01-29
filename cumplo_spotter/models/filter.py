@@ -97,88 +97,36 @@ class MaximumDurationFilter(Filter):
         return duration <= self.configuration.maximum_duration
 
 
-class DebtorDicomFilter(Filter):
+class DicomFilter(Filter):
     def _apply(self, funding_request: FundingRequest) -> bool:
         """Filter out the funding requests whose debtor has DICOM."""
-        if self.configuration.debtor and self.configuration.debtor.ignore_dicom:
+        if self.configuration.ignore_dicom:
             return True
 
-        if not funding_request.debtors:
-            return True
-
-        return not any(debtor.dicom for debtor in funding_request.debtors)
+        dicoms = [debtor.dicom for debtor in funding_request.debtors] or [funding_request.borrower.dicom]
+        return not any(dicoms)
 
 
-class BorrowerDicomFilter(Filter):
+class PortfolioFilter(Filter):
     def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the funding requests whose borrower has DICOM."""
-        if self.configuration.borrower and self.configuration.borrower.ignore_dicom:
+        if not self.configuration.portfolio:
             return True
 
-        return not funding_request.borrower.dicom
+        portfolios = [debtor.portfolio for debtor in funding_request.debtors] or [funding_request.borrower.portfolio]
 
+        for portfolio in portfolios:
+            for filter_ in self.configuration.portfolio:
+                value = portfolio.get(
+                    unit=filter_.unit,
+                    category=filter_.category,
+                    percentage_unit=filter_.percentage_unit,
+                    percentage_base=filter_.percentage_base,
+                )
 
-class BorrowerMinimumRequestedCreditsFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the funding requests whose borrower hasn't requested the minimum amount of credits."""
-        if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_credits:
-            return True
+                if filter_.minimum is not None and value < filter_.minimum:
+                    return False
 
-        total_requests = funding_request.borrower.portfolio.total.count
-        return total_requests >= self.configuration.borrower.minimum_requested_credits
-
-
-class DebtorMinimumRequestedCreditsFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the funding requests whose at least one debtor hasn't requested the minimum amount of credits."""
-        if not self.configuration.debtor or not self.configuration.debtor.minimum_requested_credits:
-            return True
-
-        if not funding_request.debtors:
-            return True
-
-        return any(
-            debtor.portfolio.total.count >= self.configuration.debtor.minimum_requested_credits
-            for debtor in funding_request.debtors
-        )
-
-
-class BorrowerMinimumRequestedAmountFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the funding requests whose borrower hasn't received the minimum amount of money."""
-        if not self.configuration.borrower or not self.configuration.borrower.minimum_requested_amount:
-            return True
-
-        total_amount = funding_request.borrower.portfolio.total.amount
-        return total_amount >= self.configuration.borrower.minimum_requested_amount
-
-
-class BorrowerMinimumPaidInTimeFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the requests whose borrower doesn't have the minimum percentage of requests paid in time."""
-        if not self.configuration.borrower or not self.configuration.borrower.minimum_paid_in_time_percentage:
-            return True
-
-        if not funding_request.borrower.portfolio.total.count:
-            return True
-
-        if paid_in_time_percentage := funding_request.borrower.portfolio.on_time.percentage:
-            return paid_in_time_percentage >= self.configuration.borrower.minimum_paid_in_time_percentage
+                if filter_.maximum is not None and value > filter_.maximum:
+                    return False
 
         return True
-
-
-class DebtorMinimumPaidInTimeFilter(Filter):
-    def _apply(self, funding_request: FundingRequest) -> bool:
-        """Filter out the requests whose debtor doesn't have the minimum percentage of funding requests paid in time."""
-        if not self.configuration.debtor or not self.configuration.debtor.minimum_paid_in_time_percentage:
-            return True
-
-        if not funding_request.debtors:
-            return True
-
-        return any(
-            debtor.portfolio.on_time.percentage >= self.configuration.debtor.minimum_paid_in_time_percentage
-            for debtor in funding_request.debtors
-            if debtor.portfolio.on_time.percentage is not None
-        )
