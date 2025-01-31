@@ -42,6 +42,15 @@ class MinimumInvestmentFilter(Filter):
         return funding_request.maximum_investment >= self.configuration.minimum_investment_amount
 
 
+class MinimumAmountFilter(Filter):
+    def _apply(self, funding_request: FundingRequest) -> bool:
+        """Filter out the funding requests that have a available investment lower than the minimum."""
+        if self.configuration.minimum_amount is None:
+            return True
+
+        return funding_request.amount >= self.configuration.minimum_amount
+
+
 class MinimumScoreFilter(Filter):
     def _apply(self, funding_request: FundingRequest) -> bool:
         """Filter out the funding requests that have a score lower than the minimum."""
@@ -112,7 +121,7 @@ class PortfolioFilter(Filter):
         if not self.configuration.portfolio:
             return True
 
-        portfolios = [debtor.portfolio for debtor in funding_request.debtors] or [funding_request.borrower.portfolio]
+        portfolios = [debtor.portfolio for debtor in funding_request.debtors] + [funding_request.borrower.portfolio]
 
         for portfolio in portfolios:
             for filter_ in self.configuration.portfolio:
