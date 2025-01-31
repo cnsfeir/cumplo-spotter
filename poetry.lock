@@ -132,13 +132,13 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2024.12.14"
+version = "2025.1.31"
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "certifi-2024.12.14-py3-none-any.whl", hash = "sha256:1275f7a45be9464efc1173084eaa30f866fe2e47d389406136d332ed4967ec56"},
-    {file = "certifi-2024.12.14.tar.gz", hash = "sha256:b650d30f370c2b724812bee08008be0c4163b163ddaec3f2546c1caf65f191db"},
+    {file = "certifi-2025.1.31-py3-none-any.whl", hash = "sha256:ca78db4565a652026a4db2bcdf68f2fb589ea80d0be70e03929ed730746b84fe"},
+    {file = "certifi-2025.1.31.tar.gz", hash = "sha256:3d5da6925056f6f18f119200434a4780a94263f10d1c21d032a6f6b2baa20651"},
 ]
 
 [[package]]
@@ -397,13 +397,13 @@ test-randomorder = ["pytest-randomly"]
 
 [[package]]
 name = "cumplo-common"
-version = "1.7.6"
+version = "1.7.7"
 description = "A one-stop library that centralizes the core logic and protects the domain of the Cumplo API project"
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "cumplo_common-1.7.6-py3-none-any.whl", hash = "sha256:a6fe0f0e9237ac12bdef12bc07a4bd9b0aadd67c48afa470056e7400bd2b5994"},
-    {file = "cumplo_common-1.7.6.tar.gz", hash = "sha256:190f7f1fb9c2365d8d7fbb777683668f396a76008617f76aa6ad49a5ee867299"},
+    {file = "cumplo_common-1.7.7-py3-none-any.whl", hash = "sha256:086f36905e0a0c68f3b73352bfcde9f316db04394bcb75d77fb2bc5d7a1d132f"},
+    {file = "cumplo_common-1.7.7.tar.gz", hash = "sha256:42bf980c925ddb1e870db59f5aab79b18937229417304133b69e11fe4c5df06b"},
 ]
 
 [package.dependencies]
@@ -693,13 +693,13 @@ protobuf = ">=3.20.2,<4.21.0 || >4.21.0,<4.21.1 || >4.21.1,<4.21.2 || >4.21.2,<4
 
 [[package]]
 name = "google-cloud-pubsub"
-version = "2.27.3"
+version = "2.28.0"
 description = "Google Cloud Pub/Sub API client library"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "google_cloud_pubsub-2.27.3-py2.py3-none-any.whl", hash = "sha256:6e294b063d6c6bf44d7b1ca99721ae6137930df3fdf7b91e44d280dd84b9410c"},
-    {file = "google_cloud_pubsub-2.27.3.tar.gz", hash = "sha256:daa03d16552c34240774307fc69ceebb991a94d70d0d6f208179e375f503f532"},
+    {file = "google_cloud_pubsub-2.28.0-py2.py3-none-any.whl", hash = "sha256:76b41a322b43bc845fb06ffe238758726324d957d0161bae3ff4b14339da144b"},
+    {file = "google_cloud_pubsub-2.28.0.tar.gz", hash = "sha256:904e894b4e15121521077ac85c9aa8f4e7b8517bc5fb409ddb2aac8df1a02b3c"},
 ]
 
 [package.dependencies]
@@ -1986,4 +1986,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "23c5c0cafda57f5464fc2b88c1da2777479535e6304e92c920046ba0c0e98a98"
+content-hash = "aa89e225f39e4615af6be7f0bf643d9d904f306049ff0ce3d499d8ef2be046dd"
