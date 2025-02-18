@@ -85,7 +85,10 @@ class CumploFundingRequest(BaseModel):
     @staticmethod
     def _identify_dicom_status(data: dict) -> tuple[bool | None, bool | None]:
         """Identify the DICOM status of the borrower and debtors."""
-        description = clean_text(data["solicitante"]["descripcion"])
+        debtor_description = clean_text(data["vitrina_descripcion_empresa_deudora"])
+        borrower_description = clean_text(data["vitrina_descripcion_empresa_solicitante"])
+        description = f"{borrower_description} {debtor_description}"
+
         debtor_dicom, borrower_dicom = None, None
 
         if DicomMarker.BOTH_TRUE in description:
