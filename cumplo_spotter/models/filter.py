@@ -20,7 +20,8 @@ class Filter(ABC):
     def apply(self, funding_request: FundingRequest) -> bool:
         """Apply the filter to the funding request."""
         if not (result := self._apply(funding_request)):
-            logger.info(f"Funding request {funding_request.id} filtered out by {self.__class__.__name__}")
+            filter_name = f"'{self.configuration.name}' {self.__class__.__name__}"
+            logger.info(f"Funding request {funding_request.id} filtered out by {filter_name}")
         return result
 
 
@@ -133,9 +134,11 @@ class PortfolioFilter(Filter):
                 )
 
                 if filter_.minimum is not None and value < filter_.minimum:
+                    logger.info(f"Funding request {funding_request.id} filtered out by {filter_}")
                     return False
 
                 if filter_.maximum is not None and value > filter_.maximum:
+                    logger.info(f"Funding request {funding_request.id} filtered out by {filter_}")
                     return False
 
         return True
