@@ -22,6 +22,7 @@ class CumploCreditType(StrEnum):
     CAPITAL_TRABAJO = "CAPITAL_TRABAJO"
     ANTICIPO_FACTURA = "ANTICIPO_FACTURA"
     CREDITO_CONTRATO = "CREDITO_CONTRATO"
+    CREDITO_ORDEN_COMPRA = "CREDITO_ORDEN_COMPRA"
     SHORT_TERM_CAPITAL = "short_term_capital"
     IRRIGATION = "irrigation"
     BALLOON = "balloon"
@@ -38,6 +39,7 @@ CREDIT_TYPE_TRANSLATIONS = {
     CumploCreditType.CAPITAL_TRABAJO: CreditType.WORKING_CAPITAL,
     CumploCreditType.CREDITO_CONTRATO: CreditType.WORKING_CAPITAL,
     CumploCreditType.SHORT_TERM_CAPITAL: CreditType.WORKING_CAPITAL,
+    CumploCreditType.CREDITO_ORDEN_COMPRA: CreditType.WORKING_CAPITAL,
     CumploCreditType.INVOICE: CreditType.FACTORING,
     CumploCreditType.FACTURA_FUTURA: CreditType.FACTORING,
     CumploCreditType.ANTICIPO_FACTURA: CreditType.FACTORING,
