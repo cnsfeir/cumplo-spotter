@@ -7,6 +7,7 @@ from cumplo_spotter.models.filter import (
     CreditTypeFilter,
     DicomFilter,
     MaximumDurationFilter,
+    MinimumAmountFilter,
     MinimumDurationFilter,
     MinimumInvestmentFilter,
     MinimumIRRFilter,
@@ -64,6 +65,7 @@ def filter_(funding_requests: list[FundingRequest], configuration: FilterConfigu
 
     """
     filters = [
+        MinimumAmountFilter(configuration),
         CreditTypeFilter(configuration),
         MinimumInvestmentFilter(configuration),
         MinimumScoreFilter(configuration),
