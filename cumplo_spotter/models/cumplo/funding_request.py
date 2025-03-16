@@ -45,7 +45,7 @@ CREDIT_TYPE_TRANSLATIONS = {
     CumploCreditType.ANTICIPO_FACTURA: CreditType.FACTORING,
     CumploCreditType.ANTICIPO_RIEGO: CreditType.TREASURY_SUBSIDY,
     CumploCreditType.IRRIGATION: CreditType.TREASURY_SUBSIDY,
-    CumploCreditType.ANTICIPO_SERVIU: CreditType.HUP_SUBSIDY,
+    CumploCreditType.ANTICIPO_SERVIU: CreditType.HUD_SUBSIDY,
 }
 
 
