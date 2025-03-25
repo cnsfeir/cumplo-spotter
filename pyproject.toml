@@ -19,7 +19,7 @@ retry = "^0.9.2"
 lxml = "^4.9.2"
 google-cloud-logging = "^3.5.0"
 httpx = "^0.26.0"
-cumplo-common = { version = "^1.7.15", source = "cumplo-pypi" }
+cumplo-common = { version = "^1.9.1", source = "cumplo-pypi" }
 cachetools = "^5.5.0"
 
 [tool.poetry.dev-dependencies]
