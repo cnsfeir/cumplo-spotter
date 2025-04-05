@@ -1,4 +1,3 @@
-import re
 from http import HTTPMethod
 from logging import getLogger
 
@@ -7,7 +6,7 @@ from bs4 import BeautifulSoup
 from cumplo_common.utils.text import clean_text
 
 from cumplo_spotter.integrations.cumplo.exceptions import NoResultFoundError
-from cumplo_spotter.utils.constants import AVERAGE_DAYS_DELINQUENT_SELECTOR, CREDIT_DETAIL_TITLE, CUMPLO_HTML_API
+from cumplo_spotter.utils.constants import CREDIT_DETAIL_TITLE, CUMPLO_HTML_API
 
 logger = getLogger(__name__)
 
@@ -56,24 +55,3 @@ class CumploHTMLAPI:
             raise NoResultFoundError
 
         return soup
-
-    @classmethod
-    def get_average_days_delinquent(cls, id_funding_request: int) -> int | None:
-        """
-        Obtain the average days delinquent from a given funding request.
-
-        Args:
-            id_funding_request (int): The ID of the funding request
-
-        Returns:
-            int | None: The average days delinquent or None if the information is not available
-
-        """
-        try:
-            soup = cls.get_funding_requests(id_funding_request)
-        except NoResultFoundError:
-            return None
-
-        element = soup.select_one(AVERAGE_DAYS_DELINQUENT_SELECTOR)
-        value = re.findall(r"\d+", element.get_text())
-        return int(value[0]) if value else 0
