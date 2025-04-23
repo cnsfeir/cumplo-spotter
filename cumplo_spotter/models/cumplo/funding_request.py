@@ -70,7 +70,7 @@ class CumploFundingRequest(BaseModel):
 
     @field_validator("id", "amount", "raised_amount", "maximum_investment", "investors", mode="before")
     @classmethod
-    def parse_integer_fields(cls, value: Any) -> int:
+    def parse_integer_fields(cls, value: Any) -> int | None:
         """Ensure integer fields are parsed as integers."""
         return None if value is None else int(value)
 
