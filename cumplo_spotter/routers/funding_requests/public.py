@@ -4,7 +4,7 @@ from typing import cast
 
 from cumplo_common.integrations.cloud_pubsub import CloudPubSub
 from cumplo_common.models import FundingRequest, PrivateEvent, User
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from fastapi.requests import Request
 
 from cumplo_spotter.business import funding_requests
@@ -28,6 +28,23 @@ def _get_promising_funding_requests(request: Request) -> list[dict]:
     user = cast(User, request.state.user)
     promising_funding_requests = funding_requests.get_promising(user)
     return [request.json() for request in promising_funding_requests]
+
+
+@router.get("/{id_funding_request}", status_code=HTTPStatus.OK)
+def _get_funding_request(id_funding_request: int) -> dict:
+    """
+    Get a funding request by its ID.
+
+    Raises:
+        HTTPException: If the funding request is not found.
+
+    """
+    available_funding_requests = funding_requests.get_available()
+    for funding_request in available_funding_requests:
+        if funding_request.id == id_funding_request:
+            return funding_request.json()
+
+    raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail=f"Funding request {id_funding_request} not found")
 
 
 @router.post(path="/filter", status_code=HTTPStatus.NO_CONTENT)
