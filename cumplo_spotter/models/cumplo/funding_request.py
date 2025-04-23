@@ -68,6 +68,12 @@ class CumploFundingRequest(BaseModel):
     debtors: list[Debtor] = Field(default_factory=list, alias="pagadores")
     borrower: Borrower = Field(..., alias="solicitante")
 
+    @field_validator("id", "amount", "raised_amount", "maximum_investment", "investors", mode="before")
+    @classmethod
+    def parse_integer_fields(cls, value: Any) -> int:
+        """Ensure integer fields are parsed as integers."""
+        return None if value is None else int(value)
+
     @model_validator(mode="before")
     @classmethod
     def _preprocess_data(cls, data: dict) -> dict:
