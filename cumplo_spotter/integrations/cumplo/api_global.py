@@ -108,7 +108,10 @@ class CumploGlobalAPI:
                 "fecha_vencimiento": due_date,
             },
         }
-        endpoint = CUMPLO_GLOBAL_API_SIMULATION.format(credit_type=funding_request.credit_type.value)
+        endpoint = CUMPLO_GLOBAL_API_SIMULATION.format(
+            credit_type=funding_request.credit_type.value,
+            currency=funding_request.currency.value,
+        )
         response = cls._request(HTTPMethod.POST, endpoint, payload=payload)
         return response.json()["data"]["attributes"]
 
