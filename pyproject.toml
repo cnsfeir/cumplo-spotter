@@ -22,7 +22,7 @@ httpx = "^0.26.0"
 cumplo-common = { version = "^1.12.7", source = "cumplo-pypi" }
 cachetools = "^5.5.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 mypy = "^1.13.0"
 ruff = "^0.7.1"
 docformatter = "^1.7.5"

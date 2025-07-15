@@ -17,7 +17,7 @@ WORKDIR /app
 FROM base AS builder
 
 # Set Poetry and pip environment variables
-ENV POETRY_VERSION=1.8.2 \
+ENV POETRY_VERSION=2.1.2 \
     POETRY_NO_INTERACTION=1 \
     POETRY_VIRTUALENVS_CREATE=false \
     PIP_DISABLE_PIP_VERSION_CHECK=on \

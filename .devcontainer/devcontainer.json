@@ -9,7 +9,7 @@
     "dockerfile": "Dockerfile",
     "args": {
       "WORKSPACE_FOLDER": "${localWorkspaceFolderBasename}",
-      "POETRY_VERSION": "1.8.2"
+      "POETRY_VERSION": "2.1.2"
     }
   },
   "customizations": {
